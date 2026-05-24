@@ -17,7 +17,7 @@
     <!-- Google Fonts: Jaro (Titles/Logo) & Bitcount Single (Body/Menu) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS and Vite asset compilation -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,11 +26,17 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
-        body, .font-sans, .font-mono {
+        /* Default body text → Bitcount Single (subtitles, nav, labels, buttons) */
+        body, .font-sans, .font-mono, button, a, span, label, input, textarea, li, td, th {
             font-family: 'Bitcount Single', monospace !important;
         }
+        /* Display headings → Jaro */
         h1, h2, h3, h4, h5, h6, .font-display {
             font-family: 'Jaro', sans-serif !important;
+        }
+        /* Content/description paragraphs → Poppins */
+        .font-poppins, .font-poppins p, .font-poppins * {
+            font-family: 'Poppins', sans-serif !important;
         }
     </style>
 </head>

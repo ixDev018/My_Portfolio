@@ -40,23 +40,177 @@
 
         <!-- Organic Deep Purple Wave SVG at bottom -->
         <div class="w-full leading-none z-10 -mb-[1px]">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_-3px_0_rgba(0,0,0,1)]">
-                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z" fill="#512b81" stroke="black" stroke-width="4"></path>
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z" fill="#512b81"></path>
             </svg>
         </div>
     </section>
 
-    <!-- SELF INTRO SECTION (Seamlessly transitions from the deep purple wave) -->
-    <section id="self-intro" class="py-24 bg-[#512b81] text-white border-b-4 border-black relative">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="bg-white text-black border-4 border-black p-8 sm:p-12 rounded-3xl shadow-[6px_6px_0px_0px_rgba(254,240,138,1)]">
-                <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Self Intro</h2>
-                <h3 class="text-2xl sm:text-4xl font-black tracking-tight leading-none mb-6">Designing clean, premium digital platforms</h3>
-                <div class="text-slate-700 text-sm sm:text-base leading-relaxed space-y-6 font-sans">
-                    <p>{!! nl2br(e($profile->bio_long)) !!}</p>
+    <!-- SELF INTRO SECTION -->
+    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col" style="min-height: clamp(500px, 90vh, 960px);" x-data="{
+        slide: 0,
+        total: 3,
+        prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
+        next() { this.slide = (this.slide + 1) % this.total; }
+    }">
+
+        <!-- Section Header -->
+        <div class="text-center pt-5 pb-4 px-6">
+            <h2 class="text-xl font-display uppercase tracking-[0.3em] text-white">Introduction</h2>
+        </div>
+        <hr class="border-white/25 mx-0">
+
+        <!-- Slides Wrapper -->
+        <div class="flex-1 max-w-5xl w-full mx-auto px-10 flex flex-col justify-center">
+
+            <!-- Slides Container: fixed height, slides layered absolutely for seamless crossfade -->
+            <div class="relative w-full" style="height: clamp(320px, 60vh, 560px);">
+
+                <!-- SLIDE 1: Who I am -->
+                <div x-show="slide === 0"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="absolute inset-0 grid gap-12 items-center"
+                     style="grid-template-columns: 3fr 2fr;">
+
+                    <!-- Left: Text -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">I am</span>
+                            <div class="flex-1 border-t border-dotted border-white/40"></div>
+                        </div>
+                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                            Brix Jorie F. Cura
+                        </h3>
+                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
+                            Product Designer &nbsp;•&nbsp; Full-Stack Creative &nbsp;•&nbsp; System Developer
+                        </p>
+                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
+                            <p>A multidisciplinary creative blending design, storytelling, and code to deliver intentional, high-impact digital solutions. As a solution-based problem solver with skills spanning visual arts and front-end development.</p>
+                            <p>I don't just build interfaces—I design with strict purpose and execution, turning complex challenges into meaningful, user-centric experiences.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Photo -->
+                    <div class="flex items-center justify-end h-full">
+                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
+                            <img src="{{ asset('images/intro/profile.png') }}"
+                                 alt="Brix Jorie Cura"
+                                 class="w-full h-full object-cover object-top"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place photo at<br><strong>public/images/intro/profile.png</strong></div>'">
+                        </div>
+                    </div>
                 </div>
+
+                <!-- SLIDE 2: Placeholder -->
+                <div x-show="slide === 1"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="absolute inset-0 grid gap-12 items-center"
+                     style="grid-template-columns: 3fr 2fr;">
+
+                    <!-- Left: Text -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 2</span>
+                            <div class="flex-1 border-t border-dotted border-white/40"></div>
+                        </div>
+                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                            Your Story Here
+                        </h3>
+                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
+                            Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
+                        </p>
+                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
+                            <p>This is the second slide of your story. Replace this placeholder with a chapter about your journey, your skills, or a key milestone that shaped who you are today.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Photo -->
+                    <div class="flex items-center justify-end h-full">
+                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
+                            <img src="{{ asset('images/intro/slide2.jpg') }}" alt="Slide 2"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide2.jpg</strong></div>'">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3: Placeholder -->
+                <div x-show="slide === 2"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="absolute inset-0 grid gap-12 items-center"
+                     style="grid-template-columns: 3fr 2fr;">
+
+                    <!-- Left: Text -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 3</span>
+                            <div class="flex-1 border-t border-dotted border-white/40"></div>
+                        </div>
+                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                            Your Story Here
+                        </h3>
+                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
+                            Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
+                        </p>
+                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
+                            <p>This is the third slide of your story. Fill it with what makes you unique—your values, your vision, or a powerful moment that defines your craft and drives your work.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Photo -->
+                    <div class="flex items-center justify-end h-full">
+                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
+                            <img src="{{ asset('images/intro/slide3.jpg') }}" alt="Slide 3"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide3.jpg</strong></div>'">
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
+
+        <!-- Navigation: divider + dots + arrows -->
+        <hr class="border-white/25 mx-0">
+        <div class="py-5 flex items-center justify-center gap-6">
+
+            <!-- Prev Arrow -->
+            <button @click="prev()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+
+            <!-- Dots -->
+            <div class="flex gap-2.5 items-center">
+                <template x-for="i in total" :key="i">
+                    <button @click="slide = i - 1"
+                            :class="slide === i - 1 ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
+                            class="w-2.5 h-2.5 rounded-full transition-all duration-300">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Next Arrow -->
+            <button @click="next()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+        </div>
+
     </section>
 
     <!-- SKILLS SECTION -->

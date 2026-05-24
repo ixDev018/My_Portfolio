@@ -82,26 +82,19 @@ class DatabaseSeeder extends Seeder
             'featured' => false,
         ]);
 
-        // Seed Technical Skills
+        // Seed Technical Skills matching the Figma layout
         $skills = [
-            // Frontend
-            ['name' => 'HTML5 / CSS3', 'category' => 'Frontend', 'proficiency' => 95],
-            ['name' => 'Tailwind CSS', 'category' => 'Frontend', 'proficiency' => 98],
-            ['name' => 'Javascript (ES6+)', 'category' => 'Frontend', 'proficiency' => 90],
-            ['name' => 'Vue.js / React', 'category' => 'Frontend', 'proficiency' => 85],
-            ['name' => 'Alpine.js', 'category' => 'Frontend', 'proficiency' => 88],
+            // Core
+            ['name' => 'Communication Skills', 'category' => 'CORE', 'proficiency' => 100],
+            ['name' => 'Leadership Skills', 'category' => 'CORE', 'proficiency' => 100],
+            ['name' => 'Dedicated Learning', 'category' => 'CORE', 'proficiency' => 100],
+            ['name' => 'Strategic Thinking', 'category' => 'CORE', 'proficiency' => 100],
 
-            // Backend
-            ['name' => 'PHP (8.x)', 'category' => 'Backend', 'proficiency' => 95],
-            ['name' => 'Laravel Framework', 'category' => 'Backend', 'proficiency' => 98],
-            ['name' => 'MySQL / SQLite', 'category' => 'Backend', 'proficiency' => 88],
-            ['name' => 'RESTful APIs', 'category' => 'Backend', 'proficiency' => 92],
-
-            // Tools & Others
-            ['name' => 'Git / GitHub', 'category' => 'Tools', 'proficiency' => 92],
-            ['name' => 'Vite / NPM', 'category' => 'Tools', 'proficiency' => 85],
-            ['name' => 'Docker', 'category' => 'Tools', 'proficiency' => 75],
-            ['name' => 'Figma (UI/UX)', 'category' => 'Tools', 'proficiency' => 80],
+            // External
+            ['name' => 'Product Design', 'category' => 'EXTERNAL', 'proficiency' => 100],
+            ['name' => 'Product Design', 'category' => 'EXTERNAL', 'proficiency' => 100],
+            ['name' => 'Product Design', 'category' => 'EXTERNAL', 'proficiency' => 100],
+            ['name' => 'Product Design', 'category' => 'EXTERNAL', 'proficiency' => 100],
         ];
 
         foreach ($skills as $skill) {

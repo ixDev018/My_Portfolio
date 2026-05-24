@@ -214,31 +214,73 @@
     </section>
 
     <!-- SKILLS SECTION -->
-    <section id="skills" class="py-24 bg-[#FAF7E6] text-black border-b-4 border-black">
-        <div class="max-w-7xl mx-auto px-6">
+    <section id="skills" class="w-full bg-[#512b81] text-black pt-16">
+        
+        <div class="w-full flex flex-col border-y border-black relative z-10">
             
-            <div class="text-center mb-16">
-                <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Expertise</h2>
-                <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Technical Skillset</h3>
+            @php
+                $categoryColors = [
+                    'CORE' => 'bg-[#d0f69a]',
+                    'EXTERNAL' => 'bg-[#faf597]'
+                ];
+            @endphp
+
+            <!-- Header -->
+            <div class="w-full bg-[#d0f69a] py-3 text-center border-b border-black">
+                <h2 class="font-display text-2xl uppercase tracking-[0.1em] text-[#512b81]">Skills</h2>
             </div>
 
-            <!-- Skills Grouped list -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                @foreach($skillsByCategory as $category => $skills)
-                    <div class="bg-white border-4 border-black p-6 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <h4 class="text-xs font-bold font-mono text-slate-500 uppercase tracking-widest mb-6 border-b-2 border-black pb-2">
+            <!-- Loop Categories -->
+            @foreach($skillsByCategory as $category => $skills)
+                
+                @if($category === 'EXTERNAL')
+                    <!-- Yellow Separator Row before External -->
+                    <div class="w-full h-8 md:h-12 bg-[#faf597] border-b border-black"></div>
+                @endif
+
+                <div class="{{ $categoryColors[$category] ?? 'bg-[#d0f69a]' }} w-full flex flex-col md:grid md:grid-cols-[3.5rem_1fr_1fr_1fr_1fr_3.5rem] border-b border-black">
+                    
+                    <!-- Left Sidebar (Category Name) -->
+                    <div class="flex items-center justify-center border-b md:border-b-0 md:border-r border-black py-4 md:py-8">
+                        <span class="font-mono font-bold tracking-[0.3em] uppercase text-slate-800 md:-rotate-90 whitespace-nowrap text-xs">
                             {{ $category }}
-                        </h4>
-                        <div class="space-y-4">
-                            @foreach($skills as $skill)
-                                <x-skill-badge :skill="$skill" />
-                            @endforeach
-                        </div>
+                        </span>
                     </div>
-                @endforeach
-            </div>
 
+                    <!-- Skills Blocks (up to 4) -->
+                    @foreach($skills->take(4) as $index => $skill)
+                        <div class="p-6 border-b md:border-b-0 md:border-r border-black flex flex-col justify-between min-h-[160px] lg:min-h-[220px] transition-all duration-300 hover:bg-gradient-to-br hover:from-white/90 hover:via-white/40 hover:to-transparent cursor-default group">
+                            <!-- Number Circle -->
+                            <div class="w-7 h-7 rounded-full border border-black flex items-center justify-center text-[11px] font-sans text-black">
+                                {{ $index + 1 }}
+                            </div>
+
+                            <!-- Skill Name -->
+                            <h3 class="font-poppins font-black text-sm lg:text-base uppercase text-black leading-snug mt-8 group-hover:scale-[1.02] transition-transform origin-left">
+                                {{ $skill->name }}
+                            </h3>
+                        </div>
+                    @endforeach
+
+                    <!-- Fill remaining columns if less than 4 skills -->
+                    @for($i = $skills->count(); $i < 4; $i++)
+                        <div class="p-6 border-b md:border-b-0 md:border-r border-black hidden md:block"></div>
+                    @endfor
+
+                    <!-- Right Empty Sidebar -->
+                    <div class="hidden md:block"></div>
+                    
+                </div>
+            @endforeach
         </div>
+
+        <!-- Yellow Wave Spacer connecting to the white section below -->
+        <div class="w-full bg-[#FAF7E6] leading-none -mt-[1px]">
+            <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
+                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#faf597"></path>
+            </svg>
+        </div>
+
     </section>
 
     <!-- WORKS AND OUTPUTS SECTION -->

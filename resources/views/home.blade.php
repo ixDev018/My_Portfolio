@@ -961,7 +961,7 @@
 
                         <p class="text-gray-600 font-sans leading-relaxed text-[15px]" x-text="selectedItem.description"></p>
                         
-                        <div class="mt-8 text-left">
+            <div class="mt-8 text-left">
                             <span class="font-semibold text-sm bg-gray-100 text-black px-5 py-2 rounded-full font-sans" x-text="'Awarded: ' + selectedItem.year"></span>
                         </div>
                     </div>
@@ -979,35 +979,97 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="py-24 bg-[#FAF7E6] text-black border-b-4 border-black">
-        <div class="max-w-4xl mx-auto px-6">
+    <section id="experience" class="bg-[#FAF7E6] text-black relative pt-0 pb-24">
+        
+        <!-- Wavy Divider from Achievements to Work Experience -->
+        <!-- Translating slightly up and wider to prevent any sub-pixel rendering lines -->
+        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-[-1px] right-[-1px] z-0 transform translate-y-[-1px]">
+            <svg class="relative block w-[calc(100%+2px)] h-[35px] sm:h-[55px] md:h-[75px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                <path fill="#ffffff" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,133.3C1120,117,1280,107,1360,101.3L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
+            </svg>
+        </div>
+        
+        <div class="max-w-[1100px] mx-auto px-6 pt-24 relative z-10">
             
-            <div class="text-center mb-16">
-                <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Timeline</h2>
-                <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Work Experience</h3>
+           
+            
+            <!-- Section Header -->
+            <div class="text-center mb-20">
+                <h3 class="text-3xl sm:text-[2.5rem] font-bold tracking-tight text-black font-display uppercase">Work Experience</h3>
             </div>
 
-            <!-- Vertical Timeline Cards -->
-            <div class="relative border-l-4 border-black pl-8 ml-4 space-y-12">
-                @forelse($experiences as $exp)
-                    <div class="relative">
-                        <!-- Connecting bubble node -->
-                        <div class="absolute -left-[42px] top-1.5 w-6 h-6 rounded-full bg-yellow-300 border-4 border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]"></div>
-                        
-                        <div class="bg-white border-4 border-black p-6 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-                                <div>
-                                    <h4 class="text-lg font-extrabold text-black leading-tight">{{ $exp->role }}</h4>
-                                    <p class="text-xs font-bold text-slate-500 font-mono mt-0.5">{{ $exp->company }}</p>
-                                </div>
-                                <span class="px-3 py-1 bg-yellow-100 border border-black font-mono text-[10px] font-bold rounded-lg">{{ $exp->duration }}</span>
-                            </div>
-                            <p class="text-slate-600 text-sm leading-relaxed font-sans">{!! nl2br(e($exp->description)) !!}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 items-stretch">
+                
+                <!-- Left Side: Image Slider -->
+                <div class="w-full" x-data="{ currentSlide: 0, slides: ['https://picsum.photos/id/237/1000/600', 'https://picsum.photos/id/1015/1000/600', 'https://picsum.photos/id/1025/1000/600'] }">
+                    <div class="relative w-full aspect-video bg-[#e5e7eb] rounded-xl overflow-hidden group shadow-sm">
+                        <template x-for="(slide, index) in slides" :key="index">
+                            <img :src="slide" 
+                                 class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
+                                 :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
+                                 alt="Work Experience Slide">
+                        </template>
+
+                        <!-- Controls -->
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                            <button @click="currentSlide = currentSlide === 0 ? slides.length - 1 : currentSlide - 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <button @click="currentSlide = currentSlide === slides.length - 1 ? 0 : currentSlide + 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Indicators -->
+                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                            <template x-for="(slide, index) in slides" :key="index">
+                                <button @click="currentSlide = index"
+                                        class="h-1.5 rounded-full transition-all duration-300"
+                                        :class="currentSlide === index ? 'w-6 bg-white shadow' : 'w-2 bg-white/50 hover:bg-white/80'"></button>
+                            </template>
                         </div>
                     </div>
-                @empty
-                    <p class="text-center text-slate-500 text-sm font-mono">No work experience loaded.</p>
-                @endforelse
+                </div>
+
+                <!-- Right Side: Timeline -->
+                <div class="flex flex-col h-full py-4 pl-[56px] relative">
+                    
+                    <!-- Standalone Connector Group (Freely modifiable position) -->
+                    <!-- Adjust 'top' and 'bottom' classes here to tweak the entire track's alignment relative to the text -->
+                    <div class="absolute left-[24px] top-[24px] bottom-[62px] w-[24px] flex flex-col items-center z-10">
+                        
+                        <!-- Top Solid Dot -->
+                        <div class="w-[16px] h-[16px] bg-black rounded-full shrink-0"></div>
+                        
+                        <!-- Standalone SVG Line -->
+                        <svg class="flex-1 w-[2px] my-2" preserveAspectRatio="none">
+                            <line x1="1" y1="0" x2="1" y2="100%" stroke="black" stroke-width="2" />
+                        </svg>
+                        
+                        <!-- Bottom Dashed Circle -->
+                        <div class="w-[20px] h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#FAF7E6] shrink-0"></div>
+                        
+                    </div>
+                    
+                    <!-- Top Content -->
+                    <div class="mb-auto">
+                        <h4 class="text-[20px] font-bold font-sans tracking-wide mb-4 mt-0.5 text-black">2022 - 2025</h4>
+                        <ul class="list-disc ml-5 space-y-2.5 text-[15px] font-sans text-black/90">
+                            <li>School Organization Multimedia</li>
+                            <li>Freelancer</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Spacer to force a large gap (breathing room) -->
+                    <div class="flex-1 min-h-[300px]"></div>
+                    
+                    <!-- Bottom Content -->
+                    <div class="mt-auto">
+                        <p class="text-[16px] font-sans text-black/90 mb-1.5 tracking-wide pt-1">The Journey is still on it's way</p>
+                        <a href="#contact" class="text-[28px] font-extrabold font-sans text-black hover:opacity-70 transition-opacity block leading-[1.2] tracking-tight pb-1">Be a part of my experience</a>
+                    </div>
+
+                </div>
             </div>
 
         </div>

@@ -53,7 +53,8 @@ class PortfolioController extends Controller
     public function showProject($slug)
     {
         $project = Project::where('slug', $slug)->firstOrFail();
-        return view('project-show', compact('project'));
+        $profile = Profile::first();
+        return view('project-show', compact('project', 'profile'));
     }
 
     /**

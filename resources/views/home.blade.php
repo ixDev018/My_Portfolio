@@ -234,8 +234,46 @@
             @foreach($skillsByCategory as $category => $skills)
                 
                 @if($category === 'EXTERNAL')
-                    <!-- Yellow Separator Row before External -->
-                    <div class="w-full h-8 md:h-12 bg-[#faf597] border-b border-black"></div>
+                    <!-- Programming Languages Marquee before External -->
+                    <div class="w-full bg-[#4f4f4f] text-white flex border-b border-black overflow-hidden h-[72px]">
+                        <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
+                            Programming<br>Languages
+                        </div>
+                        <div class="flex-1 flex overflow-hidden relative items-center">
+                            <!-- Set 1 -->
+                            <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
+                                
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
+                            </div>
+                            <!-- Set 2 -->
+                            <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
+                                
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
+                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
+                            </div>
+                        </div>
+                    </div>
                 @endif
 
                 <div class="{{ $categoryColors[$category] ?? 'bg-[#d0f69a]' }} w-full flex flex-col md:grid md:grid-cols-[3.5rem_1fr_1fr_1fr_1fr_3.5rem] border-b border-black">
@@ -249,7 +287,7 @@
 
                     <!-- Skills Blocks (up to 4) -->
                     @foreach($skills->take(4) as $index => $skill)
-                        <div class="p-6 border-b md:border-b-0 md:border-r border-black flex flex-col justify-between min-h-[160px] lg:min-h-[220px] transition-all duration-300 hover:bg-gradient-to-br hover:from-white/90 hover:via-white/40 hover:to-transparent cursor-default group">
+                        <div class="p-6 border-b md:border-b-0 md:border-r border-black flex flex-col justify-between min-h-[180px] lg:min-h-[260px] transition-all duration-300 hover:bg-gradient-to-br hover:from-white/90 hover:via-white/40 hover:to-transparent cursor-default group">
                             <!-- Number Circle -->
                             <div class="w-7 h-7 rounded-full border border-black flex items-center justify-center text-[11px] font-sans text-black">
                                 {{ $index + 1 }}
@@ -272,78 +310,446 @@
                     
                 </div>
             @endforeach
+            
+            <!-- Editing Tools Marquee after External -->
+            <div class="w-full bg-[#4f4f4f] text-white flex border-b border-black overflow-hidden h-[72px]">
+                <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
+                    Editing Tools
+                </div>
+                <div class="flex-1 flex overflow-hidden relative items-center">
+                    <!-- Set 1 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                    </div>
+                    <!-- Set 2 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- General Tools Marquee -->
+            <div class="w-full bg-[#4f4f4f] text-white flex overflow-hidden h-[50px]">
+                <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-xs tracking-widest text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
+                    General Tools
+                </div>
+                <div class="flex-1 flex overflow-hidden relative items-center">
+                    <!-- Set 1 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Gi</div> Git</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fi</div> Figma</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Do</div> Docker</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Vs</div> VScode</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ji</div> Jira</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">No</div> Notion</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fj</div> FigJam</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Wd</div> MS Word</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ex</div> MS Excel</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Pp</div> MS PowerPoint</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ca</div> Canva</span>
+                    </div>
+                    <!-- Set 2 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Gi</div> Git</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fi</div> Figma</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Do</div> Docker</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Vs</div> VScode</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ji</div> Jira</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">No</div> Notion</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fj</div> FigJam</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Wd</div> MS Word</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ex</div> MS Excel</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Pp</div> MS PowerPoint</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ca</div> Canva</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Yellow Wave Spacer connecting to the white section below -->
-        <div class="w-full bg-[#FAF7E6] leading-none -mt-[1px]">
+        <!-- Wave Spacer connecting to the white section below -->
+        <div class="w-full bg-[#FAF7E6] leading-none">
             <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
-                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#faf597"></path>
+                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#4f4f4f"></path>
             </svg>
         </div>
 
     </section>
 
     <!-- WORKS AND OUTPUTS SECTION -->
-    <section id="projects" class="py-24 bg-[#FAF7E6] text-black border-b-4 border-black" x-data="{ activeFilter: 'All' }">
-        <div class="max-w-7xl mx-auto px-6">
-            
-            <!-- Header & Filter Grid -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
-                <div>
-                    <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Outputs</h2>
-                    <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Works & Projects</h3>
-                </div>
+    <section id="works" class="w-full bg-[#FAF7E6] text-black pt-16 pb-0 relative">
+        <div class="max-w-[1400px] mx-auto px-6 w-full">
 
-                <!-- Client Side Filter tabs using AlpineJS -->
-                <div class="flex flex-wrap gap-2 p-1.5 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    <button @click="activeFilter = 'All'" 
-                            :class="{ 'bg-yellow-300 font-extrabold': activeFilter === 'All', 'hover:bg-slate-50 text-slate-600': activeFilter !== 'All' }"
-                            class="px-4 py-1.5 border border-transparent rounded-lg text-xs font-mono uppercase tracking-wider transition-all duration-200">
-                        All
-                    </button>
-                    @foreach($skillsByCategory->keys() as $category)
-                        <button @click="activeFilter = '{{ $category }}'" 
-                                :class="{ 'bg-yellow-300 font-extrabold': activeFilter === '{{ $category }}', 'hover:bg-slate-50 text-slate-600': activeFilter !== '{{ $category }}' }"
-                                class="px-4 py-1.5 border border-transparent rounded-lg text-xs font-mono uppercase tracking-wider transition-all duration-200">
-                            {{ $category }}
-                        </button>
-                    @endforeach
-                </div>
-            </div>
+            <!-- Section Title -->
+            <h2 class="text-center font-display text-2xl uppercase tracking-widest text-black mb-2">Works & Outputs</h2>
+            <p class="text-center text-xs font-mono text-black/40 tracking-widest uppercase mb-14">A curated showcase of craft & execution</p>
 
-            <!-- Projects Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($projects as $project)
-                    @php
-                        $projectCategories = ['All'];
-                        $tagsLower = strtolower($project->tags);
-                        if (str_contains($tagsLower, 'laravel') || str_contains($tagsLower, 'php') || str_contains($tagsLower, 'api') || str_contains($tagsLower, 'sql')) {
-                            $projectCategories[] = 'Backend';
-                        }
-                        if (str_contains($tagsLower, 'tailwind') || str_contains($tagsLower, 'vue') || str_contains($tagsLower, 'javascript') || str_contains($tagsLower, 'html') || str_contains($tagsLower, 'alpine')) {
-                            $projectCategories[] = 'Frontend';
-                        }
-                        if (str_contains($tagsLower, 'git') || str_contains($tagsLower, 'figma') || str_contains($tagsLower, 'docker') || str_contains($tagsLower, 'ui/ux')) {
-                            $projectCategories[] = 'Tools';
-                        }
-                        if (count($projectCategories) === 1) {
-                            $projectCategories[] = 'Frontend';
-                        }
-                        
-                        $categoriesJson = json_encode($projectCategories);
-                    @endphp
-                    
-                    <div x-show="{{ $categoriesJson }}.includes(activeFilter)"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 scale-95"
-                         x-transition:enter-end="opacity-100 scale-100"
-                         class="h-full">
-                        <x-project-card :project="$project" />
+            {{-- ══════════════════════════════════════════════════
+                 PART 1 — PRODUCT & UI DESIGN
+                 Functional carousel wired to real $projects
+            ══════════════════════════════════════════════════ --}}
+            @php
+                // Filter specifically for UI/UX product projects
+                $uiProjects = $projects->where('category', 'ui')->values();
+
+                // Build a JS-safe JSON array from real DB projects
+                $carouselItems = $uiProjects->map(fn($p) => [
+                    'title'  => $p->title,
+                    'sub'    => $p->subtitle ?? $p->description,
+                    'label'  => $p->medium ?? 'Project',
+                    'url'    => route('portfolio.project.show', $p->slug),
+                ])->values()->toJson();
+            @endphp
+
+            <div class="mb-20" x-data="{
+                current: 0,
+                allItems: {{ $carouselItems }},
+                get total() { return this.allItems.length; },
+                prev() { this.current = (this.current - 1 + this.total) % this.total; },
+                next() { this.current = (this.current + 1) % this.total; },
+                get offset() {
+                    const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
+                    return this.current * (cardPx + 20);
+                }
+            }">
+
+                <!-- Sub-header row -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="font-display text-base tracking-widest uppercase text-black">Product &amp; UI Design</h3>
+                        <p class="text-xs font-mono text-black/40 mt-0.5">Interfaces built with purpose and precision</p>
                     </div>
-                @endforeach
+                    <!-- Project count pill -->
+                    <span class="font-mono text-[10px] text-black/40 uppercase tracking-widest">
+                        {{ $uiProjects->count() }} {{ Str::plural('project', $uiProjects->count()) }}
+                    </span>
+                </div>
+
+                <!-- Carousel Viewport -->
+                <div class="relative">
+
+                    <!-- Left gradient fade -->
+                    <div class="absolute left-0 top-0 bottom-0 w-16 md:w-28 pointer-events-none z-10"
+                         style="background: linear-gradient(to right, #FAF7E6 15%, transparent 100%);"
+                         x-show="current > 0"
+                         x-transition:enter="transition-opacity duration-200"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition-opacity duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0">
+                    </div>
+
+                    <!-- Right gradient fade -->
+                    <div class="absolute right-0 top-0 bottom-0 w-24 md:w-40 pointer-events-none z-10"
+                         style="background: linear-gradient(to left, #FAF7E6 15%, transparent 100%);"
+                         x-show="current < total - 1"
+                         x-transition:enter="transition-opacity duration-200"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition-opacity duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0">
+                    </div>
+
+                    <!-- Left Arrow -->
+                    <button @click="prev()"
+                            x-show="current > 0"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition-opacity duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 flex items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
+                            aria-label="Previous slide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+
+                    <!-- Right Arrow -->
+                    <button @click="next()"
+                            x-show="current < total - 1"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition-opacity duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 flex items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
+                            aria-label="Next slide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+
+                    <!-- Track wrapper -->
+                    <div style="overflow-x: clip; overflow-y: visible;">
+                        <div class="flex gap-5 py-3 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                             :style="'transform: translateX(-' + offset + 'px)'">
+
+                            {{-- Blade renders the real cards — each is a real <a> link --}}
+                            @forelse($uiProjects as $index => $proj)
+                                <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                                   class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-2xl relative group bg-white"
+                                   :class="{{ $index }} === current ? 'ring-2 ring-black/12' : 'opacity-75'"
+                                   style="transition: opacity 0.4s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);"
+                                   @mouseenter="$el.style.transform='translateY(-6px)'; $el.style.opacity='1';"
+                                   @mouseleave="$el.style.transform=''; $el.style.opacity=''">
+
+                                    <!-- Image / placeholder -->
+                                    <div class="absolute inset-0 rounded-2xl overflow-hidden border border-black/10
+                                                @if($proj->thumbnail_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
+                                                flex items-center justify-center">
+                                        @if($proj->thumbnail_path)
+                                            <img src="{{ asset('storage/' . $proj->thumbnail_path) }}"
+                                                 alt="{{ $proj->title }}"
+                                                 class="w-full h-full object-cover">
+                                        @else
+                                            <svg class="w-12 h-12 text-black/15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+
+                                    <!-- Hover overlay -->
+                                    <div class="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex flex-col justify-end p-5 pointer-events-none z-10">
+                                        <div class="translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-white font-mono text-[9px] uppercase tracking-widest mb-2">
+                                                {{ $proj->medium ?? 'Project' }}
+                                            </span>
+                                            <p class="text-white font-display text-lg uppercase leading-tight">{{ $proj->title }}</p>
+                                            <span class="mt-3 inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest">
+                                                View Case Study
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Medium badge -->
+                                    <div class="absolute top-3.5 left-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] uppercase tracking-widest text-black/60">
+                                        {{ $proj->medium ?? 'Project' }}
+                                    </div>
+
+                                    @if($proj->year)
+                                        <div class="absolute top-3.5 right-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] text-black/50">
+                                            {{ $proj->year }}
+                                        </div>
+                                    @endif
+                                </a>
+                            @empty
+                                <div class="flex-1 flex items-center justify-center min-h-[220px] text-black/30 font-mono text-xs uppercase tracking-widest">
+                                    No projects yet.
+                                </div>
+                            @endforelse
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dot indicators + progress bar -->
+                <div class="mt-5 flex items-center gap-5">
+                    <div class="flex items-center gap-2">
+                        @foreach($uiProjects as $index => $proj)
+                            <button @click="current = {{ $index }}"
+                                    :class="{{ $index }} === current ? 'w-5 bg-black' : 'w-2 bg-black/25 hover:bg-black/50'"
+                                    class="h-2 rounded-full transition-all duration-300 focus:outline-none"
+                                    aria-label="Go to slide {{ $index + 1 }}">
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="flex-1 max-w-[120px] h-[2px] bg-black/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-black rounded-full transition-all duration-500 ease-out"
+                             :style="'width: ' + ((current + 1) / Math.max(total, 1) * 100) + '%'">
+                        </div>
+                    </div>
+
+                    <!-- Counter -->
+                    <span class="font-mono text-[10px] text-black/35 tabular-nums">
+                        <span x-text="String(current + 1).padStart(2,'0')"></span>
+                        <span class="mx-1 opacity-50">/</span>
+                        <span>{{ str_pad($uiProjects->count(), 2, '0', STR_PAD_LEFT) }}</span>
+                    </span>
+                </div>
             </div>
 
         </div>
+
+        {{-- ══════════════════════════════════════════════════
+             PART 2 — VISUAL & MOTION DESIGN
+             Blade masonry wired to real $visualProjects
+             Native image height for true Pinterest aspect ratios
+        ══════════════════════════════════════════════════ --}}
+        @php
+            $visualProjects = $projects->where('category', 'visual')->values();
+
+            // Collect distinct mediums for filter pills
+            $mediums = $visualProjects->pluck('medium')->filter()->unique()->values();
+
+            // Map medium → play icon visibility (anything motion/video shows play)
+            $playTypes = ['Motion', 'Video', 'Video Edit', 'Animation', 'Motion Design'];
+        @endphp
+
+        <div class="w-full pt-6 pb-20"
+             x-data="{ activeFilter: 'all' }">
+
+            <div class="max-w-[1400px] mx-auto px-6 w-full">
+
+                <!-- Sub-header + filter pills -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <div>
+                        <h3 class="font-display text-base tracking-widest uppercase text-black">Visual &amp; Motion Design</h3>
+                        <p class="text-xs font-mono text-black/40 mt-0.5">Graphic arts, motion animations &amp; video edits</p>
+                    </div>
+
+                    <!-- Filter pills — driven by real mediums in DB -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button @click="activeFilter = 'all'"
+                                :class="activeFilter === 'all' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
+                                class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
+                            All
+                        </button>
+                        @foreach($mediums as $med)
+                            <button @click="activeFilter = '{{ $med }}'"
+                                    :class="activeFilter === '{{ $med }}' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
+                                    class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
+                                {{ $med }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Pinterest masonry — columns layout, natively sized by images --}}
+            <div class="max-w-[1400px] mx-auto px-6 relative">
+                
+                {{-- Cropped Height Wrapper (150vh allowance) --}}
+                <div class="relative overflow-hidden" style="max-height: 150vh;">
+                    
+                    <div class="columns-2 md:columns-3 lg:columns-4 gap-4">
+
+                        @forelse($visualProjects as $proj)
+                            {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
+                            <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                               x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
+                               x-transition:enter="transition-opacity duration-300"
+                               x-transition:enter-start="opacity-0"
+                               x-transition:enter-end="opacity-100"
+                               x-transition:leave="transition-opacity duration-200"
+                               x-transition:leave-start="opacity-100"
+                               x-transition:leave-end="opacity-0"
+                               class="block w-full break-inside-avoid mb-4 rounded-2xl overflow-hidden relative group bg-white border border-black/8 cursor-pointer"
+                               style="transition: transform 0.22s ease;"
+                               @mouseenter="$el.style.transform='scale(1.018)'"
+                               @mouseleave="$el.style.transform='scale(1)'">
+
+                                <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
+                                    @if($proj->thumbnail_path)
+                                        <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                             alt="{{ $project->title ?? $proj->title }}"
+                                             class="w-full h-auto object-cover" loading="lazy">
+                                    @else
+                                        {{-- Fallback placeholder if missing --}}
+                                        <div class="w-full" style="padding-top: 100%;">
+                                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                                                <svg class="w-8 h-8 text-black/12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Play button for motion/video types --}}
+                                    @if(in_array($proj->medium, $playTypes) || $proj->media_type === 'video')
+                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                            <div class="w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Hover overlay: gradient + title reveal --}}
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 pointer-events-none z-10">
+                                        <div class="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-250">
+                                            @if($proj->medium)
+                                                <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>
+                                            @endif
+                                            <p class="text-white font-sans text-sm font-semibold mt-1 leading-snug">{{ $proj->title }}</p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Type pill —always visible top-right --}}
+                                    @if($proj->medium)
+                                        <div class="absolute top-3 right-3 z-20">
+                                            <span class="px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[8px] uppercase tracking-wider text-black/55 shadow-sm">
+                                                {{ $proj->medium }}
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    {{-- Year badge top-left --}}
+                                    @if($proj->year)
+                                        <div class="absolute top-3 left-3 z-20">
+                                            <span class="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm font-mono text-[8px] text-white/80">
+                                                {{ $proj->year }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </a>
+                        @empty
+                            <div class="col-span-4 py-20 flex items-center justify-center text-black/30 font-mono text-xs uppercase tracking-widest">
+                                No creative outputs yet.
+                            </div>
+                        @endforelse
+
+                    </div>
+
+                    {{-- Gradient Overlay --}}
+                    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#FAF7E6] via-[#FAF7E6]/90 to-transparent pointer-events-none"></div>
+                </div>
+
+                {{-- See More Button --}}
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                    <button class="px-10 py-3 border-[1.5px] border-[#ff6b00] text-[#ff6b00] font-sans font-bold text-sm tracking-wider uppercase hover:bg-[#ff6b00] hover:text-white transition-colors duration-300 bg-[#FAF7E6] shadow-sm"
+                            style="font-family: 'Poppins', sans-serif;">
+                        See More
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
     </section>
 
     <!-- ACHIEVEMENTS SECTION (Switchable Tabs for Awards & Certificates) -->

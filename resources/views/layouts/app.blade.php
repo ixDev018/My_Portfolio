@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'Alex Morgan | Portfolio')</title>
+    <title>@yield('title', 'Brix Cura | Portfolio')</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="@yield('meta_description', 'Full-Stack Developer & UI/UX Specialist crafting ultra-premium digital solutions.')">
-    <meta name="author" content="Alex Morgan">
-    <meta property="og:title" content="@yield('title', 'Alex Morgan | Portfolio')">
+    <meta name="author" content="Brix Cura">
+    <meta property="og:title" content="@yield('title', 'Brix Cura | Portfolio')">
     <meta property="og:description" content="@yield('meta_description', 'Full-Stack Developer & UI/UX Specialist crafting ultra-premium digital solutions.')">
     <meta property="og:type" content="website">
     
@@ -37,6 +37,25 @@
         /* Content/description paragraphs → Poppins */
         .font-poppins, .font-poppins p, .font-poppins * {
             font-family: 'Poppins', sans-serif !important;
+        }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+            min-width: max-content;
+        }
+        
+        /* Hide scrollbar for carousel */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>

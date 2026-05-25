@@ -753,63 +753,226 @@
 
     </section>
 
-    <!-- ACHIEVEMENTS SECTION (Switchable Tabs for Awards & Certificates) -->
-    <section id="achievements" class="py-24 bg-[#FAF7E6] text-black border-b-4 border-black" x-data="{ activeTab: 'award' }">
-        <div class="max-w-4xl mx-auto px-6">
-            
-            <div class="text-center mb-12">
-                <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Honors</h2>
-                <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none mb-6">Achievements</h3>
+    <!-- Wave Spacer connecting to the white section below -->
+    <div class="w-full bg-white leading-none">
+        <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
+            <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#FAF7E6"></path>
+        </svg>
+    </div>
 
-                <!-- Switchable tabs with brutalist outlines -->
-                <div class="inline-flex p-1.5 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+    <!-- ACHIEVEMENTS SECTION (Modern Two-Column Layout) -->
+    <section id="achievements" class="py-24 bg-white text-black font-sans border-b border-gray-100" 
+             x-data="{ activeTab: 'all', selectedItem: null }">
+        <div class="max-w-[1400px] mx-auto px-6">
+            
+            <!-- Top Header & Pills -->
+            <div class="text-center mb-24">
+                <h3 class="text-[3rem] font-bold tracking-tight text-black mb-8 font-display uppercase">Achievements</h3>
+
+                <!-- Switchable tabs (Purple Accent) -->
+                <div class="inline-flex items-center gap-3">
+                    <button @click="activeTab = 'all'"
+                            :class="{ 'bg-[#5e17eb] text-white shadow-md border-[#5e17eb]': activeTab === 'all', 'bg-[#f4f5f7] text-gray-500 hover:bg-gray-200 border-gray-200': activeTab !== 'all' }"
+                            class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 border font-poppins">
+                        All
+                    </button>
                     <button @click="activeTab = 'award'"
-                            :class="{ 'bg-yellow-300 font-extrabold': activeTab === 'award', 'text-slate-500 hover:text-black': activeTab !== 'award' }"
-                            class="px-6 py-2 rounded-lg text-xs font-mono uppercase tracking-wider transition-all duration-200">
+                            :class="{ 'bg-[#5e17eb] text-white shadow-md border-[#5e17eb]': activeTab === 'award', 'bg-[#f4f5f7] text-gray-500 hover:bg-gray-200 border-gray-200': activeTab !== 'award' }"
+                            class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 border font-poppins">
                         Awards
                     </button>
                     <button @click="activeTab = 'certificate'"
-                            :class="{ 'bg-yellow-300 font-extrabold': activeTab === 'certificate', 'text-slate-500 hover:text-black': activeTab !== 'certificate' }"
-                            class="px-6 py-2 rounded-lg text-xs font-mono uppercase tracking-wider transition-all duration-200">
+                            :class="{ 'bg-[#5e17eb] text-white shadow-md border-[#5e17eb]': activeTab === 'certificate', 'bg-[#f4f5f7] text-gray-500 hover:bg-gray-200 border-gray-200': activeTab !== 'certificate' }"
+                            class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 border font-poppins">
                         Certificates
                     </button>
                 </div>
             </div>
 
-            <!-- Awards Listings -->
-            <div x-show="activeTab === 'award'" x-transition class="space-y-6">
-                @forelse($achievementsByType->get('award', []) as $award)
-                    <div class="bg-white border-4 border-black p-6 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                            <div>
-                                <h4 class="text-lg font-extrabold text-black leading-tight">{{ $award->title }}</h4>
-                                <p class="text-xs text-slate-500 font-mono mt-0.5">{{ $award->issuer }}</p>
-                            </div>
-                            <span class="px-3 py-1 bg-yellow-100 border border-black font-mono text-[10px] font-bold rounded-lg">{{ $award->year }}</span>
+            <!-- Two Column Layout -->
+            <div class="flex flex-col lg:flex-row items-center lg:items-start gap-16 lg:gap-24">
+                
+                <!-- Left Content -->
+                <div class="lg:w-[35%] text-left pt-4">
+                    <h2 class="text-[3.25rem] font-bold tracking-tight text-black mb-6 leading-[1.1] font-poppins">
+                        We've got <br> 
+                        <span class="font-poppins" x-text="activeTab === 'all' ? 'Great' : (activeTab === 'award' ? 'Amazing' : 'Official')"></span> <br>
+                        <span class="font-poppins" x-text="activeTab === 'all' ? 'Achievements' : (activeTab === 'award' ? 'Awards' : 'Certificates')"></span>
+                    </h2>
+                    <p class="text-gray-500 text-lg leading-relaxed mb-12 font-medium font-poppins">
+                        Being appreciated for the work we do means the world to us. It translates beautifully into our official ratings, continuous learning, and industry recognition.
+                    </p>
+                    
+                    <!-- Arrow Controls (Left Column) -->
+                    <div class="flex items-center gap-4"
+                         x-data="{ 
+                            scrollNext() { document.getElementById('achievement-carousel').scrollBy({ left: 340, behavior: 'smooth' }) },
+                            scrollPrev() { document.getElementById('achievement-carousel').scrollBy({ left: -340, behavior: 'smooth' }) }
+                         }">
+                        <button @click="scrollPrev()" class="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-black transition-colors group">
+                            <svg class="w-6 h-6 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        </button>
+                        <div class="w-12 h-[2px] bg-gray-200 relative">
+                            <div class="absolute left-0 top-0 h-full w-1/2 bg-[#5e17eb]"></div>
                         </div>
-                        <p class="text-slate-600 text-sm leading-relaxed font-sans">{{ $award->description }}</p>
+                        <button @click="scrollNext()" class="w-12 h-12 flex items-center justify-center text-[#5e17eb] hover:text-[#4a12ba] transition-colors group">
+                            <svg class="w-6 h-6 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </button>
                     </div>
-                @empty
-                    <p class="text-center text-slate-500 text-sm font-mono">No awards registered yet.</p>
-                @endforelse
+                </div>
+
+                <!-- Right Content (Carousel) -->
+                <div class="lg:w-[65%] w-full relative"
+                     x-data="{ 
+                        canScrollLeft: false, 
+                        canScrollRight: true,
+                        checkScroll() {
+                            const el = document.getElementById('achievement-carousel');
+                            if (!el) return;
+                            this.canScrollLeft = el.scrollLeft > 32;
+                            this.canScrollRight = el.scrollLeft < (el.scrollWidth - el.clientWidth - 32);
+                        }
+                     }"
+                     x-init="
+                        $nextTick(() => { checkScroll(); });
+                        document.getElementById('achievement-carousel').addEventListener('scroll', () => checkScroll());
+                        $watch('activeTab', () => { setTimeout(() => checkScroll(), 400); });
+                     "
+                     @resize.window="checkScroll()">
+                     
+                    <!-- Left Gradient Fade -->
+                    <div x-show="canScrollLeft" 
+                         x-transition.opacity.duration.300ms
+                         class="absolute -left-4 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-30 pointer-events-none" style="display: none;"></div>
+
+                    <!-- Right Gradient Fade -->
+                    <div x-show="canScrollRight"
+                         x-transition.opacity.duration.300ms
+                         class="absolute -right-4 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-30 pointer-events-none"></div>
+
+                    <!-- Carousel Track -->
+                    <!-- We use negative margins and padding to allow shadows to clip nicely without cutting off -->
+                    <div id="achievement-carousel" class="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-16 pt-8 px-4 -mx-4 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+                        
+                        <!-- Mixed Achievements Loop -->
+                        @forelse($achievementsByType->flatten(1)->sortByDesc('year') as $item)
+                            @php
+                                $isAward = $item->type === 'award';
+                                $itemType = $isAward ? 'Award' : 'Certificate';
+                            @endphp
+                            <!-- Card -->
+                            <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
+                                 x-transition.opacity
+                                 @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}' }"
+                                 class="flex-none snap-start group cursor-pointer relative"
+                                 style="width: 320px;">
+                                 
+                                <div class="relative overflow-hidden bg-white rounded-[2rem] p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.04)] group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030] border-2 border-gray-100 h-[420px]">
+                                    
+                                    <!-- Shine Effect -->
+                                    <div class="absolute top-0 -left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent transform -skew-x-12 transition-all duration-700 ease-in-out group-hover:left-[150%] z-20 pointer-events-none"></div>
+
+                                    <div class="w-full flex justify-center mb-10 mt-4 relative z-10">
+                                        @if($isAward)
+                                            <!-- Hexagon-ish Shape for Icon -->
+                                            <div class="w-32 h-32 relative flex items-center justify-center">
+                                                <svg class="absolute inset-0 w-full h-full text-amber-50 drop-shadow-sm transition-colors duration-500 group-hover:text-amber-100" viewBox="0 0 100 100" fill="currentColor">
+                                                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+                                                </svg>
+                                                <svg class="absolute inset-0 w-full h-full transform scale-90" viewBox="0 0 100 100" fill="url(#goldPulse-{{ $loop->index }}-award)">
+                                                    <defs>
+                                                        <radialGradient id="goldPulse-{{ $loop->index }}-award" cx="50%" cy="50%" r="65%">
+                                                            <stop offset="0%" stop-color="#fff1a8">
+                                                                <animate attributeName="stop-color" values="#fff1a8; #ffe066; #fff1a8" dur="4s" repeatCount="indefinite" />
+                                                            </stop>
+                                                            <stop offset="100%" stop-color="#d4af37">
+                                                                <animate attributeName="stop-color" values="#d4af37; #b8860b; #d4af37" dur="4s" repeatCount="indefinite" />
+                                                            </stop>
+                                                        </radialGradient>
+                                                    </defs>
+                                                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+                                                </svg>
+                                                <img src="{{ asset('images/awards/medal-icon.svg') }}" alt="Award" class="w-16 h-16 relative z-10">
+                                            </div>
+                                        @else
+                                            <!-- Hexagon-ish Shape for Icon -->
+                                            <div class="w-32 h-32 relative flex items-center justify-center">
+                                                <svg class="absolute inset-0 w-full h-full text-amber-50 drop-shadow-sm transition-colors duration-500 group-hover:text-amber-100" viewBox="0 0 100 100" fill="currentColor">
+                                                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+                                                </svg>
+                                                <svg class="absolute inset-0 w-full h-full transform scale-90" viewBox="0 0 100 100" fill="url(#goldPulse-{{ $loop->index }}-cert)">
+                                                    <defs>
+                                                        <radialGradient id="goldPulse-{{ $loop->index }}-cert" cx="50%" cy="50%" r="65%">
+                                                            <stop offset="0%" stop-color="#fff1a8">
+                                                                <animate attributeName="stop-color" values="#fff1a8; #ffe066; #fff1a8" dur="4s" repeatCount="indefinite" />
+                                                            </stop>
+                                                            <stop offset="100%" stop-color="#d4af37">
+                                                                <animate attributeName="stop-color" values="#d4af37; #b8860b; #d4af37" dur="4s" repeatCount="indefinite" />
+                                                            </stop>
+                                                        </radialGradient>
+                                                    </defs>
+                                                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+                                                </svg>
+                                                <img src="{{ asset('images/awards/certificate-icon.svg') }}" alt="Certificate" class="w-16 h-16 relative z-10">
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    <div class="flex-grow flex flex-col justify-start w-full">
+                                        <h4 class="font-bold text-[1.4rem] leading-tight text-black mb-3 break-words">{{ $item->title }}</h4>
+                                        <p class="text-gray-500 font-medium text-sm break-words">{{ $item->issuer }}</p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-center text-gray-400 text-sm py-20 w-full">No achievements found.</p>
+                        @endforelse
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Certificates Listings -->
-            <div x-show="activeTab === 'certificate'" x-transition class="space-y-6" style="display: none;">
-                @forelse($achievementsByType->get('certificate', []) as $cert)
-                    <div class="bg-white border-4 border-black p-6 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                            <div>
-                                <h4 class="text-lg font-extrabold text-black leading-tight">{{ $cert->title }}</h4>
-                                <p class="text-xs text-slate-500 font-mono mt-0.5">{{ $cert->issuer }}</p>
-                            </div>
-                            <span class="px-3 py-1 bg-yellow-100 border border-black font-mono text-[10px] font-bold rounded-lg">{{ $cert->year }}</span>
+            <!-- MODAL OVERLAY (Kept existing styling but adapted slightly for white theme) -->
+            <div x-show="selectedItem !== null" 
+                 x-transition.opacity
+                 class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                 style="display: none;">
+                
+                <div @click.away="selectedItem = null"
+                     x-show="selectedItem !== null"
+                     x-transition.scale.95
+                     class="bg-white max-w-4xl w-full rounded-[2rem] p-10 relative shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-10">
+                    
+                    <!-- Close Button -->
+                    <button @click="selectedItem = null" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors bg-gray-50 hover:bg-gray-100 rounded-full p-2 z-20">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+
+                    <!-- Left Content -->
+                    <div class="flex-1 flex flex-col justify-center pt-2">
+                        <div class="mb-6">
+                            <span class="px-4 py-1.5 bg-[#5e17eb] text-white font-semibold text-[11px] uppercase tracking-widest rounded-full mb-6 inline-block" x-text="selectedItem.type"></span>
+                            <h4 class="text-4xl font-bold tracking-tight text-black leading-tight mb-3 font-sans" x-text="selectedItem.title"></h4>
+                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider font-sans" x-text="selectedItem.issuer"></p>
                         </div>
-                        <p class="text-slate-600 text-sm leading-relaxed font-sans">{{ $cert->description }}</p>
+
+                        <div class="h-px bg-gray-100 w-full my-6"></div>
+
+                        <p class="text-gray-600 font-sans leading-relaxed text-[15px]" x-text="selectedItem.description"></p>
+                        
+                        <div class="mt-8 text-left">
+                            <span class="font-semibold text-sm bg-gray-100 text-black px-5 py-2 rounded-full font-sans" x-text="'Awarded: ' + selectedItem.year"></span>
+                        </div>
                     </div>
-                @empty
-                    <p class="text-center text-slate-500 text-sm font-mono">No certificates registered yet.</p>
-                @endforelse
+
+                    <!-- Right Content (Image Slider Placeholder) -->
+                    <div class="w-full md:w-[35%] flex-shrink-0">
+                        <div class="w-full aspect-[9/16] bg-[#d1d5db] rounded-[1.5rem] overflow-hidden relative shadow-inner">
+                            <!-- Placeholder for slider -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

@@ -5,7 +5,15 @@
 @section('content')
 
     <!-- HERO SECTION -->
-    <section id="hero" class="relative min-h-[95vh] flex flex-col justify-between pt-36 bg-[#FAF7E6] text-black overflow-hidden select-none">
+    <section id="hero" class="relative h-[100vh] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
+        
+        <!-- Blurred Video Background -->
+        <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 blur-2xl opacity-50">
+            <source src="{{ asset('videos/bg_showreel_loop.mp4') }}" type="video/mp4">
+        </video>
+
+        <!-- Top Gradient for Navbar legibility -->
+        <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black/80 to-transparent z-[1] pointer-events-none"></div>
         
         <!-- Center Hero Copy -->
         <div class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full">
@@ -13,26 +21,26 @@
             <!-- Hero Typography Container -->
             <div class="inline-flex flex-col items-stretch select-none mx-auto mb-6">
                 <!-- Turning Ideas Into (justified) -->
-                <div class="flex justify-between w-full font-display uppercase text-black leading-none select-none relative z-10" style="font-size: clamp(12px, 4vw, 45px);">
+                <div class="flex justify-between w-full font-display uppercase text-white leading-none select-none relative z-10" style="font-size: clamp(12px, 4vw, 45px);">
                     <span>TURNING</span>
                     <span>IDEAS</span>
                     <span>INTO</span>
                 </div>
 
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
-                <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center" style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em; -webkit-text-stroke: 1px black;">
+                <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center" style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em;">
                     REALITY
                 </h1>
             </div>
 
             <!-- One Pixel At A Time -->
-            <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-black/70 mb-10 font-sans">
+            <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-white/70 mb-10 font-sans">
                 One Pixel At A Time
             </p>
 
             <!-- Get Started Button -->
             <a href="#projects" 
-               class="px-8 py-3 bg-transparent border border-black font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-black hover:text-[#FAF7E6] transition-colors duration-300">
+               class="px-8 py-3 bg-transparent border border-white font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black transition-colors duration-300 relative z-10">
                 Get Started
             </a>
             
@@ -40,7 +48,7 @@
 
         <!-- Organic Deep Purple Wave SVG at bottom -->
         <div class="w-full leading-none z-10 -mb-[1px]">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+            <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-[40px] md:h-[60px]">
                 <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z" fill="#512b81"></path>
             </svg>
         </div>
@@ -233,48 +241,6 @@
             <!-- Loop Categories -->
             @foreach($skillsByCategory as $category => $skills)
                 
-                @if($category === 'EXTERNAL')
-                    <!-- Programming Languages Marquee before External -->
-                    <div class="w-full bg-[#4f4f4f] text-white flex border-b border-black overflow-hidden h-[72px]">
-                        <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
-                            Programming<br>Languages
-                        </div>
-                        <div class="flex-1 flex overflow-hidden relative items-center">
-                            <!-- Set 1 -->
-                            <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
-                                
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
-                            </div>
-                            <!-- Set 2 -->
-                            <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
-                                
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">PHP</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Laravel</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">JavaScript</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Vue.js</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Tailwind CSS</span>
-                                <span class="font-normal font-sans text-sm md:text-xl text-white">Alpine.js</span>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 <div class="{{ $categoryColors[$category] ?? 'bg-[#d0f69a]' }} w-full flex flex-col md:grid md:grid-cols-[3.5rem_1fr_1fr_1fr_1fr_3.5rem] border-b border-black">
                     
@@ -311,89 +277,135 @@
                 </div>
             @endforeach
             
-            <!-- Editing Tools Marquee after External -->
-            <div class="w-full bg-[#4f4f4f] text-white flex border-b border-black overflow-hidden h-[72px]">
-                <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
+            <!-- Tools & Software Used — Orange themed block -->
+            <!-- Header -->
+            <div class="w-full bg-[#FF851B] py-3 text-center border-b border-[#783800]/20">
+                <h2 class="font-display text-2xl uppercase tracking-[0.1em] text-[#783800]">Tools &amp; Software Used</h2>
+            </div>
+
+            <!-- Programming Languages Marquee -->
+            <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[11vh]">
+                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#FF851B] z-10 px-2">
+                    Programming<br>Languages
+                </div>
+                <div class="flex-1 flex overflow-hidden relative items-center">
+                    <!-- Set 1 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+                        
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+                    </div>
+                    <!-- Set 2 -->
+                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+                        
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
+                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editing Tools Marquee -->
+            <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[11vh]">
+                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#FF851B] z-10 px-2">
                     Editing Tools
                 </div>
                 <div class="flex-1 flex overflow-hidden relative items-center">
                     <!-- Set 1 -->
                     <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
                         
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
                     </div>
                     <!-- Set 2 -->
                     <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
                         
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-white rounded flex items-center justify-center text-[10px] bg-black/20">Cc</div> CapCut</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
+                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
                     </div>
                 </div>
             </div>
 
             <!-- General Tools Marquee -->
-            <div class="w-full bg-[#4f4f4f] text-white flex overflow-hidden h-[50px]">
-                <div class="w-32 md:w-48 shrink-0 border-r border-white/50 flex items-center justify-center font-display text-[10px] md:text-xs tracking-widest text-center leading-tight bg-[#4f4f4f] z-10 px-2 relative after:content-[''] after:absolute after:right-1 after:top-2 after:bottom-2 after:w-[1px] after:bg-white/30">
+            <div class="w-full bg-[#FF851B] text-[#783800] flex overflow-hidden min-h-[11vh]">
+                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-xs tracking-widest text-center leading-tight bg-[#FF851B] z-10 px-2">
                     General Tools
                 </div>
                 <div class="flex-1 flex overflow-hidden relative items-center">
                     <!-- Set 1 -->
                     <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Gi</div> Git</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fi</div> Figma</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Do</div> Docker</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Vs</div> VScode</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ji</div> Jira</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">No</div> Notion</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fj</div> FigJam</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Wd</div> MS Word</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ex</div> MS Excel</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Pp</div> MS PowerPoint</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ca</div> Canva</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Gi</div> Git</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fi</div> Figma</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Do</div> Docker</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Vs</div> VScode</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ji</div> Jira</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">No</div> Notion</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fj</div> FigJam</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Wd</div> MS Word</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ex</div> MS Excel</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Pp</div> MS PowerPoint</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ca</div> Canva</span>
                     </div>
                     <!-- Set 2 -->
                     <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Gi</div> Git</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fi</div> Figma</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Do</div> Docker</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Vs</div> VScode</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ji</div> Jira</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">No</div> Notion</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Fj</div> FigJam</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Wd</div> MS Word</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ex</div> MS Excel</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Pp</div> MS PowerPoint</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-white rounded flex items-center justify-center text-[9px] bg-black/20">Ca</div> Canva</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Gi</div> Git</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fi</div> Figma</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Do</div> Docker</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Vs</div> VScode</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ji</div> Jira</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">No</div> Notion</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fj</div> FigJam</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Wd</div> MS Word</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ex</div> MS Excel</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Pp</div> MS PowerPoint</span>
+                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ca</div> Canva</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Wave Spacer connecting to the white section below -->
         <div class="w-full bg-[#FAF7E6] leading-none">
-            <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
-                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#4f4f4f"></path>
+            <svg viewBox="0 0 1440 75" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-[30px] md:h-[45px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
+                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#FF851B"></path>
             </svg>
         </div>
 
@@ -1001,7 +1013,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="bg-[#FAF7E6] text-black relative pt-0 pb-24">
+    <section id="experience" class="bg-[#79ECFF] text-black relative pt-0 pb-24">
         
         <!-- Wavy Divider from Achievements to Work Experience -->
         <!-- Translating slightly up and wider to prevent any sub-pixel rendering lines -->
@@ -1069,7 +1081,7 @@
                         </svg>
                         
                         <!-- Bottom Dashed Circle -->
-                        <div class="w-[20px] h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#FAF7E6] shrink-0"></div>
+                        <div class="w-[20px] h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#79ECFF] shrink-0"></div>
                         
                     </div>
                     
@@ -1100,10 +1112,10 @@
     <!-- COLLABORATE (CONTACT) SECTION -->
     <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
 
-        <!-- Wavy Divider from cream Work Experience into dark Collaborate -->
+        <!-- Wavy Divider from cyan Work Experience into dark Collaborate -->
         <div class="w-full overflow-hidden leading-[0] absolute top-0 left-[-1px] right-[-1px] z-0 transform translate-y-[-1px]">
             <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                <path fill="#FAF7E6" d="M0,224L60,208C120,192,240,160,360,154.7C480,149,600,171,720,176C840,181,960,171,1080,154.7C1200,139,1320,117,1380,106.7L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+                <path fill="#79ECFF" d="M0,224L60,208C120,192,240,160,360,154.7C480,149,600,171,720,176C840,181,960,171,1080,154.7C1200,139,1320,117,1380,106.7L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
             </svg>
         </div>
 

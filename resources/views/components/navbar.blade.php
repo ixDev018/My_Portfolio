@@ -1,7 +1,7 @@
 <header x-data="{ mobileMenuOpen: false, scrolled: false }"
         @scroll.window="scrolled = (window.pageYOffset > 20)"
-        :class="{ 'bg-black/75 backdrop-blur-md py-4 border-b border-white/10 shadow-lg': scrolled, 'bg-transparent py-6': !scrolled }"
-        class="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
+        :class="{ 'bg-black/75 backdrop-blur-md py-4 shadow-lg': scrolled, 'bg-transparent py-6': !scrolled }"
+        class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 border-b border-white">
     <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <!-- Logo -->
         <a href="{{ route('portfolio.index') }}" class="group flex items-center">
@@ -13,15 +13,15 @@
         <!-- Desktop Navigation Links (Hidden on Project Show) -->
         @if(!request()->routeIs('portfolio.project.show'))
         <nav class="hidden md:flex items-center gap-10">
-            <a href="{{ route('portfolio.index') }}#self-intro" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Services</a>
-            <a href="{{ route('portfolio.outputs') }}" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
-            <a href="{{ route('portfolio.index') }}#contact" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
+            <a href="{{ route('portfolio.index') }}#self-intro" :class="scrolled ? 'text-white' : 'text-white'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Services</a>
+            <a href="{{ route('portfolio.outputs') }}" :class="scrolled ? 'text-white' : 'text-white'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
+            <a href="{{ route('portfolio.index') }}#contact" :class="scrolled ? 'text-white' : 'text-white'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
         </nav>
 
         <!-- CTA / Resume link -->
         <div class="hidden md:flex items-center gap-4">
             <a href="#" @click.prevent="showResumeModal = true"
-               :class="scrolled ? 'text-white border-white hover:bg-white hover:text-black' : 'text-black border-black hover:bg-black hover:text-[#FAF7E6]'"
+               :class="scrolled ? 'text-white border-white hover:bg-white hover:text-black' : 'text-white border-white hover:bg-white hover:text-black'"
                class="text-xs font-bold uppercase tracking-wider px-6 py-2 bg-transparent border rounded-none transition-colors duration-300">
                 See Resume
             </a>
@@ -31,7 +31,7 @@
         <!-- Mobile Menu Toggle Button -->
         @if(!request()->routeIs('portfolio.project.show'))
         <button @click="mobileMenuOpen = !mobileMenuOpen" 
-                :class="scrolled ? 'text-white' : 'text-black'"
+                :class="scrolled ? 'text-white' : 'text-white'"
                 class="md:hidden focus:outline-none transition-colors duration-300">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>

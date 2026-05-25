@@ -1098,38 +1098,46 @@
     </section>
 
     <!-- COLLABORATE (CONTACT) SECTION -->
-    <section id="contact" class="py-24 bg-[#FAF7E6] text-black">
-        <div class="max-w-7xl mx-auto px-6">
+    <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
+
+        <!-- Wavy Divider from cream Work Experience into dark Collaborate -->
+        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-[-1px] right-[-1px] z-0 transform translate-y-[-1px]">
+            <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                <path fill="#FAF7E6" d="M0,224L60,208C120,192,240,160,360,154.7C480,149,600,171,720,176C840,181,960,171,1080,154.7C1200,139,1320,117,1380,106.7L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 pt-28 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 
                 <!-- Contact info cards -->
                 <div class="lg:col-span-5">
                     <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Collaborate</h2>
-                    <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none mb-6">Let's craft something premium together</h3>
-                    <p class="text-slate-650 text-sm sm:text-base leading-relaxed mb-8">
+                    <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none mb-6 text-white">Let's craft something premium together</h3>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-8">
                         Whether you want to discuss a new full-time role, a freelance project, or just want to connect over software craftsmanship—my inbox is always open.
                     </p>
 
                     <div class="space-y-4">
                         <!-- Email Card -->
-                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                            <div class="w-10 h-10 rounded-lg bg-yellow-100 border-2 border-black text-black flex items-center justify-center">
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <div class="w-10 h-10 rounded-lg bg-[#ff6b00]/10 border border-[#ff6b00]/30 text-[#ff6b00] flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                             </div>
                             <div>
                                 <p class="text-[10px] text-slate-500 uppercase tracking-wider font-mono">Direct Email</p>
-                                <a href="mailto:{{ $profile->email }}" class="text-sm font-bold text-black hover:underline">{{ $profile->email }}</a>
+                                <a href="mailto:{{ $profile->email }}" class="text-sm font-bold text-white hover:text-[#ff6b00] transition-colors">{{ $profile->email }}</a>
                             </div>
                         </div>
 
                         <!-- Location Card -->
-                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                            <div class="w-10 h-10 rounded-lg bg-yellow-100 border-2 border-black text-black flex items-center justify-center">
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <div class="w-10 h-10 rounded-lg bg-[#ff6b00]/10 border border-[#ff6b00]/30 text-[#ff6b00] flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             </div>
                             <div>
                                 <p class="text-[10px] text-slate-500 uppercase tracking-wider font-mono">Location</p>
-                                <p class="text-sm font-bold text-black">Silicon Valley, CA, USA</p>
+                                <p class="text-sm font-bold text-white">Silicon Valley, CA, USA</p>
                             </div>
                         </div>
                     </div>
@@ -1137,68 +1145,68 @@
 
                 <!-- Contact Form Column -->
                 <div class="lg:col-span-7">
-                    <form action="{{ route('portfolio.contact') }}" method="POST" class="bg-white border-4 border-black p-8 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-6">
+                    <form action="{{ route('portfolio.contact') }}" method="POST" class="bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-sm space-y-6">
                         @csrf
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <!-- Name Field -->
                             <div>
-                                <label for="name" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Your Name</label>
+                                <label for="name" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">Your Name</label>
                                 <input type="text" 
                                        name="name" 
                                        id="name" 
                                        required
                                        value="{{ old('name') }}"
-                                       class="w-full bg-[#FAF7E6] border-2 border-black focus:border-[#ff6b00] rounded-xl px-4 py-3 text-black text-sm outline-none transition-all duration-200">
+                                       class="w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder-slate-600">
                                 @error('name')
-                                    <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
+                                    <p class="text-xs text-rose-400 mt-1 font-semibold">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <!-- Email Field -->
                             <div>
-                                <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Your Email</label>
+                                <label for="email" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">Your Email</label>
                                 <input type="email" 
                                        name="email" 
                                        id="email" 
                                        required
                                        value="{{ old('email') }}"
-                                       class="w-full bg-[#FAF7E6] border-2 border-black focus:border-[#ff6b00] rounded-xl px-4 py-3 text-black text-sm outline-none transition-all duration-200">
+                                       class="w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder-slate-600">
                                 @error('email')
-                                    <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
+                                    <p class="text-xs text-rose-400 mt-1 font-semibold">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
 
                         <!-- Subject -->
                         <div>
-                            <label for="subject" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Subject (Optional)</label>
+                            <label for="subject" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">Subject (Optional)</label>
                             <input type="text" 
                                    name="subject" 
                                    id="subject"
                                    value="{{ old('subject') }}"
-                                   class="w-full bg-[#FAF7E6] border-2 border-black focus:border-[#ff6b00] rounded-xl px-4 py-3 text-black text-sm outline-none transition-all duration-200">
+                                   class="w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder-slate-600">
                             @error('subject')
-                                <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
+                                <p class="text-xs text-rose-400 mt-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Message -->
                         <div>
-                            <label for="message" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Message</label>
+                            <label for="message" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">Message</label>
                             <textarea name="message" 
                                       id="message" 
                                       rows="5"
                                       required
-                                      class="w-full bg-[#FAF7E6] border-2 border-black focus:border-[#ff6b00] rounded-xl px-4 py-3 text-black text-sm outline-none transition-all duration-200 resize-none">{{ old('message') }}</textarea>
+                                      class="w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 resize-none placeholder-slate-600">{{ old('message') }}</textarea>
                             @error('message')
-                                <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
+                                <p class="text-xs text-rose-400 mt-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Submit Button -->
                         <button type="submit" 
-                                class="w-full py-4 bg-[#ff6b00] hover:bg-black hover:text-yellow-300 text-white font-bold text-xs uppercase tracking-widest border-2 border-black rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2.5px] hover:translate-y-[2.5px] transition-all">
+                                class="w-full py-4 bg-[#ff6b00] hover:bg-white hover:text-black text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all duration-300">
                             Send Message
                         </button>
                     </form>

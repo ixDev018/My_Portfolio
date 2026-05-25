@@ -58,6 +58,17 @@ class PortfolioController extends Controller
     }
 
     /**
+     * Display the isolated outputs gallery page.
+     */
+    public function outputs()
+    {
+        $visualProjects = Project::whereIn('category', ['visual', 'product', 'ui'])
+                                 ->orderBy('created_at', 'desc')
+                                 ->get();
+        return view('outputs', compact('visualProjects'));
+    }
+
+    /**
      * Process visitor contact form submissions.
      */
     public function contact(Request $request)

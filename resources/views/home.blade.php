@@ -740,10 +740,11 @@
 
                 {{-- See More Button --}}
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-                    <button class="px-10 py-3 border-[1.5px] border-[#ff6b00] text-[#ff6b00] font-sans font-bold text-sm tracking-wider uppercase hover:bg-[#ff6b00] hover:text-white transition-colors duration-300 bg-[#FAF7E6] shadow-sm"
-                            style="font-family: 'Poppins', sans-serif;">
+                    <a href="{{ route('portfolio.outputs') }}" 
+                       class="inline-block px-10 py-3 border-[1.5px] border-[#ff6b00] text-[#ff6b00] font-sans font-bold text-sm tracking-wider uppercase hover:bg-[#ff6b00] hover:text-white transition-colors duration-300 bg-[#FAF7E6] shadow-sm"
+                       style="font-family: 'Poppins', sans-serif;">
                         See More
-                    </button>
+                    </a>
                 </div>
 
             </div>

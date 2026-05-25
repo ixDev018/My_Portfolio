@@ -14,7 +14,7 @@
         @if(!request()->routeIs('portfolio.project.show'))
         <nav class="hidden md:flex items-center gap-10">
             <a href="{{ route('portfolio.index') }}#self-intro" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Services</a>
-            <a href="{{ route('portfolio.index') }}#projects" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
+            <a href="{{ route('portfolio.outputs') }}" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
             <a href="{{ route('portfolio.index') }}#contact" :class="scrolled ? 'text-white' : 'text-black'" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
         </nav>
 
@@ -55,7 +55,7 @@
          @click.away="mobileMenuOpen = false"
          class="md:hidden absolute top-full left-0 right-0 bg-[#FAF7E6] border-b border-black/10 px-6 py-8 flex flex-col gap-6 shadow-xl z-50">
         <a href="{{ route('portfolio.index') }}#self-intro" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Services</a>
-        <a href="{{ route('portfolio.index') }}#projects" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
+        <a href="{{ route('portfolio.outputs') }}" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
         <a href="{{ route('portfolio.index') }}#contact" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
         
         <div class="pt-4 mt-2 border-t border-black/10">

@@ -13,6 +13,7 @@ use App\Http\Middleware\AdminAuthMiddleware;
 
 // Visitor/Guest Frontend Routes
 Route::get('/', [PortfolioController::class, 'index'])->name('portfolio.index');
+Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio.outputs');
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 

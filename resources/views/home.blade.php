@@ -430,11 +430,20 @@
                 get total() { return this.allItems.length; },
                 prev() { this.current = (this.current - 1 + this.total) % this.total; },
                 next() { this.current = (this.current + 1) % this.total; },
-                get offset() {
+                get maxOffset() {
+                    const gap = 20;
                     const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
-                    return this.current * (cardPx + 20);
+                    const cw = this.$refs.viewport ? this.$refs.viewport.clientWidth : this.$el.clientWidth;
+                    const max = ((this.total + 1) * (cardPx + gap) - gap) - cw;
+                    return max > 0 ? max : 0;
+                },
+                get offset() {
+                    const gap = 20;
+                    const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
+                    let target = this.current * (cardPx + gap);
+                    return target > this.maxOffset ? this.maxOffset : target;
                 }
-            }">
+            }" @resize.window="current = current">
 
                 <!-- Sub-header row -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -449,12 +458,12 @@
                 </div>
 
                 <!-- Carousel Viewport -->
-                <div class="relative">
+                <div class="relative" x-ref="viewport">
 
                     <!-- Left gradient fade -->
                     <div class="absolute left-0 top-0 bottom-0 w-16 md:w-28 pointer-events-none z-10"
                          style="background: linear-gradient(to right, #FAF7E6 15%, transparent 100%);"
-                         x-show="current > 0"
+                         x-show="offset > 0"
                          x-transition:enter="transition-opacity duration-200"
                          x-transition:enter-start="opacity-0"
                          x-transition:enter-end="opacity-100"
@@ -466,7 +475,7 @@
                     <!-- Right gradient fade -->
                     <div class="absolute right-0 top-0 bottom-0 w-24 md:w-40 pointer-events-none z-10"
                          style="background: linear-gradient(to left, #FAF7E6 15%, transparent 100%);"
-                         x-show="current < total - 1"
+                         x-show="offset < maxOffset"
                          x-transition:enter="transition-opacity duration-200"
                          x-transition:enter-start="opacity-0"
                          x-transition:enter-end="opacity-100"
@@ -509,7 +518,7 @@
 
                     <!-- Track wrapper -->
                     <div style="overflow-x: clip; overflow-y: visible;">
-                        <div class="flex gap-5 py-3 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                        <div x-ref="track" class="flex gap-5 py-3 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] w-max"
                              :style="'transform: translateX(-' + offset + 'px)'">
 
                             {{-- Blade renders the real cards — each is a real <a> link --}}
@@ -566,6 +575,19 @@
                                     No projects yet.
                                 </div>
                             @endforelse
+
+                            <!-- Coming Soon Card -->
+                            <div class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-2xl relative group bg-white/40 border-2 border-dashed border-black/10 flex flex-col items-center justify-center"
+                                 :class="{{ $uiProjects->count() }} === current ? 'ring-2 ring-black/12' : 'opacity-75'"
+                                 style="transition: opacity 0.4s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);">
+                                <div class="text-center opacity-50 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="w-12 h-12 rounded-full bg-white border-2 border-black/10 flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    </div>
+                                    <h4 class="font-display text-lg uppercase text-black tracking-wider">More in the works</h4>
+                                    <p class="font-mono text-[10px] text-black/60 uppercase tracking-widest mt-1">Coming Soon</p>
+                                </div>
+                            </div>
 
                         </div>
                     </div>

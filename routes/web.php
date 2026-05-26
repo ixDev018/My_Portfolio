@@ -41,6 +41,8 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::get('/projects/edit/{id}', [AdminController::class, 'projectsEdit'])->name('admin.projects.edit');
     Route::post('/projects/update/{id}', [AdminController::class, 'projectsUpdate'])->name('admin.projects.update');
     Route::post('/projects/delete/{id}', [AdminController::class, 'projectsDestroy'])->name('admin.projects.delete');
+    Route::post('/projects/bulk-delete', [AdminController::class, 'projectsBulkDelete'])->name('admin.projects.bulk-delete');
+    Route::post('/projects/upload-body-media', [AdminController::class, 'uploadBodyMedia'])->name('admin.projects.upload_body_media');
 
     // Skills CMS CRUD
     Route::get('/skills', [AdminController::class, 'skillsIndex'])->name('admin.skills.index');

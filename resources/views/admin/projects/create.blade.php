@@ -2,6 +2,10 @@
 
 @section('admin_content')
 
+    <!-- NoUiSlider for Video Trimming -->
+    <link href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+
     <!-- Navigation Back Link -->
     <div class="mb-4">
         <a href="{{ route('admin.projects.index') }}" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">
@@ -127,19 +131,8 @@
 
         <!-- Featured & Media Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-6 bg-slate-950/60 border border-slate-850 rounded-xl">
-            <!-- Thumbnail File -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 font-mono">Project Thumbnail Graphic</label>
-                <input type="file" name="thumbnail" id="thumbnail" accept="image/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 file:hover:bg-slate-850 cursor-pointer">
-                @error('thumbnail') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
-            </div>
-            
-            <!-- Gallery Files -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 font-mono">Gallery Images (Multiple Allowed)</label>
-                <input type="file" name="gallery[]" id="gallery" accept="image/*" multiple class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 file:hover:bg-slate-850 cursor-pointer">
-                <p class="text-xs text-slate-500 mt-2 font-mono">Hold Ctrl/Cmd to select multiple images.</p>
-                @error('gallery.*') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            <div class="md:col-span-2">
+                @include('admin.projects.partials.media_upload')
             </div>
 
             <!-- Featured Checkbox -->

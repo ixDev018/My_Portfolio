@@ -70,9 +70,10 @@ class PortfolioController extends Controller
      */
     public function outputs()
     {
-        $visualProjects = Project::whereIn('category', ['visual', 'product', 'ui'])
-                                 ->orderBy('created_at', 'desc')
+        $visualProjects = Project::where('category', 'visual')
+                                 ->inRandomOrder()
                                  ->get();
+
         return view('outputs', compact('visualProjects'));
     }
 

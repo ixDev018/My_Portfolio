@@ -74,14 +74,40 @@
                 <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#FAF7E6] to-transparent"></div>
             </div>
 
-            {{-- ── PLAYBACK DISPLAY CARD ── --}}
+    {{-- ── PLAYBACK DISPLAY CARD ── --}}
             <div class="relative z-10 w-full max-w-4xl px-6">
-                <div class="w-full aspect-video rounded-md overflow-hidden bg-white border border-black/10 shadow-sm relative group flex items-center justify-center">
+                <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
                     @if($project->media_type === 'video' && $project->video_url)
                         <video src="{{ $project->video_url }}"
                                autoplay loop muted playsinline controls
-                               class="w-full h-full object-cover">
+                               class="w-full h-full object-cover"
+                               @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
+                    @elseif($project->thumbnail_type === 'video' && $project->thumbnail_video_path)
+                        <video src="{{ asset('storage/' . $project->thumbnail_video_path) }}"
+                               autoplay loop muted playsinline controls
+                               class="w-full h-full object-cover"
+                               @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
+                        </video>
+                    @elseif(!empty($project->thumbnail_images))
+                        <div x-data="{ currentSlide: 0, total: {{ count($project->thumbnail_images) }} }"
+                             x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
+                             class="relative w-full h-full overflow-hidden">
+                            @foreach($project->thumbnail_images as $index => $img)
+                                <img src="{{ asset('storage/' . $img) }}"
+                                     x-show="currentSlide === {{ $index }}"
+                                     x-transition.opacity.duration.700ms
+                                     class="absolute inset-0 w-full h-full object-cover">
+                            @endforeach
+                            <!-- Dots indicator -->
+                            <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                                <template x-for="i in total" :key="i">
+                                    <div class="w-2 h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer"
+                                         :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"
+                                         @click="currentSlide = i - 1"></div>
+                                </template>
+                            </div>
+                        </div>
                     @elseif($project->thumbnail_path)
                         <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : asset('storage/' . $project->thumbnail_path) }}"
                              alt="{{ $project->title }}"
@@ -101,6 +127,19 @@
                             </div>
                         </div>
                     @endif
+
+                    @if(!empty($project->full_video_url))
+                        <!-- Dimming Overlay -->
+                        <div x-show="isDimmed" style="display: none;"
+                             x-transition.opacity.duration.1000ms
+                             class="absolute inset-0 bg-black/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-4">
+                            <div class="text-white font-mono text-[10px] tracking-widest uppercase mb-3 opacity-80">Preview Ended</div>
+                            <a href="{{ $project->full_video_url }}" target="_blank"
+                               class="px-5 py-2.5 bg-white text-black font-semibold rounded-full text-sm shadow-xl hover:bg-gray-100 transition-colors">
+                                Watch Full Video
+                            </a>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- ── META ROW — source, date, tags ── --}}
@@ -114,9 +153,9 @@
                         @endif
                     </div>
                     <div class="text-left sm:text-right">
-                        @if($project->year)
+                        @if($project->date_published || $project->year)
                             <p class="font-mono text-[9px] uppercase tracking-widest text-black/35 mb-0.5">Date Published</p>
-                            <p class="font-mono text-[11px] text-black/70">{{ $project->year }}</p>
+                            <p class="font-mono text-[11px] text-black/70">{{ $project->date_published ?? $project->year }}</p>
                         @endif
                     </div>
                 </div>
@@ -139,7 +178,7 @@
     {{-- ══ CMS CONTENT BODY ══════════════════════════════════════
          Everything below the playback card — the "more story" area
     ═══════════════════════════════════════════════════════════ --}}
-    <div class="relative z-10 max-w-3xl mx-auto px-6 pt-4 pb-24">
+    <div class="relative z-10 max-w-3xl mx-auto px-6 pt-4 pb-24" x-data="{ lightboxOpen: false, lightboxSrc: '' }">
 
         {{-- Divider --}}
         <div class="flex items-center gap-4 mb-10">
@@ -150,21 +189,66 @@
 
         {{-- Overview short description --}}
         @if($project->description)
-            <p class="font-mono text-sm text-black/60 leading-relaxed mb-10">
+            <p class="font-mono text-sm md:text-base text-black/60 leading-relaxed mb-10 font-medium">
                 {{ $project->description }}
             </p>
         @endif
 
-        {{-- Body content — multi-paragraph CMS story --}}
+        {{-- TipTap Rich Text Body Content --}}
         @if($project->body_content)
-            <div class="space-y-6 mb-10">
-                @foreach(array_filter(explode("\n\n", $project->body_content)) as $para)
-                    <p class="font-sans text-sm sm:text-base text-black/75 leading-[1.85]" style="font-family: 'Poppins', sans-serif;">
-                        {{ trim($para) }}
-                    </p>
-                @endforeach
+            <div class="cms-tiptap-content space-y-6 mb-16 text-black/80 font-sans" 
+                 style="font-family: 'Poppins', sans-serif;"
+                 @click="if($event.target.tagName === 'IMG') { lightboxOpen = true; lightboxSrc = $event.target.src; }">
+                
+                @if(Str::startsWith(trim($project->body_content), '{'))
+                    {{-- Legacy JSON fallback if somehow still stored as JSON without migration --}}
+                    <p class="text-sm italic text-black/40">Legacy JSON format content block. Please edit and re-save project to render rich HTML.</p>
+                @elseif(preg_match('/<[a-z][\s\S]*>/i', $project->body_content))
+                    {{-- Real TipTap HTML Content --}}
+                    {!! $project->body_content !!}
+                @else
+                    {{-- Very old plaintext fallback --}}
+                    @foreach(array_filter(explode("\n\n", $project->body_content)) as $para)
+                        <p class="font-sans text-sm sm:text-base leading-[1.85]">{{ trim($para) }}</p>
+                    @endforeach
+                @endif
             </div>
+
+            <style>
+                /* TipTap Markdown Styles */
+                .cms-tiptap-content p { margin-bottom: 1.5em; line-height: 1.8; font-size: 15px; }
+                .cms-tiptap-content h2 { font-size: 1.5rem; font-weight: 700; font-family: 'Bitcount Single', monospace; margin-top: 2em; margin-bottom: 1em; color: black; }
+                .cms-tiptap-content h3 { font-size: 1.25rem; font-weight: 600; font-family: 'Bitcount Single', monospace; margin-top: 1.5em; margin-bottom: 0.75em; color: black; }
+                .cms-tiptap-content strong { font-weight: 700; color: black; }
+                .cms-tiptap-content blockquote { border-left: 4px solid rgba(0,0,0,0.1); padding-left: 1.5rem; font-style: italic; color: rgba(0,0,0,0.6); margin: 2em 0; }
+                .cms-tiptap-content ul { list-style-type: disc; padding-left: 2rem; margin-bottom: 1.5em; }
+                .cms-tiptap-content ol { list-style-type: decimal; padding-left: 2rem; margin-bottom: 1.5em; }
+                .cms-tiptap-content li { margin-bottom: 0.5em; line-height: 1.8; }
+                .cms-tiptap-content img { width: 100%; height: auto; border-radius: 0.5rem; margin: 2em 0; cursor: zoom-in; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.05); transition: transform 0.2s; }
+                .cms-tiptap-content img:hover { transform: scale(1.01); }
+                .cms-tiptap-content iframe { width: 100%; aspect-ratio: 16/9; border-radius: 0.5rem; margin: 2em 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            </style>
         @endif
+
+        {{-- Lightbox Overlay (Alpine) --}}
+        <div x-show="lightboxOpen" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 backdrop-blur-none"
+             x-transition:enter-end="opacity-100 backdrop-blur-md"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 backdrop-blur-md"
+             x-transition:leave-end="opacity-0 backdrop-blur-none"
+             class="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 sm:p-10"
+             style="display: none;">
+             
+             <!-- Close button -->
+             <button @click="lightboxOpen = false" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[210]">
+                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+             </button>
+             
+             <!-- Fullscreen Image -->
+             <img :src="lightboxSrc" @click.away="lightboxOpen = false" class="max-w-full max-h-full rounded-xl shadow-2xl object-contain border border-white/10" alt="Fullscreen Media">
+        </div>
 
         {{-- ── SLIDES GALLERY SECTION ── --}}
         @if(!empty($project->gallery_images))

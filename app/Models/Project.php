@@ -14,12 +14,19 @@ class Project extends Model
         'description',
         'body_content',
         'thumbnail_path',
+        'thumbnail_type',
+        'thumbnail_images',
+        'thumbnail_video_path',
+        'video_loop_start',
+        'video_loop_end',
+        'full_video_url',
         'media_type',
         'video_url',
         'tags',
         'client',
         'role',
         'year',
+        'date_published',
         'medium',
         'collaborators',
         'demo_url',
@@ -29,7 +36,10 @@ class Project extends Model
     ];
 
     protected $casts = [
-        'featured' => 'boolean',
-        'gallery_images' => 'array',
+        'featured'        => 'boolean',
+        'gallery_images'  => 'array',
+        'thumbnail_images'=> 'array',
+        'video_loop_start'=> 'float',
+        'video_loop_end'  => 'float',
     ];
 }

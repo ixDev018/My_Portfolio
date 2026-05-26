@@ -3,16 +3,27 @@
 @section('admin_content')
 
     <!-- Projects Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-        <div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">Manage Projects</h1>
-            <p class="text-sm text-slate-400 font-mono mt-1">Add, edit, or delete items showcasing your software works</p>
+    <div x-data="{ selectedIds: [], selectAll: false }" class="mb-10">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Manage Projects</h1>
+                <p class="text-sm text-slate-400 font-mono mt-1">Add, edit, or delete items showcasing your software works</p>
+            </div>
+            <div class="flex gap-3">
+                <form x-show="selectedIds.length > 0" x-cloak action="{{ route('admin.projects.bulk-delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete the selected projects?');">
+                    @csrf
+                    <input type="hidden" name="ids" x-bind:value="selectedIds.join(',')">
+                    <button type="submit" class="px-5 py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold rounded-xl transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Delete Selected (<span x-text="selectedIds.length"></span>)
+                    </button>
+                </form>
+                <a href="{{ route('admin.projects.create') }}" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 active:scale-95 transition-all duration-200 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Add New Project
+                </a>
+            </div>
         </div>
-        <a href="{{ route('admin.projects.create') }}" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 active:scale-95 transition-all duration-200 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Add New Project
-        </a>
-    </div>
 
     <!-- Listings Table Card -->
     <div class="bg-slate-900 border border-slate-850 rounded-2xl overflow-hidden shadow-xl">
@@ -20,6 +31,11 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-950 border-b border-slate-850 text-slate-400 text-xs uppercase tracking-wider font-mono">
+                        <th class="px-6 py-4 w-12">
+                            <input type="checkbox" x-model="selectAll" 
+                                   @change="if(selectAll){ selectedIds = {{ $projects->pluck('id')->toJson() }} } else { selectedIds = [] }" 
+                                   class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 rounded focus:ring-cyan-500/20">
+                        </th>
                         <th class="px-6 py-4">Project Info</th>
                         <th class="px-6 py-4">Tags</th>
                         <th class="px-6 py-4">Featured</th>
@@ -29,6 +45,11 @@
                 <tbody class="divide-y divide-slate-850/50">
                     @forelse($projects as $proj)
                         <tr class="hover:bg-slate-850/10 transition-colors duration-150">
+                            <!-- Checkbox -->
+                            <td class="px-6 py-4">
+                                <input type="checkbox" value="{{ $proj->id }}" x-model="selectedIds" 
+                                       class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 rounded focus:ring-cyan-500/20">
+                            </td>
                             <!-- Info -->
                             <td class="px-6 py-4 flex items-center gap-4">
                                 @if($proj->thumbnail_path)
@@ -96,5 +117,6 @@
             </table>
         </div>
     </div>
+    </div> <!-- End x-data -->
 
 @endsection

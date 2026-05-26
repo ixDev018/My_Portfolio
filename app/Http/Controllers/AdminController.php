@@ -150,32 +150,53 @@ class AdminController extends Controller
     public function projectsStore(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'client' => 'nullable|string|max:255',
-            'role' => 'nullable|string|max:255',
-            'year' => 'nullable|string|max:100',
-            'medium' => 'nullable|string|max:255',
-            'collaborators' => 'nullable|string',
-            'description' => 'required|string',
-            'body_content' => 'nullable|string',
-            'tags' => 'nullable|string',
-            'demo_url' => 'nullable|url',
-            'github_url' => 'nullable|url',
-            'video_url' => 'nullable|url',
-            'featured' => 'nullable|boolean',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'title'               => 'required|string|max:255',
+            'subtitle'            => 'nullable|string|max:255',
+            'category'            => 'nullable|string|max:100',
+            'client'              => 'nullable|string|max:255',
+            'role'                => 'nullable|string|max:255',
+            'year'                => 'nullable|string|max:100',
+            'date_published'      => 'nullable|string|max:100',
+            'medium'              => 'nullable|string|max:255',
+            'collaborators'       => 'nullable|string',
+            'description'         => 'required|string',
+            'body_content'        => 'nullable|string',
+            'tags'                => 'nullable|string',
+            'demo_url'            => 'nullable|url',
+            'github_url'          => 'nullable|url',
+            'video_url'           => 'nullable|url',
+            'full_video_url'      => 'nullable|url',
+            'featured'            => 'nullable|boolean',
+            'thumbnail_type'      => 'nullable|string|in:image,video',
+            'media_upload.*'      => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
+            'video_loop_start'    => 'nullable|numeric|min:0',
+            'video_loop_end'      => 'nullable|numeric|min:0',
+            'gallery.*'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
-        $validated['slug'] = Str::slug($validated['title']);
-        $validated['featured'] = $request->has('featured');
+        $validated['slug']         = Str::slug($validated['title']);
+        $validated['featured']     = $request->has('featured');
+        $validated['thumbnail_type'] = $request->input('thumbnail_type', 'image');
 
-        if ($request->hasFile('thumbnail')) {
-            $validated['thumbnail_path'] = $request->file('thumbnail')->store('projects', 'public');
+        if ($request->hasFile('media_upload')) {
+            $files = $request->file('media_upload');
+            if ($validated['thumbnail_type'] === 'video') {
+                $validated['thumbnail_video_path'] = $files[0]->store('projects/videos', 'public');
+            } else {
+                if (count($files) === 1) {
+                    $validated['thumbnail_path'] = $files[0]->store('projects', 'public');
+                    $validated['thumbnail_images'] = null;
+                } else {
+                    $paths = [];
+                    foreach ($files as $f) {
+                        $paths[] = $f->store('projects', 'public');
+                    }
+                    $validated['thumbnail_images'] = $paths;
+                    $validated['thumbnail_path'] = $paths[0]; // fallback cover
+                }
+            }
         }
-        
+
         if ($request->hasFile('gallery')) {
             $galleryPaths = [];
             foreach ($request->file('gallery') as $image) {
@@ -200,39 +221,68 @@ class AdminController extends Controller
         $project = Project::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'client' => 'nullable|string|max:255',
-            'role' => 'nullable|string|max:255',
-            'year' => 'nullable|string|max:100',
-            'medium' => 'nullable|string|max:255',
-            'collaborators' => 'nullable|string',
-            'description' => 'required|string',
-            'body_content' => 'nullable|string',
-            'tags' => 'nullable|string',
-            'demo_url' => 'nullable|url',
-            'github_url' => 'nullable|url',
-            'video_url' => 'nullable|url',
-            'featured' => 'nullable|boolean',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'delete_gallery' => 'nullable|array'
+            'title'               => 'required|string|max:255',
+            'subtitle'            => 'nullable|string|max:255',
+            'category'            => 'nullable|string|max:100',
+            'client'              => 'nullable|string|max:255',
+            'role'                => 'nullable|string|max:255',
+            'year'                => 'nullable|string|max:100',
+            'date_published'      => 'nullable|string|max:100',
+            'medium'              => 'nullable|string|max:255',
+            'collaborators'       => 'nullable|string',
+            'description'         => 'required|string',
+            'body_content'        => 'nullable|string',
+            'tags'                => 'nullable|string',
+            'demo_url'            => 'nullable|url',
+            'github_url'          => 'nullable|url',
+            'video_url'           => 'nullable|url',
+            'full_video_url'      => 'nullable|url',
+            'featured'            => 'nullable|boolean',
+            'thumbnail_type'      => 'nullable|string|in:image,video',
+            'media_upload.*'      => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
+            'video_loop_start'    => 'nullable|numeric|min:0',
+            'video_loop_end'      => 'nullable|numeric|min:0',
+            'gallery.*'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'delete_gallery'      => 'nullable|array',
         ]);
 
-        $validated['slug'] = Str::slug($validated['title']);
-        $validated['featured'] = $request->has('featured');
+        $validated['slug']           = Str::slug($validated['title']);
+        $validated['featured']       = $request->has('featured');
+        $validated['thumbnail_type'] = $request->input('thumbnail_type', $project->thumbnail_type ?? 'image');
 
-        if ($request->hasFile('thumbnail')) {
-            if ($project->thumbnail_path) {
-                Storage::disk('public')->delete($project->thumbnail_path);
+        if ($request->hasFile('media_upload')) {
+            $files = $request->file('media_upload');
+            if ($validated['thumbnail_type'] === 'video') {
+                if ($project->thumbnail_video_path) {
+                    Storage::disk('public')->delete($project->thumbnail_video_path);
+                }
+                $validated['thumbnail_video_path'] = $files[0]->store('projects/videos', 'public');
+            } else {
+                if ($project->thumbnail_path) {
+                    Storage::disk('public')->delete($project->thumbnail_path);
+                }
+                if ($project->thumbnail_images) {
+                    foreach ($project->thumbnail_images as $oldImg) {
+                        Storage::disk('public')->delete($oldImg);
+                    }
+                }
+                
+                if (count($files) === 1) {
+                    $validated['thumbnail_path'] = $files[0]->store('projects', 'public');
+                    $validated['thumbnail_images'] = null;
+                } else {
+                    $paths = [];
+                    foreach ($files as $f) {
+                        $paths[] = $f->store('projects', 'public');
+                    }
+                    $validated['thumbnail_images'] = $paths;
+                    $validated['thumbnail_path'] = $paths[0];
+                }
             }
-            $validated['thumbnail_path'] = $request->file('thumbnail')->store('projects', 'public');
         }
 
         $currentGallery = $project->gallery_images ?? [];
-        
-        // Handle deletions of existing gallery images
+
         if ($request->has('delete_gallery')) {
             foreach ($request->input('delete_gallery') as $indexToDelete) {
                 if (isset($currentGallery[$indexToDelete])) {
@@ -240,17 +290,15 @@ class AdminController extends Controller
                     unset($currentGallery[$indexToDelete]);
                 }
             }
-            // Reindex array
             $currentGallery = array_values($currentGallery);
         }
 
-        // Add new gallery images
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $image) {
                 $currentGallery[] = $image->store('projects/gallery', 'public');
             }
         }
-        
+
         $validated['gallery_images'] = $currentGallery;
 
         $project->update($validated);
@@ -264,9 +312,56 @@ class AdminController extends Controller
         if ($project->thumbnail_path) {
             Storage::disk('public')->delete($project->thumbnail_path);
         }
+        if ($project->thumbnail_video_path) {
+            Storage::disk('public')->delete($project->thumbnail_video_path);
+        }
+        if (is_array($project->gallery_images)) {
+            foreach ($project->gallery_images as $image) {
+                Storage::disk('public')->delete($image);
+            }
+        }
         $project->delete();
 
         return redirect()->route('admin.projects.index')->with('success', 'Project deleted successfully.');
+    }
+
+    public function projectsBulkDelete(Request $request)
+    {
+        $request->validate(['ids' => 'required|string']);
+        $ids = explode(',', $request->ids);
+
+        $projects = Project::whereIn('id', $ids)->get();
+
+        foreach ($projects as $project) {
+            if ($project->thumbnail_path) {
+                Storage::disk('public')->delete($project->thumbnail_path);
+            }
+            if ($project->thumbnail_video_path) {
+                Storage::disk('public')->delete($project->thumbnail_video_path);
+            }
+            if (is_array($project->gallery_images)) {
+                foreach ($project->gallery_images as $image) {
+                    Storage::disk('public')->delete($image);
+                }
+            }
+            $project->delete();
+        }
+
+        return redirect()->route('admin.projects.index')->with('success', 'Selected projects deleted successfully.');
+    }
+
+    /**
+     * Handle inline media uploads from the TipTap body editor.
+     * Returns JSON { url } for the editor to embed.
+     */
+    public function uploadBodyMedia(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:51200',
+        ]);
+
+        $path = $request->file('file')->store('projects/body', 'public');
+        return response()->json(['url' => asset('storage/' . $path)]);
     }
 
     /*

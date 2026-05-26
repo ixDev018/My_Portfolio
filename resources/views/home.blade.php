@@ -378,22 +378,67 @@
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
                                 <a href="{{ route('portfolio.project.show', $proj->slug) }}"
-                                   class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-2xl relative group bg-white"
+                                   x-data="{ isDimmed: false }"
+                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-2xl relative group bg-white"
                                    :class="{{ $index }} === current ? 'ring-2 ring-black/12' : 'opacity-75'"
                                    style="transition: opacity 0.4s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);"
-                                   @mouseenter="$el.style.transform='translateY(-6px)'; $el.style.opacity='1';"
+                                   @mouseenter="if(!isDimmed) { $el.style.transform='translateY(-6px)'; $el.style.opacity='1'; }"
                                    @mouseleave="$el.style.transform=''; $el.style.opacity=''">
 
                                     <!-- Image / placeholder -->
-                                    <div class="absolute inset-0 rounded-2xl overflow-hidden border border-black/10
-                                                @if($proj->thumbnail_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
+                                    <div class="relative w-full rounded-2xl overflow-hidden border border-black/10
+                                                @if($proj->thumbnail_path || $proj->thumbnail_video_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
                                                 flex items-center justify-center">
-                                        @if($proj->thumbnail_path)
-                                            <img src="{{ asset('storage/' . $proj->thumbnail_path) }}"
+                                        @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
+                                            <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                                                   muted playsinline autoplay loop
+                                                   class="w-full h-auto object-cover pointer-events-none"
+                                                   x-init="
+                                                       let vid = $el;
+                                                       let loopStart = {{ $proj->video_loop_start ?? 0 }};
+                                                       let loopEnd = {{ $proj->video_loop_end ?? 0 }};
+                                                       const initLoop = () => {
+                                                           if (loopEnd <= 0) loopEnd = vid.duration || 0;
+                                                           if (vid.currentTime < loopStart || (loopEnd > 0 && vid.currentTime > loopEnd)) {
+                                                               vid.currentTime = loopStart;
+                                                           }
+                                                       };
+                                                       if (vid.readyState >= 1) {
+                                                           initLoop();
+                                                       } else {
+                                                           vid.addEventListener('loadedmetadata', initLoop);
+                                                       }
+                                                       vid.addEventListener('timeupdate', () => {
+                                                           if (loopEnd > 0 && vid.currentTime >= loopEnd) {
+                                                               vid.currentTime = loopStart;
+                                                           }
+                                                       });
+                                                   "></video>
+                                        @elseif(!empty($proj->thumbnail_images))
+                                            <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
+                                                 x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000)"
+                                                 class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                                                @foreach($proj->thumbnail_images as $index => $img)
+                                                    <img src="{{ asset('storage/' . $img) }}"
+                                                         x-show="currentSlide === {{ $index }}"
+                                                         x-transition.opacity.duration.700ms
+                                                         class="absolute inset-0 w-full h-full object-cover">
+                                                @endforeach
+                                                <!-- Dots indicator -->
+                                                <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                                    <template x-for="i in total" :key="i">
+                                                        <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
+                                                             :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"></div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        @elseif($proj->thumbnail_path)
+                                            <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
                                                  alt="{{ $proj->title }}"
-                                                 class="w-full h-full object-cover">
+                                                 class="w-full h-auto object-cover">
                                         @else
-                                            <svg class="w-12 h-12 text-black/15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div class="w-full" style="padding-top: 56.25%;"></div>
+                                            <svg class="w-12 h-12 text-black/15 absolute" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                             </svg>
                                         @endif
@@ -483,7 +528,7 @@
              Native image height for true Pinterest aspect ratios
         ══════════════════════════════════════════════════ --}}
         @php
-            $visualProjects = $projects->where('category', 'visual')->values();
+            $visualProjects = $projects->where('category', 'visual')->shuffle()->values();
 
             // Collect distinct mediums for filter pills
             $mediums = $visualProjects->pluck('medium')->filter()->unique()->values();
@@ -534,6 +579,7 @@
                         @forelse($visualProjects as $proj)
                             {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
                             <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                               x-data="{ isDimmed: false }"
                                x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                                x-transition:enter="transition-opacity duration-300"
                                x-transition:enter-start="opacity-0"
@@ -543,13 +589,59 @@
                                x-transition:leave-end="opacity-0"
                                class="block w-full break-inside-avoid mb-4 rounded-2xl overflow-hidden relative group bg-white border border-black/8 cursor-pointer"
                                style="transition: transform 0.22s ease;"
-                               @mouseenter="$el.style.transform='scale(1.018)'"
+                               @mouseenter="if(!isDimmed) $el.style.transform='scale(1.018)'"
                                @mouseleave="$el.style.transform='scale(1)'">
 
                                 <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
-                                    @if($proj->thumbnail_path)
+                                    @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
+                                        <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                                               muted playsinline autoplay loop
+                                               class="w-full h-auto object-cover pointer-events-none"
+                                               x-init="
+                                                   let vid = $el;
+                                                   let loopStart = {{ $proj->video_loop_start ?? 0 }};
+                                                   let loopEnd = {{ $proj->video_loop_end ?? 0 }};
+                                                   const initLoop = () => {
+                                                       if (loopEnd <= 0) loopEnd = vid.duration || 0;
+                                                       if (vid.currentTime < loopStart || (loopEnd > 0 && vid.currentTime > loopEnd)) {
+                                                           vid.currentTime = loopStart;
+                                                       }
+                                                   };
+                                                   if (vid.readyState >= 1) {
+                                                       initLoop();
+                                                   } else {
+                                                       vid.addEventListener('loadedmetadata', initLoop);
+                                                   }
+                                                   vid.addEventListener('timeupdate', () => {
+                                                       if (loopEnd > 0 && vid.currentTime >= loopEnd) {
+                                                           vid.currentTime = loopStart;
+                                                       }
+                                                   });
+                                               "></video>
+                                    @elseif(!empty($proj->thumbnail_images))
+                                        <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
+                                             x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
+                                             class="relative w-full overflow-hidden">
+                                            <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
+                                            <img src="{{ asset('storage/' . $proj->thumbnail_images[0]) }}"
+                                                 class="w-full h-auto object-cover invisible">
+                                            @foreach($proj->thumbnail_images as $index => $img)
+                                                <img src="{{ asset('storage/' . $img) }}"
+                                                     x-show="currentSlide === {{ $index }}"
+                                                     x-transition.opacity.duration.700ms
+                                                     class="absolute inset-0 w-full h-full object-cover">
+                                            @endforeach
+                                            <!-- Dots indicator -->
+                                            <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                                <template x-for="i in total" :key="i">
+                                                    <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
+                                                         :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"></div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    @elseif($proj->thumbnail_path)
                                         <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
-                                             alt="{{ $project->title ?? $proj->title }}"
+                                             alt="{{ $proj->title }}"
                                              class="w-full h-auto object-cover" loading="lazy">
                                     @else
                                         {{-- Fallback placeholder if missing --}}

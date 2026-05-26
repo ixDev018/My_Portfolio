@@ -63,6 +63,7 @@
                 @forelse($visualProjects as $proj)
                     {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
                     <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                       x-data="{ isDimmed: false }"
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        x-transition:enter="transition-opacity duration-300"
                        x-transition:enter-start="opacity-0"
@@ -72,11 +73,57 @@
                        x-transition:leave-end="opacity-0"
                        class="block w-full break-inside-avoid mb-4 rounded-2xl overflow-hidden relative group bg-white border border-black/8 cursor-pointer"
                        style="transition: transform 0.22s ease;"
-                       @mouseenter="$el.style.transform='scale(1.018)'"
+                       @mouseenter="if(!isDimmed) $el.style.transform='scale(1.018)'"
                        @mouseleave="$el.style.transform='scale(1)'">
 
                         <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
-                            @if($proj->thumbnail_path)
+                            @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
+                                <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                                       muted playsinline autoplay loop
+                                       class="w-full h-auto object-cover pointer-events-none"
+                                       x-init="
+                                           let vid = $el;
+                                           let loopStart = {{ $proj->video_loop_start ?? 0 }};
+                                           let loopEnd = {{ $proj->video_loop_end ?? 0 }};
+                                           const initLoop = () => {
+                                               if (loopEnd <= 0) loopEnd = vid.duration || 0;
+                                               if (vid.currentTime < loopStart || (loopEnd > 0 && vid.currentTime > loopEnd)) {
+                                                   vid.currentTime = loopStart;
+                                               }
+                                           };
+                                           if (vid.readyState >= 1) {
+                                               initLoop();
+                                           } else {
+                                               vid.addEventListener('loadedmetadata', initLoop);
+                                           }
+                                           vid.addEventListener('timeupdate', () => {
+                                               if (loopEnd > 0 && vid.currentTime >= loopEnd) {
+                                                   vid.currentTime = loopStart;
+                                               }
+                                           });
+                                       "></video>
+                            @elseif(!empty($proj->thumbnail_images))
+                                <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
+                                     x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
+                                     class="relative w-full overflow-hidden">
+                                    <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
+                                    <img src="{{ asset('storage/' . $proj->thumbnail_images[0]) }}"
+                                         class="w-full h-auto object-cover invisible">
+                                    @foreach($proj->thumbnail_images as $index => $img)
+                                        <img src="{{ asset('storage/' . $img) }}"
+                                             x-show="currentSlide === {{ $index }}"
+                                             x-transition.opacity.duration.700ms
+                                             class="absolute inset-0 w-full h-full object-cover">
+                                    @endforeach
+                                    <!-- Dots indicator -->
+                                    <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                        <template x-for="i in total" :key="i">
+                                            <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
+                                                 :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"></div>
+                                        </template>
+                                    </div>
+                                </div>
+                            @elseif($proj->thumbnail_path)
                                 <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto object-cover" loading="lazy">
@@ -92,7 +139,7 @@
                             @endif
 
                             {{-- Play button for motion/video types --}}
-                            @if(in_array($proj->medium, $playTypes) || $proj->media_type === 'video')
+                            @if(in_array($proj->medium, $playTypes) || $proj->thumbnail_type === 'video')
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                                     <div class="w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                         <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">

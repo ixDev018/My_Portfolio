@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $profile->name . ' | Portfolio')
+@section('title', ($profile->hero_title ?? 'My') . ' | Portfolio')
 
 @section('content')
 
@@ -9,6 +9,9 @@
         
         <!-- Blurred Video Background -->
         <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 blur-2xl opacity-50">
+            @if($profile && $profile->hero_video_path)
+                <source src="{{ asset('storage/' . $profile->hero_video_path) }}" type="video/mp4">
+            @endif
             <source src="{{ asset('videos/bg_showreel_loop.mp4') }}" type="video/mp4">
         </video>
 
@@ -22,20 +25,21 @@
             <div class="inline-flex flex-col items-stretch select-none mx-auto mb-6">
                 <!-- Turning Ideas Into (justified) -->
                 <div class="flex justify-between w-full font-display uppercase text-white leading-none select-none relative z-10" style="font-size: clamp(12px, 4vw, 45px);">
-                    <span>TURNING</span>
-                    <span>IDEAS</span>
-                    <span>INTO</span>
+                    @php $topText = $profile->hero_top_text ?? 'TURNING IDEAS INTO'; @endphp
+                    @foreach(explode(' ', $topText) as $word)
+                        <span>{{ $word }}</span>
+                    @endforeach
                 </div>
 
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
                 <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center" style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em;">
-                    REALITY
+                    {{ $profile->hero_title ?? 'REALITY' }}
                 </h1>
             </div>
 
             <!-- One Pixel At A Time -->
             <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-white/70 mb-10 font-sans">
-                One Pixel At A Time
+                {{ $profile->hero_subtitle ?? 'One Pixel At A Time' }}
             </p>
 
             <!-- Get Started Button -->
@@ -57,7 +61,7 @@
     <!-- SELF INTRO SECTION -->
     <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col min-h-[90vh]" x-data="{
         slide: 0,
-        total: 3,
+        total: {{ $introSlides->count() }},
         prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
         next() { this.slide = (this.slide + 1) % this.total; }
     }">
@@ -74,8 +78,9 @@
             <!-- Slides Container: mobile = natural flow stack; desktop = fills flex parent -->
             <div class="relative w-full flex-1 intro-slides-container">
 
-                <!-- SLIDE 1: Who I am -->
-                <div x-show="slide === 0"
+                @foreach($introSlides as $index => $slideItem)
+                <!-- SLIDE {{ $index + 1 }} -->
+                <div x-show="slide === {{ $index }}"
                      x-transition:enter="transition ease-out duration-500"
                      x-transition:enter-start="opacity-0"
                      x-transition:enter-end="opacity-100"
@@ -88,110 +93,35 @@
                     <!-- Top on mobile: Photo -->
                     <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
                         <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2
-                                    shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)]
-                                    outline outline-[1.5px] outline-offset-[-1.5px] outline-black"
-                             style="aspect-ratio: 3/4; border-radius: 24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%;">
-                            <img src="{{ asset('images/intro/profile.png') }}"
-                                 alt="Brix Jorie Cura"
+                                    {{ $index === 0 ? 'shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)] outline outline-[1.5px] outline-offset-[-1.5px] outline-black' : '' }}"
+                             style="aspect-ratio: 3/4; border-radius: {{ $index === 0 ? '24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%' : '12% / 9%' }};">
+                            <img src="{{ $slideItem->image_path ? asset('storage/' . $slideItem->image_path) : ($index === 0 ? asset('images/intro/profile.png') : asset('images/intro/slide'.($index+1).'.jpg')) }}"
+                                 alt="{{ $slideItem->title }}"
                                  class="w-full h-full object-cover object-top"
-                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place photo at<br><strong>public/images/intro/profile.png</strong></div>'">
+                                 onerror="this.src='{{ asset('images/placeholder.jpg') }}';">
                         </div>
                     </div>
 
                     <!-- Bottom on mobile: Text -->
                     <div class="md:order-first">
                         <div class="flex items-center gap-3 mb-1">
-                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">I am</span>
+                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">{{ $slideItem->chapter_label }}</span>
                             <div class="flex-1 border-t border-dotted border-white/40"></div>
                         </div>
                         <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
-                            Brix Jorie F. Cura
+                            {{ $slideItem->title }}
                         </h3>
+                        @if($slideItem->subtitle)
                         <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
-                            Product Designer &nbsp;•&nbsp; Full-Stack Creative &nbsp;•&nbsp; System Developer
+                            {{ $slideItem->subtitle }}
                         </p>
+                        @endif
                         <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
-                            <p>A multidisciplinary creative blending design, storytelling, and code to deliver intentional, high-impact digital solutions. As a solution-based problem solver with skills spanning visual arts and front-end development.</p>
-                            <p>I don't just build interfaces—I design with strict purpose and execution, turning complex challenges into meaningful, user-centric experiences.</p>
+                            {!! nl2br(e($slideItem->description)) !!}
                         </div>
                     </div>
                 </div>
-
-                <!-- SLIDE 2: Placeholder -->
-                <div x-show="slide === 1"
-                     x-transition:enter="transition ease-out duration-500"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
-                     style="grid-template-columns: 3fr 2fr;">
-
-                    <!-- Top on mobile: Photo -->
-                    <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
-                        <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2" style="aspect-ratio: 3/4; border-radius: 12% / 9%;">
-                            <img src="{{ asset('images/intro/slide2.jpg') }}" alt="Slide 2"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide2.jpg</strong></div>'">
-                        </div>
-                    </div>
-
-                    <!-- Bottom on mobile: Text -->
-                    <div class="md:order-first">
-                        <div class="flex items-center gap-3 mb-1">
-                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 2</span>
-                            <div class="flex-1 border-t border-dotted border-white/40"></div>
-                        </div>
-                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
-                            Your Story Here
-                        </h3>
-                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
-                            Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
-                        </p>
-                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
-                            <p>This is the second slide of your story. Replace this placeholder with a chapter about your journey, your skills, or a key milestone that shaped who you are today.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SLIDE 3: Placeholder -->
-                <div x-show="slide === 2"
-                     x-transition:enter="transition ease-out duration-500"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
-                     x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
-                     style="grid-template-columns: 3fr 2fr;">
-
-                    <!-- Top on mobile: Photo -->
-                    <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
-                        <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2" style="aspect-ratio: 3/4; border-radius: 12% / 9%;">
-                            <img src="{{ asset('images/intro/slide3.jpg') }}" alt="Slide 3"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide3.jpg</strong></div>'">
-                        </div>
-                    </div>
-
-                    <!-- Bottom on mobile: Text -->
-                    <div class="md:order-first">
-                        <div class="flex items-center gap-3 mb-1">
-                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 3</span>
-                            <div class="flex-1 border-t border-dotted border-white/40"></div>
-                        </div>
-                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
-                            Your Story Here
-                        </h3>
-                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
-                            Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
-                        </p>
-                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
-                            <p>This is the third slide of your story. Fill it with what makes you unique—your values, your vision, or a powerful moment that defines your craft and drives your work.</p>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
 
             </div>
         </div>
@@ -290,21 +220,23 @@
             </div>
 
             <!-- Marquee rows -->
-            @foreach([
-                ['name' => 'Programming Languages', 'items' => ['PHP', 'Laravel', 'JavaScript', 'Vue.js', 'Tailwind CSS', 'Alpine.js']],
-                ['name' => 'Editing Tools', 'items' => ['Blender', 'Illustrator', 'After Effects', 'Premiere', 'Photoshop', 'CapCut']],
-                ['name' => 'General Tools', 'items' => ['Git', 'Figma', 'Docker', 'VScode', 'Jira', 'Notion', 'FigJam', 'Word', 'Excel', 'PowerPoint', 'Canva']]
-            ] as $marquee)
+            @foreach($toolsByRow as $rowLabel => $tools)
                 <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[14vh] md:min-h-[11vh]">
                     <div class="w-24 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[9px] md:text-sm tracking-widest uppercase text-center leading-tight z-10 px-2">
-                        {{ $marquee['name'] }}
+                        {{ $rowLabel }}
                     </div>
                     <div class="flex-1 flex overflow-hidden relative items-center">
                         <div class="animate-marquee flex whitespace-nowrap items-center gap-10 md:gap-16 pl-10 md:pl-16">
-                            @foreach(array_merge($marquee['items'], $marquee['items']) as $item)
+                            @foreach(array_merge($tools->toArray(), $tools->toArray()) as $item)
                                 <span class="font-normal font-sans text-xs md:text-xl flex items-center gap-3">
-                                    <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase">{{ substr($item, 0, 2) }}</div>
-                                    {{ $item }}
+                                    @if(!empty($item['image_path']))
+                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center bg-white/10 overflow-hidden">
+                                            <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain">
+                                        </div>
+                                    @else
+                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase">{{ substr($item['name'], 0, 2) }}</div>
+                                    @endif
+                                    {{ $item['name'] }}
                                 </span>
                             @endforeach
                         </div>
@@ -982,67 +914,69 @@
                  x-data="{ 
                      currentSlide: 0, 
                      modalOpen: false,
-                     experiences: [
-                         {
-                             year: '2022 - 2025',
-                             title: 'Responsive Web Architecture & Accessibility',
-                             issuer: 'W3 CONSORTIUM',
-                             image: 'https://picsum.photos/id/237/1000/600',
-                             description: 'Certified in designing highly keyboard navigable and screen-reader accessible modern layouts. Certified in designing highly keyboard navigable and screen-reader accessible modern layouts. Certified in designing highly keyboard navigable and screen-reader accessible modern layouts.'
-                         },
-                         {
-                             year: '2020 - 2022',
-                             title: 'Full Stack Development',
-                             issuer: 'Tech Academy',
-                             image: 'https://picsum.photos/id/1015/1000/600',
-                             description: 'Built robust web applications using Laravel, Vue, and Tailwind. Focused on performance and scalable architecture.'
-                         }
-                     ] 
+                     experiences: @js($experiences->map(function($e) {
+                         return [
+                             'year' => $e->duration,
+                             'title' => $e->role,
+                             'issuer' => $e->company,
+                             'image' => $e->image_path ? asset('storage/' . $e->image_path) : asset('images/placeholder.jpg'),
+                             'description' => $e->description
+                         ];
+                     }))
                  }">
                 
                 <!-- Left Side: Interactive Viewer (Hidden on Mobile since it's inside the Modal) -->
                 <div class="hidden md:flex w-full relative z-10 flex-col items-stretch">
                     
-                    <!-- Title & Slide indicator -->
-                    <div class="flex justify-between items-center mb-4 text-black">
-                        <span class="font-bold text-[14px] md:text-[15px] font-sans">School Organization Multimedia</span>
-                        <span class="font-bold text-[13px] font-sans" x-text="(currentSlide + 1) + '/' + experiences.length">1/2</span>
-                    </div>
+                    <template x-if="experiences.length > 0">
+                        <div class="contents">
+                            <!-- Title & Slide indicator -->
+                            <div class="flex justify-between items-center mb-4 text-black">
+                                <span class="font-bold text-[14px] md:text-[15px] font-sans" x-text="experiences[currentSlide].issuer"></span>
+                                <span class="font-bold text-[13px] font-sans" x-text="(currentSlide + 1) + '/' + experiences.length"></span>
+                            </div>
 
-                    <!-- Image Slider -->
-                    <div class="relative w-full aspect-[4/3] md:aspect-video bg-[#e5e7eb] rounded-[1.25rem] md:rounded-[1.5rem] overflow-hidden group shadow-sm border-[3px] border-black shrink-0">
-                        <template x-for="(exp, index) in experiences" :key="index">
-                            <img :src="exp.image" 
-                                 class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
-                                 :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
-                                 alt="Work Experience Image">
-                        </template>
+                            <!-- Image Slider -->
+                            <div class="relative w-full aspect-[4/3] md:aspect-video bg-[#e5e7eb] rounded-[1.25rem] md:rounded-[1.5rem] overflow-hidden group shadow-sm border-[3px] border-black shrink-0">
+                                <template x-for="(exp, index) in experiences" :key="index">
+                                    <img :src="exp.image" 
+                                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
+                                         :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
+                                         alt="Work Experience Image">
+                                </template>
 
-                        <!-- Controls -->
-                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-3 md:px-4 opacity-100 transition-opacity z-20">
-                            <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                            </button>
-                            <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
+                                <!-- Controls -->
+                                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-3 md:px-4 opacity-100 transition-opacity z-20">
+                                    <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Indicators -->
+                                <div class="absolute bottom-3 md:bottom-4 left-0 right-0 flex justify-center gap-1.5 md:gap-2 z-20">
+                                    <template x-for="(exp, index) in experiences" :key="index">
+                                        <button @click="currentSlide = index"
+                                                class="h-1.5 md:h-2 rounded-full transition-all duration-300"
+                                                :class="currentSlide === index ? 'w-5 md:w-6 bg-white shadow border border-black' : 'w-1.5 md:w-2 bg-black/50 hover:bg-black/80'"></button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Info Card Below Image -->
+                            <div class="hidden md:block border-[3px] border-black rounded-[1rem] p-5 md:p-6 bg-[#e2e8f0] mt-4 relative z-0 mb-8 md:mb-64 shrink-0">
+                                <h4 class="font-bold text-black text-[18px] md:text-[20px] leading-snug mb-2 font-sans pr-4" x-text="experiences[currentSlide].title"></h4>
+                                <p class="text-black/75 font-sans leading-relaxed text-[12px] md:text-[13px] whitespace-pre-wrap" x-text="experiences[currentSlide].description"></p>
+                            </div>
                         </div>
-
-                        <!-- Indicators -->
-                        <div class="absolute bottom-3 md:bottom-4 left-0 right-0 flex justify-center gap-1.5 md:gap-2 z-20">
-                            <template x-for="(exp, index) in experiences" :key="index">
-                                <button @click="currentSlide = index"
-                                        class="h-1.5 md:h-2 rounded-full transition-all duration-300"
-                                        :class="currentSlide === index ? 'w-5 md:w-6 bg-white shadow border border-black' : 'w-1.5 md:w-2 bg-black/50 hover:bg-black/80'"></button>
-                            </template>
+                    </template>
+                    <template x-if="experiences.length === 0">
+                        <div class="p-10 text-center border-2 border-dashed border-black/20 rounded-3xl">
+                            <p class="font-sans font-bold text-black/50">No experiences listed yet.</p>
                         </div>
-                    </div>
-
-                    <!-- Info Card Below Image (Invisible spacer creates the massive downward stretch on desktop) -->
-                    <div class="hidden md:block border-[3px] border-black rounded-[1rem] p-5 md:p-6 bg-[#e2e8f0] mt-4 relative z-0 mb-8 md:mb-64 shrink-0">
-                        <h4 class="font-bold text-black text-[18px] md:text-[20px] leading-snug mb-2 font-sans pr-4" x-text="experiences[currentSlide].title"></h4>
-                        <p class="text-black/75 font-sans leading-relaxed text-[12px] md:text-[13px] line-clamp-6 md:line-clamp-none" x-text="experiences[currentSlide].description"></p>
-                    </div>
+                    </template>
 
                 </div>
 
@@ -1065,24 +999,29 @@
                     
                     <!-- Top Content (Timeline Items) -->
                     <div class="mb-auto">
-                        <h4 class="hidden md:block text-[20px] font-bold font-sans tracking-wide mb-4 mt-0 text-black">2022 - 2025</h4>
-                        
-                        <!-- Mobile Interactive Button Heading -->
-                        <button @click="modalOpen = true" class="md:hidden relative inline-flex items-center justify-center bg-[#bbf7f0] border border-black rounded-[1rem] px-8 py-2.5 mb-6 mt-[-8px] transition-transform active:scale-95 focus:outline-none">
-                            <span class="text-[16px] font-bold font-sans tracking-wide text-black">2022 - 2025</span>
-                            <span class="absolute -top-2.5 -right-3 bg-[#1d00d1] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-black">VIEW</span>
-                        </button>
+                        <template x-if="experiences.length > 0">
+                            <div class="contents">
+                                <h4 class="hidden md:block text-[20px] font-bold font-sans tracking-wide mb-4 mt-0 text-black" x-text="experiences[currentSlide].year"></h4>
+                                
+                                <!-- Mobile Interactive Button Heading -->
+                                <button @click="modalOpen = true" class="md:hidden relative inline-flex items-center justify-center bg-[#bbf7f0] border border-black rounded-[1rem] px-8 py-2.5 mb-6 mt-[-8px] transition-transform active:scale-95 focus:outline-none">
+                                    <span class="text-[16px] font-bold font-sans tracking-wide text-black" x-text="experiences[currentSlide].year"></span>
+                                    <span class="absolute -top-2.5 -right-3 bg-[#1d00d1] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-black">VIEW</span>
+                                </button>
 
-                        <ul class="space-y-3 mt-2 md:mt-4 text-[14px] md:text-[15px] font-sans text-black/90 font-semibold">
-                            <li class="flex items-start gap-2">
-                                <span class="mt-1.5 w-1.5 h-1.5 bg-black rounded-full shrink-0"></span>
-                                <span>School Organization Multimedia</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="mt-1.5 w-1.5 h-1.5 bg-black rounded-full shrink-0"></span>
-                                <span>Freelancer</span>
-                            </li>
-                        </ul>
+                                <ul class="space-y-3 mt-2 md:mt-4 text-[14px] md:text-[15px] font-sans text-black/90 font-semibold">
+                                    <template x-for="(exp, index) in experiences" :key="index">
+                                        <li class="flex items-start gap-2 cursor-pointer transition-colors"
+                                            :class="currentSlide === index ? 'text-black' : 'text-black/50 hover:text-black/80'"
+                                            @click="currentSlide = index">
+                                            <span class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 transition-colors"
+                                                  :class="currentSlide === index ? 'bg-black' : 'bg-black/30'"></span>
+                                            <span x-text="exp.issuer"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
                     </div>
                     
                     <!-- Spacer (Stretches mobile view as well) -->
@@ -1162,6 +1101,8 @@
         </div>
     </section>
 
+
+
     <!-- COLLABORATE (CONTACT) SECTION -->
     <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
 
@@ -1195,14 +1136,13 @@
                             </div>
                         </div>
 
-                        <!-- Location Card -->
                         <div class="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                             <div class="w-10 h-10 rounded-lg bg-[#ff6b00]/10 border border-[#ff6b00]/30 text-[#ff6b00] flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             </div>
                             <div>
                                 <p class="text-[10px] text-slate-500 uppercase tracking-wider font-mono">Location</p>
-                                <p class="text-sm font-bold text-white">Silicon Valley, CA, USA</p>
+                                <p class="text-sm font-bold text-white">{{ $profile->location ?? 'Silicon Valley, CA, USA' }}</p>
                             </div>
                         </div>
                     </div>

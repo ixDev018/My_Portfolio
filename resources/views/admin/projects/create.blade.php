@@ -19,91 +19,132 @@
     <form action="{{ route('admin.projects.store') }}" method="POST" enctype="multipart/form-data" class="bg-slate-900 border border-slate-850 p-8 rounded-2xl shadow-xl space-y-6">
         @csrf
 
-        <!-- Title -->
-        <div>
-            <label for="title" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Project Title</label>
-            <input type="text" 
-                   name="title" 
-                   id="title" 
-                   required 
-                   value="{{ old('title') }}"
-                   class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
-            @error('title')
-                <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-            @enderror
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Project Title</label>
+                <input type="text" name="title" id="title" required value="{{ old('title') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('title') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+
+            <!-- Subtitle -->
+            <div>
+                <label for="subtitle" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Subtitle (Optional)</label>
+                <input type="text" name="subtitle" id="subtitle" value="{{ old('subtitle') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('subtitle') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Category -->
+            <div>
+                <label for="category" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Category</label>
+                <select name="category" id="category" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                    <option value="ui" {{ old('category') == 'ui' ? 'selected' : '' }}>UI/UX / Product Design</option>
+                    <option value="visual" {{ old('category') == 'visual' ? 'selected' : '' }}>Creative Visual Outputs</option>
+                    <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Other</option>
+                </select>
+                @error('category') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+
+            <!-- Medium -->
+            <div>
+                <label for="medium" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Medium (e.g. SaaS, Motion Graphics)</label>
+                <input type="text" name="medium" id="medium" value="{{ old('medium') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('medium') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Client -->
+            <div>
+                <label for="client" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Client</label>
+                <input type="text" name="client" id="client" value="{{ old('client') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('client') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Role -->
+            <div>
+                <label for="role" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Your Role</label>
+                <input type="text" name="role" id="role" value="{{ old('role') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('role') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Year -->
+            <div>
+                <label for="year" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Year</label>
+                <input type="text" name="year" id="year" value="{{ old('year') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('year') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Collaborators -->
+            <div>
+                <label for="collaborators" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Collaborators</label>
+                <input type="text" name="collaborators" id="collaborators" value="{{ old('collaborators') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('collaborators') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
         </div>
 
-        <!-- Description -->
+        <!-- Description (Short) -->
         <div>
-            <label for="description" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Project Description</label>
-            <textarea name="description" 
-                      id="description" 
-                      rows="6"
-                      required
-                      class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200 resize-none">{{ old('description') }}</textarea>
-            @error('description')
-                <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-            @enderror
+            <label for="description" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Short Description (Card)</label>
+            <textarea name="description" id="description" rows="3" required class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200 resize-none">{{ old('description') }}</textarea>
+            @error('description') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+        </div>
+        
+        <!-- Body Content (Long) -->
+        <div>
+            <label for="body_content" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Full Case Study / Body Content (HTML allowed)</label>
+            <textarea name="body_content" id="body_content" rows="8" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200 resize-none">{{ old('body_content') }}</textarea>
+            @error('body_content') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
         </div>
 
         <!-- Tags -->
         <div>
             <label for="tags" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Tags / Technology Stack (Comma Separated)</label>
-            <input type="text" 
-                   name="tags" 
-                   id="tags" 
-                   value="{{ old('tags') }}"
-                   placeholder="e.g. Laravel, Tailwind CSS, VueJS, Stripe"
-                   class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
-            @error('tags')
-                <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-            @enderror
+            <input type="text" name="tags" id="tags" value="{{ old('tags') }}" placeholder="e.g. Laravel, Tailwind CSS" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+            @error('tags') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <!-- Demo URL -->
             <div>
-                <label for="demo_url" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Live Demo Link (URL)</label>
-                <input type="url" 
-                       name="demo_url" 
-                       id="demo_url" 
-                       value="{{ old('demo_url') }}"
-                       class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
-                @error('demo_url')
-                    <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                @enderror
+                <label for="demo_url" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Live Demo Link</label>
+                <input type="url" name="demo_url" id="demo_url" value="{{ old('demo_url') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('demo_url') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
             </div>
 
             <!-- GitHub URL -->
             <div>
-                <label for="github_url" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">GitHub Repository Link (URL)</label>
-                <input type="url" 
-                       name="github_url" 
-                       id="github_url" 
-                       value="{{ old('github_url') }}"
-                       class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
-                @error('github_url')
-                    <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                @enderror
+                <label for="github_url" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">GitHub Repo Link</label>
+                <input type="url" name="github_url" id="github_url" value="{{ old('github_url') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('github_url') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Video URL -->
+            <div>
+                <label for="video_url" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Video Link (YouTube/Vimeo)</label>
+                <input type="url" name="video_url" id="video_url" value="{{ old('video_url') }}" class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none transition-all duration-200">
+                @error('video_url') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
             </div>
         </div>
 
         <!-- Featured & Media Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center p-6 bg-slate-950/60 border border-slate-850 rounded-xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-6 bg-slate-950/60 border border-slate-850 rounded-xl">
             <!-- Thumbnail File -->
             <div>
                 <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 font-mono">Project Thumbnail Graphic</label>
-                <input type="file" name="thumbnail" id="thumbnail" accept="image/*"
-                       class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 file:hover:bg-slate-850 cursor-pointer">
-                @error('thumbnail')
-                    <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                @enderror
+                <input type="file" name="thumbnail" id="thumbnail" accept="image/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 file:hover:bg-slate-850 cursor-pointer">
+                @error('thumbnail') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
+            </div>
+            
+            <!-- Gallery Files -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 font-mono">Gallery Images (Multiple Allowed)</label>
+                <input type="file" name="gallery[]" id="gallery" accept="image/*" multiple class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 file:hover:bg-slate-850 cursor-pointer">
+                <p class="text-xs text-slate-500 mt-2 font-mono">Hold Ctrl/Cmd to select multiple images.</p>
+                @error('gallery.*') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
             </div>
 
             <!-- Featured Checkbox -->
-            <div class="flex items-center gap-3">
-                <input type="checkbox" name="featured" id="featured" value="1"
-                       class="w-5 h-5 bg-slate-950 border border-slate-800 rounded focus:ring-cyan-500/20 text-cyan-500 cursor-pointer">
+            <div class="flex items-center gap-3 md:col-span-2">
+                <input type="checkbox" name="featured" id="featured" value="1" class="w-5 h-5 bg-slate-950 border border-slate-800 rounded focus:ring-cyan-500/20 text-cyan-500 cursor-pointer">
                 <label for="featured" class="text-sm font-semibold text-slate-300 cursor-pointer select-none">
                     Feature this project on home grid
                 </label>

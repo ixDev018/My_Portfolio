@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\Skill;
+use App\Models\ToolItem;
 use App\Models\Experience;
 use App\Models\Achievement;
 use App\Models\ContactMessage;
+use App\Models\IntroSlide;
 
 class PortfolioController extends Controller
 {
@@ -38,13 +40,19 @@ class PortfolioController extends Controller
         // Fetch all skills and group them by category
         $skillsByCategory = Skill::all()->groupBy('category');
 
-        // Fetch all work experiences (newest first)
-        $experiences = Experience::orderBy('id', 'desc')->get();
+        // Fetch all work experiences ordered by sort_order
+        $experiences = Experience::orderBy('sort_order')->get();
 
         // Fetch all achievements and group them by type (award, certificate)
         $achievementsByType = Achievement::all()->groupBy('type');
 
-        return view('home', compact('profile', 'projects', 'skillsByCategory', 'experiences', 'achievementsByType'));
+        // Fetch all intro slides ordered by sort_order
+        $introSlides = IntroSlide::orderBy('sort_order')->get();
+
+        // Fetch tools for marquee
+        $toolsByRow = ToolItem::orderBy('sort_order')->get()->groupBy('row_label');
+
+        return view('home', compact('profile', 'projects', 'skillsByCategory', 'experiences', 'achievementsByType', 'introSlides', 'toolsByRow'));
     }
 
     /**

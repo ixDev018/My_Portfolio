@@ -167,14 +167,20 @@
         @endif
 
         {{-- ── SLIDES GALLERY SECTION ── --}}
-        <div class="mb-14" x-data="{ currentSlide: 0, slides: ['https://picsum.photos/id/237/1000/600', 'https://picsum.photos/id/1015/1000/600', 'https://picsum.photos/id/1025/1000/600'] }">
-            <div class="relative w-full aspect-video bg-black/5 rounded-xl overflow-hidden group">
-                <template x-for="(slide, index) in slides" :key="index">
-                    <img :src="slide" 
-                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
-                         :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
-                         alt="Project Slide">
-                </template>
+        @if(!empty($project->gallery_images))
+            @php
+                $slidesJson = collect($project->gallery_images)->map(function($path) {
+                    return asset('storage/' . $path);
+                })->toJson();
+            @endphp
+            <div class="mb-14" x-data="{ currentSlide: 0, slides: {{ $slidesJson }} }">
+                <div class="relative w-full aspect-video bg-black/5 rounded-xl overflow-hidden group">
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <img :src="slide" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
+                             :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
+                             alt="Project Slide">
+                    </template>
 
                 {{-- Controls --}}
                 <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
@@ -195,7 +201,7 @@
                     </template>
                 </div>
             </div>
-        </div>
+        @endif
 
         {{-- ── CREDITS BLOCK ── role + collaborators ── --}}
         <div class="border-t border-black/10 pt-10 grid grid-cols-1 sm:grid-cols-2 gap-8">

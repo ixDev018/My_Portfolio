@@ -4,13 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Experience extends Model
+class ToolItem extends Model
 {
     protected $fillable = [
-        'company',
-        'role',
-        'duration',
-        'description',
+        'name',
+        'row_label',
         'image_path',
         'sort_order',
     ];

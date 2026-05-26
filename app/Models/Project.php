@@ -25,9 +25,11 @@ class Project extends Model
         'demo_url',
         'github_url',
         'featured',
+        'gallery_images',
     ];
 
     protected $casts = [
         'featured' => 'boolean',
+        'gallery_images' => 'array',
     ];
 }

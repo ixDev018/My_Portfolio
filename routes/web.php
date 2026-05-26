@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\IntroSlideController;
 use App\Http\Middleware\AdminAuthMiddleware;
 
 /*
@@ -48,4 +51,32 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::get('/messages', [AdminController::class, 'messagesIndex'])->name('admin.messages.index');
     Route::get('/messages/{id}', [AdminController::class, 'messagesShow'])->name('admin.messages.show');
     Route::post('/messages/delete/{id}', [AdminController::class, 'messagesDestroy'])->name('admin.messages.delete');
+
+    // Achievements CRUD
+    Route::get('/achievements', [AchievementController::class, 'index'])->name('admin.achievements.index');
+    Route::post('/achievements/store', [AchievementController::class, 'store'])->name('admin.achievements.store');
+    Route::get('/achievements/edit/{id}', [AchievementController::class, 'edit'])->name('admin.achievements.edit');
+    Route::post('/achievements/update/{id}', [AchievementController::class, 'update'])->name('admin.achievements.update');
+    Route::post('/achievements/delete/{id}', [AchievementController::class, 'destroy'])->name('admin.achievements.delete');
+
+    // Work Experience CRUD
+    Route::get('/experiences', [ExperienceController::class, 'index'])->name('admin.experiences.index');
+    Route::post('/experiences/store', [ExperienceController::class, 'store'])->name('admin.experiences.store');
+    Route::get('/experiences/edit/{id}', [ExperienceController::class, 'edit'])->name('admin.experiences.edit');
+    Route::post('/experiences/update/{id}', [ExperienceController::class, 'update'])->name('admin.experiences.update');
+    Route::post('/experiences/delete/{id}', [ExperienceController::class, 'destroy'])->name('admin.experiences.delete');
+    Route::post('/experiences/reorder', [ExperienceController::class, 'reorder'])->name('admin.experiences.reorder');
+
+    // Intro Slides CRUD
+    Route::get('/intro-slides', [IntroSlideController::class, 'index'])->name('admin.intro_slides.index');
+    Route::post('/intro-slides/store', [IntroSlideController::class, 'store'])->name('admin.intro_slides.store');
+    Route::get('/intro-slides/edit/{id}', [IntroSlideController::class, 'edit'])->name('admin.intro_slides.edit');
+    Route::post('/intro-slides/update/{id}', [IntroSlideController::class, 'update'])->name('admin.intro_slides.update');
+    Route::post('/intro-slides/delete/{id}', [IntroSlideController::class, 'destroy'])->name('admin.intro_slides.delete');
+    Route::post('/intro-slides/reorder', [IntroSlideController::class, 'reorder'])->name('admin.intro_slides.reorder');
+
+    // Tool Items CRUD (Marquee Section)
+    Route::get('/tools', [AdminController::class, 'toolItemsIndex'])->name('admin.tools.index');
+    Route::post('/tools/store', [AdminController::class, 'toolItemsStore'])->name('admin.tools.store');
+    Route::post('/tools/delete/{id}', [AdminController::class, 'toolItemsDestroy'])->name('admin.tools.delete');
 });

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,13 +57,29 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Introduction slides: auto-height on mobile, fills flex parent on desktop */
+        .intro-slides-container {
+            height: auto;
+        }
+        @media (min-width: 768px) {
+            .intro-slides-container {
+                flex: 1;
+                height: 100%;
+                min-height: 400px;
+                max-height: 680px;
+                overflow: hidden;
+            }
+        }
     </style>
 </head>
 <body x-data="{ showResumeModal: false }" class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- Glowing Background blobs for modern premium aesthetic -->
-    <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-900/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-cyan-900/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-900/10 rounded-full blur-[120px]"></div>
+    </div>
 
     <!-- Header / Navbar -->
     <x-navbar />

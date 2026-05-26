@@ -1,7 +1,7 @@
 <header x-data="{ mobileMenuOpen: false, scrolled: false }"
         @scroll.window="scrolled = (window.pageYOffset > 20)"
-        :class="{ 'bg-black/75 backdrop-blur-md py-4 shadow-lg': scrolled, 'bg-transparent py-6': !scrolled }"
-        class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 border-b border-white">
+        :class="{ 'bg-black/95 backdrop-blur-md py-4 shadow-lg': scrolled || mobileMenuOpen, 'bg-transparent py-6': !scrolled && !mobileMenuOpen }"
+        class="fixed top-0 left-0 w-full z-[100] transition-all duration-300 border-b border-white">
     <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <!-- Logo -->
         <a href="{{ route('portfolio.index') }}" class="group flex items-center">
@@ -53,7 +53,7 @@
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 -translate-y-4"
          @click.away="mobileMenuOpen = false"
-         class="md:hidden absolute top-full left-0 right-0 bg-[#FAF7E6] border-b border-black/10 px-6 py-8 flex flex-col gap-6 shadow-xl z-50">
+         class="md:hidden absolute top-full left-0 w-full bg-[#FAF7E6] border-b border-black/10 px-6 py-8 flex flex-col gap-6 shadow-xl z-[100]">
         <a href="{{ route('portfolio.index') }}#self-intro" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Services</a>
         <a href="{{ route('portfolio.outputs') }}" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
         <a href="{{ route('portfolio.index') }}#contact" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>

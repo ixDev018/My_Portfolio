@@ -55,7 +55,7 @@
     </section>
 
     <!-- SELF INTRO SECTION -->
-    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col" style="min-height: clamp(500px, 90vh, 960px);" x-data="{
+    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col min-h-[90vh]" x-data="{
         slide: 0,
         total: 3,
         prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
@@ -69,10 +69,10 @@
         <hr class="border-white/25 mx-0">
 
         <!-- Slides Wrapper -->
-        <div class="flex-1 max-w-5xl w-full mx-auto px-10 flex flex-col justify-center">
+        <div class="flex-1 w-full max-w-5xl mx-auto px-6 md:px-10 py-6 md:py-0 flex flex-col justify-center">
 
-            <!-- Slides Container: fixed height, slides layered absolutely for seamless crossfade -->
-            <div class="relative w-full" style="height: clamp(320px, 60vh, 560px);">
+            <!-- Slides Container: mobile = natural flow stack; desktop = fills flex parent -->
+            <div class="relative w-full flex-1 intro-slides-container">
 
                 <!-- SLIDE 1: Who I am -->
                 <div x-show="slide === 0"
@@ -82,34 +82,37 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
-                     class="absolute inset-0 grid gap-12 items-center"
+                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
                      style="grid-template-columns: 3fr 2fr;">
 
-                    <!-- Left: Text -->
-                    <div>
-                        <div class="flex items-center gap-3 mb-1">
-                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">I am</span>
-                            <div class="flex-1 border-t border-dotted border-white/40"></div>
-                        </div>
-                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
-                            Brix Jorie F. Cura
-                        </h3>
-                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
-                            Product Designer &nbsp;•&nbsp; Full-Stack Creative &nbsp;•&nbsp; System Developer
-                        </p>
-                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
-                            <p>A multidisciplinary creative blending design, storytelling, and code to deliver intentional, high-impact digital solutions. As a solution-based problem solver with skills spanning visual arts and front-end development.</p>
-                            <p>I don't just build interfaces—I design with strict purpose and execution, turning complex challenges into meaningful, user-centric experiences.</p>
-                        </div>
-                    </div>
-
-                    <!-- Right: Photo -->
-                    <div class="flex items-center justify-end h-full">
-                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
+                    <!-- Top on mobile: Photo -->
+                    <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
+                        <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2
+                                    shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)]
+                                    outline outline-[1.5px] outline-offset-[-1.5px] outline-black"
+                             style="aspect-ratio: 3/4; border-radius: 24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%;">
                             <img src="{{ asset('images/intro/profile.png') }}"
                                  alt="Brix Jorie Cura"
                                  class="w-full h-full object-cover object-top"
                                  onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place photo at<br><strong>public/images/intro/profile.png</strong></div>'">
+                        </div>
+                    </div>
+
+                    <!-- Bottom on mobile: Text -->
+                    <div class="md:order-first">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">I am</span>
+                            <div class="flex-1 border-t border-dotted border-white/40"></div>
+                        </div>
+                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                            Brix Jorie F. Cura
+                        </h3>
+                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
+                            Product Designer &nbsp;•&nbsp; Full-Stack Creative &nbsp;•&nbsp; System Developer
+                        </p>
+                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
+                            <p>A multidisciplinary creative blending design, storytelling, and code to deliver intentional, high-impact digital solutions. As a solution-based problem solver with skills spanning visual arts and front-end development.</p>
+                            <p>I don't just build interfaces—I design with strict purpose and execution, turning complex challenges into meaningful, user-centric experiences.</p>
                         </div>
                     </div>
                 </div>
@@ -122,32 +125,32 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
-                     class="absolute inset-0 grid gap-12 items-center"
+                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
                      style="grid-template-columns: 3fr 2fr;">
 
-                    <!-- Left: Text -->
-                    <div>
+                    <!-- Top on mobile: Photo -->
+                    <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
+                        <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2" style="aspect-ratio: 3/4; border-radius: 12% / 9%;">
+                            <img src="{{ asset('images/intro/slide2.jpg') }}" alt="Slide 2"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide2.jpg</strong></div>'">
+                        </div>
+                    </div>
+
+                    <!-- Bottom on mobile: Text -->
+                    <div class="md:order-first">
                         <div class="flex items-center gap-3 mb-1">
                             <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 2</span>
                             <div class="flex-1 border-t border-dotted border-white/40"></div>
                         </div>
-                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
                             Your Story Here
                         </h3>
-                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
+                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
                             Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
                         </p>
-                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
+                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
                             <p>This is the second slide of your story. Replace this placeholder with a chapter about your journey, your skills, or a key milestone that shaped who you are today.</p>
-                        </div>
-                    </div>
-
-                    <!-- Right: Photo -->
-                    <div class="flex items-center justify-end h-full">
-                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
-                            <img src="{{ asset('images/intro/slide2.jpg') }}" alt="Slide 2"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide2.jpg</strong></div>'">
                         </div>
                     </div>
                 </div>
@@ -160,32 +163,32 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
-                     class="absolute inset-0 grid gap-12 items-center"
+                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
                      style="grid-template-columns: 3fr 2fr;">
 
-                    <!-- Left: Text -->
-                    <div>
+                    <!-- Top on mobile: Photo -->
+                    <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
+                        <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2" style="aspect-ratio: 3/4; border-radius: 12% / 9%;">
+                            <img src="{{ asset('images/intro/slide3.jpg') }}" alt="Slide 3"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide3.jpg</strong></div>'">
+                        </div>
+                    </div>
+
+                    <!-- Bottom on mobile: Text -->
+                    <div class="md:order-first">
                         <div class="flex items-center gap-3 mb-1">
                             <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">Chapter 3</span>
                             <div class="flex-1 border-t border-dotted border-white/40"></div>
                         </div>
-                        <h3 class="font-display text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
                             Your Story Here
                         </h3>
-                        <p class="text-xs font-sans text-white/50 tracking-wider mb-8">
+                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
                             Subtitle &nbsp;•&nbsp; Role &nbsp;•&nbsp; Context
                         </p>
-                        <div class="space-y-5 font-poppins text-sm text-white/80 leading-loose">
+                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
                             <p>This is the third slide of your story. Fill it with what makes you unique—your values, your vision, or a powerful moment that defines your craft and drives your work.</p>
-                        </div>
-                    </div>
-
-                    <!-- Right: Photo -->
-                    <div class="flex items-center justify-end h-full">
-                        <div class="rounded-[2rem] overflow-hidden h-full" style="aspect-ratio: 3/4;">
-                            <img src="{{ asset('images/intro/slide3.jpg') }}" alt="Slide 3"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:11px;color:rgba(0,0,0,0.4);\'>Place image at<br><strong>public/images/intro/slide3.jpg</strong></div>'">
                         </div>
                     </div>
                 </div>
@@ -194,8 +197,8 @@
         </div>
 
         <!-- Navigation: divider + dots + arrows -->
-        <hr class="border-white/25 mx-0">
-        <div class="py-5 flex items-center justify-center gap-6">
+        <hr class="border-white/25 mx-0 mt-2 md:mt-0">
+        <div class="py-4 md:py-5 flex items-center justify-center gap-6">
 
             <!-- Prev Arrow -->
             <button @click="prev()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">
@@ -206,7 +209,7 @@
             <div class="flex gap-2.5 items-center">
                 <template x-for="i in total" :key="i">
                     <button @click="slide = i - 1"
-                            :class="slide === i - 1 ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
+                            :class="slide === i - 1 ? 'bg-white scale-110' : 'bg-white/35 hover:bg-white/60'"
                             class="w-2.5 h-2.5 rounded-full transition-all duration-300">
                     </button>
                 </template>
@@ -240,167 +243,74 @@
 
             <!-- Loop Categories -->
             @foreach($skillsByCategory as $category => $skills)
-                
-
-                <div class="{{ $categoryColors[$category] ?? 'bg-[#d0f69a]' }} w-full flex flex-col md:grid md:grid-cols-[3.5rem_1fr_1fr_1fr_1fr_3.5rem] border-b border-black">
+                <div class="{{ $categoryColors[$category] ?? 'bg-[#d0f69a]' }} w-full flex flex-col border-b border-black">
                     
-                    <!-- Left Sidebar (Category Name) -->
-                    <div class="flex items-center justify-center border-b md:border-b-0 md:border-r border-black py-4 md:py-8">
-                        <span class="font-mono font-bold tracking-[0.3em] uppercase text-slate-800 md:-rotate-90 whitespace-nowrap text-xs">
-                            {{ $category }}
-                        </span>
+                    <!-- Mobile Header for Category -->
+                    <div class="md:hidden w-full px-6 py-3 border-b border-black/10">
+                        <span class="font-mono font-bold tracking-[0.2em] uppercase text-slate-800 text-[10px]">{{ $category }}</span>
                     </div>
 
-                    <!-- Skills Blocks (up to 4) -->
-                    @foreach($skills->take(4) as $index => $skill)
-                        <div class="p-6 border-b md:border-b-0 md:border-r border-black flex flex-col justify-between min-h-[180px] lg:min-h-[260px] transition-all duration-300 hover:bg-gradient-to-br hover:from-white/90 hover:via-white/40 hover:to-transparent cursor-default group">
-                            <!-- Number Circle -->
-                            <div class="w-7 h-7 rounded-full border border-black flex items-center justify-center text-[11px] font-sans text-black">
-                                {{ $index + 1 }}
-                            </div>
-
-                            <!-- Skill Name -->
-                            <h3 class="font-poppins font-black text-sm lg:text-base uppercase text-black leading-snug mt-8 group-hover:scale-[1.02] transition-transform origin-left">
-                                {{ $skill->name }}
-                            </h3>
+                    <!-- Skills Grid -->
+                    <div class="md:grid md:grid-cols-[3.5rem_1fr_1fr_1fr_1fr_3.5rem]">
+                        
+                        <!-- Left Sidebar (Category Name Desktop) -->
+                        <div class="hidden md:flex items-center justify-center border-r border-black py-8">
+                            <span class="font-mono font-bold tracking-[0.3em] uppercase text-slate-800 -rotate-90 whitespace-nowrap text-xs">
+                                {{ $category }}
+                            </span>
                         </div>
-                    @endforeach
 
-                    <!-- Fill remaining columns if less than 4 skills -->
-                    @for($i = $skills->count(); $i < 4; $i++)
-                        <div class="p-6 border-b md:border-b-0 md:border-r border-black hidden md:block"></div>
-                    @endfor
+                        <!-- Skills Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 md:col-span-4 w-full">
+                            @foreach($skills->take(4) as $index => $skill)
+                                <div class="p-4 md:p-6 border-r border-b md:border-b-0 border-black flex flex-col justify-between min-h-[120px] md:min-h-[260px] transition-all duration-300 hover:bg-black/5 md:hover:bg-gradient-to-br md:hover:from-white/90 md:hover:via-white/40 md:hover:to-transparent cursor-default group">
+                                    <div class="w-6 h-6 md:w-7 md:h-7 rounded-full border border-black flex items-center justify-center text-[10px] md:text-[11px] font-sans text-black">
+                                        {{ $index + 1 }}
+                                    </div>
+                                    <h3 class="font-poppins font-black text-xs md:text-base uppercase text-black leading-snug mt-4 md:mt-8">
+                                        {{ $skill->name }}
+                                    </h3>
+                                </div>
+                            @endforeach
+                            <!-- Fill empty -->
+                            @for($i = $skills->count(); $i < 4; $i++)
+                                <div class="border-r border-b md:border-b-0 border-black hidden md:block"></div>
+                            @endfor
+                        </div>
 
-                    <!-- Right Empty Sidebar -->
-                    <div class="hidden md:block"></div>
-                    
+                        <!-- Right Sidebar Desktop -->
+                        <div class="hidden md:block"></div>
+                    </div>
                 </div>
             @endforeach
             
-            <!-- Tools & Software Used — Orange themed block -->
-            <!-- Header -->
+            <!-- Tools & Software Used -->
             <div class="w-full bg-[#FF851B] py-3 text-center border-b border-[#783800]/20">
                 <h2 class="font-display text-2xl uppercase tracking-[0.1em] text-[#783800]">Tools &amp; Software Used</h2>
             </div>
 
-            <!-- Programming Languages Marquee -->
-            <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[11vh]">
-                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#FF851B] z-10 px-2">
-                    Programming<br>Languages
-                </div>
-                <div class="flex-1 flex overflow-hidden relative items-center">
-                    <!-- Set 1 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
-                        
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+            <!-- Marquee rows -->
+            @foreach([
+                ['name' => 'Programming Languages', 'items' => ['PHP', 'Laravel', 'JavaScript', 'Vue.js', 'Tailwind CSS', 'Alpine.js']],
+                ['name' => 'Editing Tools', 'items' => ['Blender', 'Illustrator', 'After Effects', 'Premiere', 'Photoshop', 'CapCut']],
+                ['name' => 'General Tools', 'items' => ['Git', 'Figma', 'Docker', 'VScode', 'Jira', 'Notion', 'FigJam', 'Word', 'Excel', 'PowerPoint', 'Canva']]
+            ] as $marquee)
+                <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[14vh] md:min-h-[11vh]">
+                    <div class="w-24 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[9px] md:text-sm tracking-widest uppercase text-center leading-tight z-10 px-2">
+                        {{ $marquee['name'] }}
                     </div>
-                    <!-- Set 2 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
-                        
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">PHP</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Laravel</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">JavaScript</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Vue.js</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Tailwind CSS</span>
-                        <span class="font-normal font-sans text-sm md:text-xl text-[#783800]">Alpine.js</span>
+                    <div class="flex-1 flex overflow-hidden relative items-center">
+                        <div class="animate-marquee flex whitespace-nowrap items-center gap-10 md:gap-16 pl-10 md:pl-16">
+                            @foreach(array_merge($marquee['items'], $marquee['items']) as $item)
+                                <span class="font-normal font-sans text-xs md:text-xl flex items-center gap-3">
+                                    <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase">{{ substr($item, 0, 2) }}</div>
+                                    {{ $item }}
+                                </span>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Editing Tools Marquee -->
-            <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[11vh]">
-                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-sm tracking-widest uppercase text-center leading-tight bg-[#FF851B] z-10 px-2">
-                    Editing Tools
-                </div>
-                <div class="flex-1 flex overflow-hidden relative items-center">
-                    <!-- Set 1 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
-                        
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
-                    </div>
-                    <!-- Set 2 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
-                        
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Bl</div> Blender</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ai</div> Illustrator</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ae</div> After Effects</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Pr</div> Premiere</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Ps</div> Photoshop</span>
-                        <span class="font-normal font-sans text-sm md:text-lg flex items-center gap-2"><div class="w-6 h-6 border border-[#783800]/40 rounded flex items-center justify-center text-[10px] bg-[#783800]/10 text-[#783800]">Cc</div> CapCut</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- General Tools Marquee -->
-            <div class="w-full bg-[#FF851B] text-[#783800] flex overflow-hidden min-h-[11vh]">
-                <div class="w-32 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[10px] md:text-xs tracking-widest text-center leading-tight bg-[#FF851B] z-10 px-2">
-                    General Tools
-                </div>
-                <div class="flex-1 flex overflow-hidden relative items-center">
-                    <!-- Set 1 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12">
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Gi</div> Git</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fi</div> Figma</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Do</div> Docker</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Vs</div> VScode</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ji</div> Jira</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">No</div> Notion</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fj</div> FigJam</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Wd</div> MS Word</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ex</div> MS Excel</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Pp</div> MS PowerPoint</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ca</div> Canva</span>
-                    </div>
-                    <!-- Set 2 -->
-                    <div class="animate-marquee flex whitespace-nowrap items-center gap-12 pl-12" aria-hidden="true">
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Gi</div> Git</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fi</div> Figma</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Do</div> Docker</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Vs</div> VScode</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ji</div> Jira</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">No</div> Notion</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Fj</div> FigJam</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Wd</div> MS Word</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ex</div> MS Excel</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Pp</div> MS PowerPoint</span>
-                        <span class="font-normal font-sans text-sm md:text-base flex items-center gap-2"><div class="w-5 h-5 border border-[#783800]/40 rounded flex items-center justify-center text-[9px] bg-[#783800]/10 text-[#783800]">Ca</div> Canva</span>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <div class="w-full bg-[#FAF7E6] leading-none">
@@ -795,13 +705,13 @@
     </div>
 
     <!-- ACHIEVEMENTS SECTION (Modern Two-Column Layout) -->
-    <section id="achievements" class="py-24 bg-white text-black font-sans border-b border-gray-100" 
+    <section id="achievements" class="pt-14 pb-12 lg:py-24 bg-white text-black font-sans border-b border-gray-100" 
              x-data="{ activeTab: 'all', selectedItem: null }">
-        <div class="max-w-[1400px] mx-auto px-6">
+        <div class="max-w-[1400px] mx-auto px-4 lg:px-6">
             
             <!-- Top Header & Pills -->
-            <div class="text-center mb-24">
-                <h3 class="text-[3rem] font-bold tracking-tight text-black mb-8 font-display uppercase">Achievements</h3>
+            <div class="text-center mb-8 lg:mb-24">
+                <h3 class="text-[2rem] lg:text-[3rem] font-bold tracking-tight text-black mb-5 lg:mb-8 font-display uppercase">Achievements</h3>
 
                 <!-- Switchable tabs (Purple Accent) -->
                 <div class="inline-flex items-center gap-3">
@@ -824,21 +734,25 @@
             </div>
 
             <!-- Two Column Layout -->
-            <div class="flex flex-col lg:flex-row items-center lg:items-start gap-16 lg:gap-24">
+            <div class="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-24">
                 
                 <!-- Left Content -->
-                <div class="lg:w-[35%] text-left pt-4">
-                    <h2 class="text-[3.25rem] font-bold tracking-tight text-black mb-6 leading-[1.1] font-poppins">
-                        We've got <br> 
-                        <span class="font-poppins" x-text="activeTab === 'all' ? 'Great' : (activeTab === 'award' ? 'Amazing' : 'Official')"></span> <br>
-                        <span class="font-poppins" x-text="activeTab === 'all' ? 'Achievements' : (activeTab === 'award' ? 'Awards' : 'Certificates')"></span>
+                <div class="w-full lg:w-[35%] text-center lg:text-left pt-2 lg:pt-4 order-2 lg:order-1">
+                    <!-- Mobile heading: single line, centered -->
+                    <h2 class="text-[1.75rem] lg:text-[3.25rem] font-bold tracking-tight text-black mb-3 lg:mb-6 leading-tight font-poppins">
+                        <span class="lg:hidden">We've got <span x-text="activeTab === 'all' ? 'Great Achievements' : (activeTab === 'award' ? 'Amazing Awards' : 'Official Certificates')"></span></span>
+                        <span class="hidden lg:block">
+                            We've got <br>
+                            <span x-text="activeTab === 'all' ? 'Great' : (activeTab === 'award' ? 'Amazing' : 'Official')"></span> <br>
+                            <span x-text="activeTab === 'all' ? 'Achievements' : (activeTab === 'award' ? 'Awards' : 'Certificates')"></span>
+                        </span>
                     </h2>
-                    <p class="text-gray-500 text-lg leading-relaxed mb-12 font-medium font-poppins">
+                    <p class="text-gray-500 text-sm lg:text-lg leading-relaxed mb-6 lg:mb-12 font-medium font-poppins max-w-xs mx-auto lg:mx-0 lg:max-w-none">
                         Being appreciated for the work we do means the world to us. It translates beautifully into our official ratings, continuous learning, and industry recognition.
                     </p>
                     
-                    <!-- Arrow Controls (Left Column) -->
-                    <div class="flex items-center gap-4"
+                    <!-- Arrow Controls (Left Column, desktop only) -->
+                    <div class="hidden lg:flex items-center gap-4"
                          x-data="{ 
                             scrollNext() { document.getElementById('achievement-carousel').scrollBy({ left: 340, behavior: 'smooth' }) },
                             scrollPrev() { document.getElementById('achievement-carousel').scrollBy({ left: -340, behavior: 'smooth' }) }
@@ -856,7 +770,7 @@
                 </div>
 
                 <!-- Right Content (Carousel) -->
-                <div class="lg:w-[65%] w-full relative"
+                <div class="lg:w-[65%] w-full relative order-1 lg:order-2"
                      x-data="{ 
                         canScrollLeft: false, 
                         canScrollRight: true,
@@ -886,8 +800,11 @@
 
                     <!-- Carousel Track -->
                     <!-- We use negative margins and padding to allow shadows to clip nicely without cutting off -->
-                    <div id="achievement-carousel" class="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-16 pt-8 px-4 -mx-4 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <div id="achievement-carousel" class="flex gap-5 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-10 lg:pb-16 pt-6 lg:pt-8 px-4 -mx-4 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none; scroll-padding-left: calc(50vw - min(39vw, 150px) - 2.25rem);">
                         
+                        <!-- Mobile centering spacer (start) -->
+                        <div class="flex-none lg:hidden" style="width: calc(50vw - min(39vw, 150px) - 2.25rem);" aria-hidden="true"></div>
+
                         <!-- Mixed Achievements Loop -->
                         @forelse($achievementsByType->flatten(1)->sortByDesc('year') as $item)
                             @php
@@ -898,18 +815,18 @@
                             <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
                                  x-transition.opacity
                                  @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}' }"
-                                 class="flex-none snap-start group cursor-pointer relative"
-                                 style="width: 320px;">
+                                 class="flex-none snap-center lg:snap-start group cursor-pointer relative"
+                                 style="width: min(78vw, 300px);">
                                  
-                                <div class="relative overflow-hidden bg-white rounded-[2rem] p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.04)] group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030] border-2 border-gray-100 h-[420px]">
+                                <div class="relative overflow-hidden bg-white rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.06)] group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030] border-2 border-gray-100 h-auto lg:h-[420px] min-h-[300px]">
                                     
                                     <!-- Shine Effect -->
                                     <div class="absolute top-0 -left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent transform -skew-x-12 transition-all duration-700 ease-in-out group-hover:left-[150%] z-20 pointer-events-none"></div>
 
-                                    <div class="w-full flex justify-center mb-10 mt-4 relative z-10">
+                                    <div class="w-full flex justify-center mb-6 lg:mb-10 mt-2 lg:mt-4 relative z-10">
                                         @if($isAward)
                                             <!-- Hexagon-ish Shape for Icon -->
-                                            <div class="w-32 h-32 relative flex items-center justify-center">
+                                            <div class="w-24 h-24 lg:w-32 lg:h-32 relative flex items-center justify-center">
                                                 <svg class="absolute inset-0 w-full h-full text-amber-50 drop-shadow-sm transition-colors duration-500 group-hover:text-amber-100" viewBox="0 0 100 100" fill="currentColor">
                                                     <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
                                                 </svg>
@@ -926,11 +843,11 @@
                                                     </defs>
                                                     <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
                                                 </svg>
-                                                <img src="{{ asset('images/awards/medal-icon.svg') }}" alt="Award" class="w-16 h-16 relative z-10">
+                                                <img src="{{ asset('images/awards/medal-icon.svg') }}" alt="Award" class="w-12 h-12 lg:w-16 lg:h-16 relative z-10">
                                             </div>
                                         @else
                                             <!-- Hexagon-ish Shape for Icon -->
-                                            <div class="w-32 h-32 relative flex items-center justify-center">
+                                            <div class="w-24 h-24 lg:w-32 lg:h-32 relative flex items-center justify-center">
                                                 <svg class="absolute inset-0 w-full h-full text-amber-50 drop-shadow-sm transition-colors duration-500 group-hover:text-amber-100" viewBox="0 0 100 100" fill="currentColor">
                                                     <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
                                                 </svg>
@@ -947,14 +864,14 @@
                                                     </defs>
                                                     <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
                                                 </svg>
-                                                <img src="{{ asset('images/awards/certificate-icon.svg') }}" alt="Certificate" class="w-16 h-16 relative z-10">
+                                                <img src="{{ asset('images/awards/certificate-icon.svg') }}" alt="Certificate" class="w-12 h-12 lg:w-16 lg:h-16 relative z-10">
                                             </div>
                                         @endif
                                     </div>
                                     
                                     <div class="flex-grow flex flex-col justify-start w-full">
-                                        <h4 class="font-bold text-[1.4rem] leading-tight text-black mb-3 break-words">{{ $item->title }}</h4>
-                                        <p class="text-gray-500 font-medium text-sm break-words">{{ $item->issuer }}</p>
+                                        <h4 class="font-bold text-[1.1rem] lg:text-[1.4rem] leading-tight text-black mb-2 lg:mb-3 break-words">{{ $item->title }}</h4>
+                                        <p class="text-gray-500 font-medium text-xs lg:text-sm break-words">{{ $item->issuer }}</p>
                                     </div>
 
                                 </div>
@@ -962,6 +879,27 @@
                         @empty
                             <p class="text-center text-gray-400 text-sm py-20 w-full">No achievements found.</p>
                         @endforelse
+
+                        <!-- Mobile centering spacer (end) -->
+                        <div class="flex-none lg:hidden" style="width: calc(50vw - min(39vw, 150px) - 2.25rem);" aria-hidden="true"></div>
+                    </div>
+                    {{-- ^ closes achievement-carousel track --}}
+
+                    <!-- Mobile-only Prev/Next arrows (below carousel) -->
+                    <div class="flex lg:hidden items-center justify-center gap-6 mt-2 pb-2"
+                         x-data="{ 
+                            scrollNext() { document.getElementById('achievement-carousel').scrollBy({ left: 300, behavior: 'smooth' }) },
+                            scrollPrev() { document.getElementById('achievement-carousel').scrollBy({ left: -300, behavior: 'smooth' }) }
+                         }">
+                        <button @click="scrollPrev()" class="w-11 h-11 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        </button>
+                        <div class="w-10 h-[2px] bg-gray-100 relative">
+                            <div class="absolute left-0 top-0 h-full w-1/2 bg-[#5e17eb] rounded-full"></div>
+                        </div>
+                        <button @click="scrollNext()" class="w-11 h-11 flex items-center justify-center border border-[#5e17eb]/30 rounded-full text-[#5e17eb] active:bg-[#5e17eb]/10 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </button>
                     </div>
                 </div>
 
@@ -976,32 +914,39 @@
                 <div @click.away="selectedItem = null"
                      x-show="selectedItem !== null"
                      x-transition.scale.95
-                     class="bg-white max-w-4xl w-full rounded-[2rem] p-10 relative shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-10">
+                     class="bg-white max-w-4xl w-full h-[85vh] md:h-auto rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 relative shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-6 md:gap-10 max-h-[90vh] overflow-hidden md:overflow-y-auto">
                     
                     <!-- Close Button -->
-                    <button @click="selectedItem = null" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors bg-gray-50 hover:bg-gray-100 rounded-full p-2 z-20">
+                    <button @click="selectedItem = null" class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-400 hover:text-black transition-colors bg-gray-50 hover:bg-gray-100 rounded-full p-2 z-20">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
 
                     <!-- Left Content -->
-                    <div class="flex-1 flex flex-col justify-center pt-2">
-                        <div class="mb-6">
-                            <span class="px-4 py-1.5 bg-[#5e17eb] text-white font-semibold text-[11px] uppercase tracking-widest rounded-full mb-6 inline-block" x-text="selectedItem.type"></span>
-                            <h4 class="text-4xl font-bold tracking-tight text-black leading-tight mb-3 font-sans" x-text="selectedItem.title"></h4>
-                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider font-sans" x-text="selectedItem.issuer"></p>
+                    <div class="flex-1 flex flex-col justify-center pt-2 md:pt-4 min-h-0">
+                        <div class="mb-4 md:mb-6 px-4 md:px-0 shrink-0 text-center md:text-left">
+                            <span class="px-3 md:px-4 py-1 md:py-1.5 bg-[#5e17eb] text-white font-semibold text-[10px] md:text-[11px] uppercase tracking-widest rounded-full mb-3 md:mb-6 inline-block" x-text="selectedItem.type"></span>
+                            <h4 class="text-2xl md:text-4xl font-bold tracking-tight text-black leading-tight mb-2 md:mb-3 font-sans line-clamp-2 md:line-clamp-none" x-text="selectedItem.title"></h4>
+                            <p class="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wider font-sans" x-text="selectedItem.issuer"></p>
                         </div>
 
-                        <div class="h-px bg-gray-100 w-full my-6"></div>
+                        <!-- Mobile Image (Interlaced, Adaptive) -->
+                        <div class="flex-1 min-h-[100px] flex items-center justify-center mb-4 md:mb-6 md:hidden">
+                            <div class="h-full aspect-[9/16] bg-[#d1d5db] rounded-[1.25rem] overflow-hidden relative shadow-inner max-w-full">
+                                <!-- Placeholder for slider -->
+                            </div>
+                        </div>
 
-                        <p class="text-gray-600 font-sans leading-relaxed text-[15px]" x-text="selectedItem.description"></p>
+                        <div class="h-px bg-gray-100 w-full mb-4 md:mb-6 hidden md:block shrink-0"></div>
+
+                        <p class="text-gray-600 font-sans leading-relaxed text-[13px] md:text-[15px] shrink-0 line-clamp-3 md:line-clamp-none text-center md:text-left" x-text="selectedItem.description"></p>
                         
-            <div class="mt-8 text-left">
-                            <span class="font-semibold text-sm bg-gray-100 text-black px-5 py-2 rounded-full font-sans" x-text="'Awarded: ' + selectedItem.year"></span>
+                        <div class="mt-4 md:mt-8 text-center md:text-left shrink-0">
+                            <span class="font-semibold text-[11px] md:text-sm bg-gray-100 text-black px-4 md:px-5 py-2 rounded-full font-sans inline-block" x-text="'Awarded: ' + selectedItem.year"></span>
                         </div>
                     </div>
 
-                    <!-- Right Content (Image Slider Placeholder) -->
-                    <div class="w-full md:w-[35%] flex-shrink-0">
+                    <!-- Right Content (Image Slider Placeholder - Desktop only) -->
+                    <div class="hidden md:block w-full md:w-[35%] flex-shrink-0">
                         <div class="w-full aspect-[9/16] bg-[#d1d5db] rounded-[1.5rem] overflow-hidden relative shadow-inner">
                             <!-- Placeholder for slider -->
                         </div>
@@ -1017,7 +962,7 @@
         
         <!-- Wavy Divider from Achievements to Work Experience -->
         <!-- Translating slightly up and wider to prevent any sub-pixel rendering lines -->
-        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-[-1px] right-[-1px] z-0 transform translate-y-[-1px]">
+        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-0 z-0 transform translate-y-[-1px] scale-x-[1.01]">
             <svg class="relative block w-[calc(100%+2px)] h-[35px] sm:h-[55px] md:h-[75px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
                 <path fill="#ffffff" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,133.3C1120,117,1280,107,1360,101.3L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
             </svg>
@@ -1028,52 +973,86 @@
            
             
             <!-- Section Header -->
-            <div class="text-center mb-20">
-                <h3 class="text-3xl sm:text-[2.5rem] font-bold tracking-tight text-black font-display uppercase">Work Experience</h3>
+            <div class="text-center mb-16 md:mb-20">
+                <h3 class="text-[28px] sm:text-[2.5rem] font-bold tracking-tight text-black font-display uppercase">Work Experience</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 items-stretch">
+            <!-- Main Work Experience Content -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-stretch"
+                 x-data="{ 
+                     currentSlide: 0, 
+                     modalOpen: false,
+                     experiences: [
+                         {
+                             year: '2022 - 2025',
+                             title: 'Responsive Web Architecture & Accessibility',
+                             issuer: 'W3 CONSORTIUM',
+                             image: 'https://picsum.photos/id/237/1000/600',
+                             description: 'Certified in designing highly keyboard navigable and screen-reader accessible modern layouts. Certified in designing highly keyboard navigable and screen-reader accessible modern layouts. Certified in designing highly keyboard navigable and screen-reader accessible modern layouts.'
+                         },
+                         {
+                             year: '2020 - 2022',
+                             title: 'Full Stack Development',
+                             issuer: 'Tech Academy',
+                             image: 'https://picsum.photos/id/1015/1000/600',
+                             description: 'Built robust web applications using Laravel, Vue, and Tailwind. Focused on performance and scalable architecture.'
+                         }
+                     ] 
+                 }">
                 
-                <!-- Left Side: Image Slider -->
-                <div class="w-full" x-data="{ currentSlide: 0, slides: ['https://picsum.photos/id/237/1000/600', 'https://picsum.photos/id/1015/1000/600', 'https://picsum.photos/id/1025/1000/600'] }">
-                    <div class="relative w-full aspect-video bg-[#e5e7eb] rounded-xl overflow-hidden group shadow-sm">
-                        <template x-for="(slide, index) in slides" :key="index">
-                            <img :src="slide" 
+                <!-- Left Side: Interactive Viewer (Hidden on Mobile since it's inside the Modal) -->
+                <div class="hidden md:flex w-full relative z-10 flex-col items-stretch">
+                    
+                    <!-- Title & Slide indicator -->
+                    <div class="flex justify-between items-center mb-4 text-black">
+                        <span class="font-bold text-[14px] md:text-[15px] font-sans">School Organization Multimedia</span>
+                        <span class="font-bold text-[13px] font-sans" x-text="(currentSlide + 1) + '/' + experiences.length">1/2</span>
+                    </div>
+
+                    <!-- Image Slider -->
+                    <div class="relative w-full aspect-[4/3] md:aspect-video bg-[#e5e7eb] rounded-[1.25rem] md:rounded-[1.5rem] overflow-hidden group shadow-sm border-[3px] border-black shrink-0">
+                        <template x-for="(exp, index) in experiences" :key="index">
+                            <img :src="exp.image" 
                                  class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
                                  :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
-                                 alt="Work Experience Slide">
+                                 alt="Work Experience Image">
                         </template>
 
                         <!-- Controls -->
-                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                            <button @click="currentSlide = currentSlide === 0 ? slides.length - 1 : currentSlide - 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-3 md:px-4 opacity-100 transition-opacity z-20">
+                            <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                             </button>
-                            <button @click="currentSlide = currentSlide === slides.length - 1 ? 0 : currentSlide + 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
 
                         <!-- Indicators -->
-                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
-                            <template x-for="(slide, index) in slides" :key="index">
+                        <div class="absolute bottom-3 md:bottom-4 left-0 right-0 flex justify-center gap-1.5 md:gap-2 z-20">
+                            <template x-for="(exp, index) in experiences" :key="index">
                                 <button @click="currentSlide = index"
-                                        class="h-1.5 rounded-full transition-all duration-300"
-                                        :class="currentSlide === index ? 'w-6 bg-white shadow' : 'w-2 bg-white/50 hover:bg-white/80'"></button>
+                                        class="h-1.5 md:h-2 rounded-full transition-all duration-300"
+                                        :class="currentSlide === index ? 'w-5 md:w-6 bg-white shadow border border-black' : 'w-1.5 md:w-2 bg-black/50 hover:bg-black/80'"></button>
                             </template>
                         </div>
                     </div>
+
+                    <!-- Info Card Below Image (Invisible spacer creates the massive downward stretch on desktop) -->
+                    <div class="hidden md:block border-[3px] border-black rounded-[1rem] p-5 md:p-6 bg-[#e2e8f0] mt-4 relative z-0 mb-8 md:mb-64 shrink-0">
+                        <h4 class="font-bold text-black text-[18px] md:text-[20px] leading-snug mb-2 font-sans pr-4" x-text="experiences[currentSlide].title"></h4>
+                        <p class="text-black/75 font-sans leading-relaxed text-[12px] md:text-[13px] line-clamp-6 md:line-clamp-none" x-text="experiences[currentSlide].description"></p>
+                    </div>
+
                 </div>
 
                 <!-- Right Side: Timeline -->
-                <div class="flex flex-col h-full py-4 pl-[56px] relative">
+                <div class="flex flex-col h-full py-4 pl-[48px] md:pl-[56px] relative z-0">
                     
-                    <!-- Standalone Connector Group (Freely modifiable position) -->
-                    <!-- Adjust 'top' and 'bottom' classes here to tweak the entire track's alignment relative to the text -->
-                    <div class="absolute left-[24px] top-[24px] bottom-[62px] w-[24px] flex flex-col items-center z-10">
-                        
+                    <!-- Standalone Connector Group -->
+                    <div class="absolute left-[16px] md:left-[24px] top-[24px] bottom-[50px] md:bottom-[62px] w-[24px] flex flex-col items-center z-10 pointer-events-none">
                         <!-- Top Solid Dot -->
-                        <div class="w-[16px] h-[16px] bg-black rounded-full shrink-0"></div>
+                        <div class="w-[12px] h-[12px] md:w-[16px] md:h-[16px] bg-black rounded-full shrink-0"></div>
                         
                         <!-- Standalone SVG Line -->
                         <svg class="flex-1 w-[2px] my-2" preserveAspectRatio="none">
@@ -1081,29 +1060,103 @@
                         </svg>
                         
                         <!-- Bottom Dashed Circle -->
-                        <div class="w-[20px] h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#79ECFF] shrink-0"></div>
-                        
+                        <div class="w-[16px] h-[16px] md:w-[20px] md:h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#79ECFF] shrink-0"></div>
                     </div>
                     
-                    <!-- Top Content -->
+                    <!-- Top Content (Timeline Items) -->
                     <div class="mb-auto">
-                        <h4 class="text-[20px] font-bold font-sans tracking-wide mb-4 mt-0.5 text-black">2022 - 2025</h4>
-                        <ul class="list-disc ml-5 space-y-2.5 text-[15px] font-sans text-black/90">
-                            <li>School Organization Multimedia</li>
-                            <li>Freelancer</li>
+                        <h4 class="hidden md:block text-[20px] font-bold font-sans tracking-wide mb-4 mt-0 text-black">2022 - 2025</h4>
+                        
+                        <!-- Mobile Interactive Button Heading -->
+                        <button @click="modalOpen = true" class="md:hidden relative inline-flex items-center justify-center bg-[#bbf7f0] border border-black rounded-[1rem] px-8 py-2.5 mb-6 mt-[-8px] transition-transform active:scale-95 focus:outline-none">
+                            <span class="text-[16px] font-bold font-sans tracking-wide text-black">2022 - 2025</span>
+                            <span class="absolute -top-2.5 -right-3 bg-[#1d00d1] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-black">VIEW</span>
+                        </button>
+
+                        <ul class="space-y-3 mt-2 md:mt-4 text-[14px] md:text-[15px] font-sans text-black/90 font-semibold">
+                            <li class="flex items-start gap-2">
+                                <span class="mt-1.5 w-1.5 h-1.5 bg-black rounded-full shrink-0"></span>
+                                <span>School Organization Multimedia</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="mt-1.5 w-1.5 h-1.5 bg-black rounded-full shrink-0"></span>
+                                <span>Freelancer</span>
+                            </li>
                         </ul>
                     </div>
                     
-                    <!-- Spacer to force a large gap (breathing room) -->
-                    <div class="flex-1 min-h-[300px]"></div>
+                    <!-- Spacer (Stretches mobile view as well) -->
+                    <div class="flex-1 min-h-[180px] md:min-h-[150px] lg:min-h-[250px]"></div>
                     
                     <!-- Bottom Content -->
-                    <div class="mt-auto">
-                        <p class="text-[16px] font-sans text-black/90 mb-1.5 tracking-wide pt-1">The Journey is still on it's way</p>
-                        <a href="#contact" class="text-[28px] font-extrabold font-sans text-black hover:opacity-70 transition-opacity block leading-[1.2] tracking-tight pb-1">Be a part of my experience</a>
+                    <div class="mt-8 md:mt-auto pb-4">
+                        <p class="text-[14px] md:text-[16px] font-sans text-black/90 mb-1 tracking-wide pt-1">The Journey is still on it's way</p>
+                        <a href="#contact" class="text-[22px] md:text-[28px] font-black font-sans text-black hover:opacity-70 transition-opacity block leading-[1.2] tracking-tight pb-1">Be a part of my experience</a>
                     </div>
 
                 </div>
+
+                <!-- Mobile Work Experience Modal (Frame 34 layout) -->
+                <div x-show="modalOpen" 
+                     style="display: none;"
+                     class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm md:hidden">
+                    
+                    <div @click.away="modalOpen = false"
+                         x-show="modalOpen"
+                         x-transition.scale.95
+                         class="bg-[#f8f9fa] w-full max-w-[360px] md:h-auto max-h-[90vh] overflow-y-auto rounded-[2rem] p-6 relative shadow-2xl flex flex-col">
+                        
+                        <!-- Close Button -->
+                        <button @click="modalOpen = false" class="absolute top-5 right-5 text-black hover:bg-black/5 rounded-full p-1 transition-colors z-20">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+
+                        <!-- Year Pill -->
+                        <div class="mb-5">
+                            <span class="px-4 py-1.5 bg-[#1d00d1] text-white font-semibold text-[12px] rounded-full inline-block font-sans" x-text="experiences[currentSlide].year"></span>
+                        </div>
+
+                        <!-- Title -->
+                        <h4 class="text-[22px] font-bold tracking-tight text-black leading-tight mb-2 font-sans pr-6" x-text="experiences[currentSlide].title"></h4>
+                        
+                        <!-- Subtitle (Issuer) -->
+                        <p class="text-[11px] font-bold text-black uppercase tracking-widest font-sans mb-5" x-text="experiences[currentSlide].issuer"></p>
+
+                        <!-- Image -->
+                        <div class="w-full aspect-[4/3] bg-[#d1d5db] rounded-[1.25rem] overflow-hidden relative shadow-inner mb-5 shrink-0">
+                            <img :src="experiences[currentSlide].image" class="w-full h-full object-cover border border-black/10">
+                        </div>
+
+                        <!-- Description -->
+                        <p class="text-black/80 font-sans leading-relaxed text-[13px] line-clamp-[7] mb-6" x-text="experiences[currentSlide].description"></p>
+
+                        <!-- Divider -->
+                        <hr class="border-black mb-6">
+
+                        <!-- Controls -->
+                        <div class="flex items-center justify-between px-2">
+                            <!-- Prev -->
+                            <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 rounded-full border border-[#8675ff] flex items-center justify-center text-[#8675ff] hover:bg-[#8675ff]/10 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+
+                            <!-- Dots -->
+                            <div class="flex items-center gap-2">
+                                <template x-for="(exp, index) in experiences" :key="index">
+                                    <button @click="currentSlide = index"
+                                            class="w-2.5 h-2.5 rounded-full transition-colors"
+                                            :class="currentSlide === index ? 'bg-[#1d00d1]' : 'bg-[#1d00d1]/30'"></button>
+                                </template>
+                            </div>
+
+                            <!-- Next -->
+                            <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 rounded-full border border-[#8675ff] flex items-center justify-center text-[#8675ff] hover:bg-[#8675ff]/10 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -1113,7 +1166,7 @@
     <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
 
         <!-- Wavy Divider from cyan Work Experience into dark Collaborate -->
-        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-[-1px] right-[-1px] z-0 transform translate-y-[-1px]">
+        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-0 z-0 transform translate-y-[-1px] scale-x-[1.01]">
             <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
                 <path fill="#79ECFF" d="M0,224L60,208C120,192,240,160,360,154.7C480,149,600,171,720,176C840,181,960,171,1080,154.7C1200,139,1320,117,1380,106.7L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
             </svg>

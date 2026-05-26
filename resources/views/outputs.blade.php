@@ -1,21 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="pt-32 pb-20 bg-[#FAF7E6] min-h-screen">
-        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all' }">
-            
-            {{-- FLOATING BACK NAVIGATION --}}
+    <style>
+        /* Hide the global navbar on this specific page to match the neo-brutalist design */
+        header, nav { display: none !important; }
+    </style>
+
+    <!-- Custom Black Header - Sticky "Back to Home" Widget -->
+    <div class="bg-black w-full py-5 px-6 sticky top-0 z-[100] shadow-md border-b border-black/10">
+        <div class="max-w-[1400px] mx-auto flex items-center">
+            <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
+                <span class="text-[#ff6b00] font-display text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
+            </a>
+        </div>
+    </div>
+
+    {{-- STICKY BACK NAVIGATION --}}
+    <div class="sticky top-[68px] z-[90] w-full bg-[#fdfaf0]/95 backdrop-blur-md border-b border-black/5 py-4 px-6 transition-all">
+        <div class="max-w-[1400px] mx-auto flex items-center">
             <a href="{{ route('portfolio.index') }}#outputs"
-               class="absolute top-0 left-6 z-50 flex items-center gap-3 font-sans text-[13px] text-[#ff6b00] hover:text-black transition-colors duration-300">
-                <div class="w-8 h-8 rounded-full border border-current flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+               class="inline-flex items-center gap-3 font-sans text-[13px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
+                <div class="w-9 h-9 rounded-full border border-current flex items-center justify-center bg-[#fdfaf0]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 </div>
                 <span class="font-bold uppercase tracking-widest mt-0.5">Back</span>
             </a>
+        </div>
+    </div>
 
-            <div class="mt-16 mb-12 text-center">
-                <h1 class="font-display text-4xl uppercase tracking-tighter text-black">All Outputs</h1>
-                <p class="text-sm font-mono text-black/40 mt-2">Product, UI, Graphic Arts, Motion &amp; Video</p>
+    <section class="pt-6 pb-20 bg-[#fdfaf0] min-h-screen">
+        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all' }">
+
+            <div class="mb-10 text-center">
+                <h1 class="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">All Outputs</h1>
+                <p class="text-[13px] md:text-[14px] font-mono text-black/40 mt-3 font-semibold">Product, UI, Graphic Arts, Motion &amp; Video</p>
             </div>
 
             @php
@@ -26,14 +44,14 @@
             <!-- Filter pills -->
             <div class="flex items-center justify-center gap-2 flex-wrap mb-10">
                 <button @click="activeFilter = 'all'"
-                        :class="activeFilter === 'all' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
-                        class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
+                        :class="activeFilter === 'all' ? 'bg-black text-white border-black' : 'bg-white text-black/40 border-black/10 hover:text-black hover:border-black/30'"
+                        class="px-5 py-1.5 rounded-full border font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-200">
                     All
                 </button>
                 @foreach($mediums as $med)
                     <button @click="activeFilter = '{{ $med }}'"
-                            :class="activeFilter === '{{ $med }}' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
-                            class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
+                            :class="activeFilter === '{{ $med }}' ? 'bg-black text-white border-black' : 'bg-white text-black/40 border-black/10 hover:text-black hover:border-black/30'"
+                            class="px-5 py-1.5 rounded-full border font-mono text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-200">
                         {{ $med }}
                     </button>
                 @endforeach

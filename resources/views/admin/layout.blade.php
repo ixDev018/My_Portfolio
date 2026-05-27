@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -24,7 +24,7 @@
             --brand-cream:    #FAF7E6;
             --sidebar-bg:     #2a1550;
             --sidebar-dark:   #1d0e3a;
-            --body-bg:        #0f0a1a;
+            --body-bg:        #0f0a1a; /* Can change this later to cream if needed based on dashboard mockup */
             --card-bg:        rgba(255,255,255,0.04);
             --border-color:   rgba(255,255,255,0.08);
         }
@@ -33,8 +33,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--body-bg);
-            color: #e2e8f0;
+            background: #F4F1E1; /* From dashboard reference mockup */
+            color: #1a1a1a;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -43,166 +43,129 @@
 
         /* Sidebar */
         .cms-sidebar {
-            background: var(--sidebar-bg);
-            border-right: 1px solid rgba(77, 217, 240, 0.1);
+            background: linear-gradient(270deg, #57347D 0%, #6829AA 50.48%, #57347D 100%);
+            border: 1px solid #000000;
+            border-radius: 16px;
             width: 260px;
-            min-height: 100vh;
+            height: calc(100vh - 2rem);
+            margin: 1rem;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
         .cms-sidebar-brand {
-            padding: 1.75rem 1.5rem;
-            border-bottom: 1px solid rgba(77,217,240,0.1);
+            padding: 3rem 2.5rem 2.5rem; /* Match left padding with nav links */
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .cms-sidebar-brand .dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--brand-cyan);
-            box-shadow: 0 0 10px var(--brand-cyan), 0 0 20px rgba(77,217,240,0.4);
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.85); }
+            flex-direction: column;
+            align-items: flex-start; /* Left align everything */
+            text-align: left;
         }
 
         .cms-sidebar-brand .brand-name {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
-            letter-spacing: 0.04em;
-            color: #fff;
+            font-family: 'Jaro', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 34px;
+            line-height: 37px;
+            color: #FF851B;
+            -webkit-text-stroke: 0.5px #FFFFFF;
+            text-shadow: -2px 3px 0px #000000;
+            white-space: nowrap;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+            text-align: left;
+            letter-spacing: 0.08em;
         }
 
         .cms-sidebar-brand .brand-sub {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Bitcount', 'Space Mono', monospace;
             font-size: 9px;
-            color: var(--brand-cyan);
+            color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 0.15em;
-            margin-top: 1px;
+            font-weight: 700;
+            margin-left: 2px; /* tiny adjustment to visually align with the slanted 'I' in Jaro */
         }
 
         /* Nav links */
         .cms-nav-section {
-            padding: 0.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
         }
 
-        .cms-nav-label {
-            font-family: 'Space Mono', monospace;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: rgba(77,217,240,0.5);
-            padding: 1rem 1.25rem 0.5rem;
+        nav > .cms-nav-section:first-child {
+            margin-top: 3.5rem; /* pushes the nav group down from the logo */
         }
 
         .cms-nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.65rem 1.25rem;
-            margin: 0.1rem 0.75rem;
-            border-radius: 0.6rem;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.55);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem; /* Inactive size */
+            color: rgba(255, 255, 255, 0.4);
             text-decoration: none;
             transition: all 0.2s ease;
-            position: relative;
+            text-transform: uppercase;
+            padding: 0 2.5rem;
+            display: flex;
+            align-items: center;
+            transform-origin: left;
         }
 
         .cms-nav-link:hover {
-            color: #fff;
-            background: rgba(77,217,240,0.08);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .cms-nav-link.active {
-            color: var(--brand-cyan);
-            background: rgba(77,217,240,0.12);
+            color: #79ECFF;
+            font-size: 1.05rem; /* Noticeably enlarged active size */
+            animation: growActiveTab 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .cms-nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 25%;
-            height: 50%;
-            width: 3px;
-            background: var(--brand-cyan);
-            border-radius: 0 2px 2px 0;
-        }
-
-        .cms-nav-link svg {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            opacity: 0.7;
-        }
-
-        .cms-nav-link.active svg,
-        .cms-nav-link:hover svg {
-            opacity: 1;
+        @keyframes growActiveTab {
+            from {
+                font-size: 0.8rem;
+                color: rgba(255, 255, 255, 0.4);
+            }
+            to {
+                font-size: 1.05rem;
+                color: #79ECFF;
+            }
         }
 
         /* Sidebar footer */
-        .cms-sidebar-footer {
-            padding: 1rem 0.75rem 1.5rem;
-            border-top: 1px solid rgba(77,217,240,0.1);
+        .cms-sidebar-bottom {
+            margin-top: auto;
+            padding: 0 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .cms-btn-view {
+        .cms-btn-logout-new {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
             width: 100%;
             padding: 0.6rem 1rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 0.5rem;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            margin-bottom: 0.5rem;
-            font-family: 'Space Mono', monospace;
-            letter-spacing: 0.05em;
-        }
-
-        .cms-btn-view:hover {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-        }
-
-        .cms-btn-logout {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 0.6rem 1rem;
-            background: rgba(239,68,68,0.08);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 0.5rem;
-            color: #f87171;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: transparent;
+            border: 1px solid #ffffff;
+            border-radius: 100px;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: 'Space Mono', monospace;
-            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
-        .cms-btn-logout:hover {
-            background: rgba(239,68,68,0.15);
-            color: #fca5a5;
+        .cms-btn-logout-new:hover {
+            background: rgba(255,255,255,0.1);
         }
 
         /* Main content area */
@@ -211,6 +174,15 @@
             overflow-y: auto;
             max-height: 100vh;
             padding: 2rem 2.5rem;
+        }
+
+        /* Temporary override for content area to be dark again until you rebuild the main dashboard layout */
+        .cms-main-inner-bg {
+            background: var(--body-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            min-height: 100%;
+            color: #e2e8f0;
         }
 
         /* Card styling */
@@ -329,14 +301,14 @@
         .cms-page-title {
             font-size: 1.75rem;
             font-weight: 800;
-            color: #fff;
+            color: inherit;
             letter-spacing: -0.02em;
         }
 
         .cms-page-subtitle {
             font-family: 'Space Mono', monospace;
             font-size: 0.7rem;
-            color: rgba(77,217,240,0.6);
+            color: #000000;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             margin-top: 0.25rem;
@@ -465,14 +437,13 @@
 <body x-data="{ sidebarOpen: false }">
 
     <!-- Mobile Header -->
-    <header class="md:hidden w-full px-5 py-4 flex justify-between items-center border-b z-30 sticky top-0"
-            style="background: var(--sidebar-bg); border-color: rgba(77,217,240,0.1);">
+    <header class="md:hidden w-full px-5 py-4 flex justify-between items-center z-30 sticky top-0"
+            style="background: #F4F1E1;">
         <div class="flex items-center gap-2">
-            <div class="dot w-2 h-2 rounded-full" style="background: var(--brand-cyan); box-shadow: 0 0 8px var(--brand-cyan);"></div>
-            <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; color: #fff;">CMS Panel</span>
+            <span style="font-family: 'Jaro', sans-serif; font-size: 1.5rem; color: #FF9E2C; -webkit-text-stroke: 1px #fff;">IX-MEDIA</span>
         </div>
-        <button @click="sidebarOpen = true" class="text-white/60 hover:text-white p-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button @click="sidebarOpen = true" class="text-gray-800 hover:text-black p-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
@@ -494,132 +465,77 @@
 
             <!-- Brand -->
             <div class="cms-sidebar-brand">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="dot"></span>
-                        <span class="brand-name">Admin CMS</span>
-                    </div>
-                    <span class="brand-sub">Portfolio Manager</span>
-                </div>
-                <button @click="sidebarOpen = false" class="md:hidden ml-auto text-white/40 hover:text-white p-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="brand-name">IX-MEDIA</div>
+                <div class="brand-sub">Portfolio Manager</div>
+                <button @click="sidebarOpen = false" class="md:hidden absolute top-4 right-4 text-white/60 hover:text-white p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
 
             <!-- Nav -->
-            <nav class="flex-grow overflow-y-auto py-2">
-
+            <nav class="flex-grow overflow-y-auto py-2 flex flex-col">
                 <div class="cms-nav-section">
-                    <div class="cms-nav-label">Overview</div>
-
                     <a href="{{ route('admin.dashboard') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/>
-                        </svg>
                         Dashboard
                     </a>
-                </div>
-
-                <div class="cms-nav-section">
-                    <div class="cms-nav-label">Content Sections</div>
-
+                    
                     <a href="{{ route('admin.profile') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                        </svg>
-                        Hero & Profile
+                        Hero
                     </a>
 
                     <a href="{{ route('admin.intro_slides.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.intro_slides.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                        </svg>
-                        Intro Slides
+                        Introduction
                     </a>
 
-                    <a href="{{ route('admin.skills.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.skills.*') ? 'bg-indigo-500/10 text-indigo-400 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 font-medium' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                        Manage Skills
-                    </a>
-
-                    <!-- Marquee Tools -->
-                    <a href="{{ route('admin.tools.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.tools.*') ? 'bg-cyan-500/10 text-cyan-400 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 font-medium' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
-                        Tools & Marquee
+                    <a href="{{ route('admin.skills.index') }}" 
+                       class="cms-nav-link {{ request()->routeIs('admin.skills.*', 'admin.tools.*') ? 'active' : '' }}">
+                        Skills & Tools
                     </a>
 
                     <a href="{{ route('admin.projects.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                        Outputs / Projects
+                        Outputs
                     </a>
 
                     <a href="{{ route('admin.achievements.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.achievements.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                        </svg>
                         Achievements
                     </a>
 
                     <a href="{{ route('admin.experiences.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.experiences.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Work Experience
+                        Experience
                     </a>
                 </div>
 
-                <div class="cms-nav-section">
-                    <div class="cms-nav-label">Communication</div>
+                <div class="cms-nav-section mt-auto">
+                    <a href="#" class="cms-nav-link">
+                        Activity Logs
+                    </a>
+
+                    <a href="{{ route('admin.profile_settings') }}"
+                       class="cms-nav-link {{ request()->routeIs('admin.profile_settings') ? 'active' : '' }}">
+                        Profile Settings
+                    </a>
 
                     <a href="{{ route('admin.messages.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
                         Visitor Inbox
-                        @php $unread = \App\Models\ContactMessage::where('is_read', false)->count(); @endphp
-                        @if($unread > 0)
-                            <span class="ml-auto cms-badge cms-badge-orange">{{ $unread }}</span>
-                        @endif
                     </a>
                 </div>
-
             </nav>
 
             <!-- Footer -->
-            <div class="cms-sidebar-footer">
-                <a href="{{ route('portfolio.index') }}" target="_blank" class="cms-btn-view">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                    View Live Site
-                </a>
+            <div class="cms-sidebar-bottom">
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="cms-btn-logout w-full">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                        Log Out
+                    <button type="submit" class="cms-btn-logout-new">
+                        Log-Out
                     </button>
                 </form>
             </div>

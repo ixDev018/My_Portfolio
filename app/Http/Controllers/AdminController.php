@@ -85,18 +85,30 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'hero_top_text'   => 'nullable|string|max:255',
-            'hero_title'      => 'nullable|string|max:255',
-            'hero_subtitle'   => 'nullable|string|max:255',
-            'github_url'      => 'nullable|url|max:255',
-            'linkedin_url'    => 'nullable|url|max:255',
-            'twitter_url'     => 'nullable|url|max:255',
-            'email'           => 'nullable|email|max:255',
-            'location'        => 'nullable|string|max:255',
-            'avatar'          => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'cv'              => 'nullable|mimes:pdf|max:5120',
-            'hero_video'      => 'nullable|mimes:mp4,mov,webm,ogg|max:102400',
+            'hero_top_text'      => 'nullable|string|max:255',
+            'hero_title'         => 'nullable|string|max:255',
+            'hero_subtitle'      => 'nullable|string|max:255',
+            'github_url'         => 'nullable|url|max:255',
+            'linkedin_url'       => 'nullable|url|max:255',
+            'twitter_url'        => 'nullable|url|max:255',
+            'email'              => 'nullable|email|max:255',
+            'location'           => 'nullable|string|max:255',
+            'avatar'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cv'                 => 'nullable|mimes:pdf|max:5120',
+            'hero_video'         => 'nullable|mimes:mp4,mov,webm,ogg|max:102400',
+            'hero_blur_amount'          => 'nullable|integer|min:0|max:100',
+            'hero_html_content'         => 'nullable|string',
+            'hero_gradient_enabled'     => 'nullable',
+            'hero_gradient_type'        => 'nullable|in:linear,radial',
+            'hero_gradient_angle'       => 'nullable|integer|min:0|max:360',
+            'hero_gradient_opacity'     => 'nullable|integer|min:0|max:100',
+            'hero_gradient_stops'       => 'nullable|string', // JSON string from frontend
         ]);
+
+        $validated['hero_gradient_enabled'] = $request->has('hero_gradient_enabled');
+        if (isset($validated['hero_gradient_stops'])) {
+            $validated['hero_gradient_stops'] = json_decode($validated['hero_gradient_stops'], true);
+        }
 
         // Handle Avatar File Upload
         if ($request->hasFile('avatar')) {
@@ -128,7 +140,57 @@ class AdminController extends Controller
         $profile->fill($validated);
         $profile->save();
 
-        return redirect()->route('admin.profile')->with('success', 'Profile updated successfully!');
+        return redirect()->route('admin.profile')->with('success', 'Hero updated successfully!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Settings (Contact, Social, Avatar, CV)
+    |--------------------------------------------------------------------------
+    */
+    public function editProfileSettings()
+    {
+        $profile = Profile::first();
+        return view('admin.profile-settings', compact('profile'));
+    }
+
+    public function updateProfileSettings(Request $request)
+    {
+        $profile = Profile::first();
+        if (!$profile) {
+            $profile = new Profile();
+        }
+
+        $validated = $request->validate([
+            'github_url'   => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
+            'twitter_url'  => 'nullable|url|max:255',
+            'email'        => 'nullable|email|max:255',
+            'location'     => 'nullable|string|max:255',
+            'avatar'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cv'           => 'nullable|mimes:pdf|max:5120',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($profile->avatar_path) {
+                Storage::disk('public')->delete($profile->avatar_path);
+            }
+            $validated['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        if ($request->hasFile('cv')) {
+            if ($profile->cv_path) {
+                Storage::disk('public')->delete($profile->cv_path);
+            }
+            $validated['cv_path'] = $request->file('cv')->store('documents', 'public');
+        }
+
+        unset($validated['avatar'], $validated['cv']);
+
+        $profile->fill($validated);
+        $profile->save();
+
+        return redirect()->route('admin.profile_settings')->with('success', 'Profile settings saved!');
     }
 
     /*

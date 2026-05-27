@@ -30,9 +30,13 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     // Dashboard Stats
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Profile CMS Settings
+    // Profile CMS Settings (Hero page)
     Route::get('/profile', [AdminController::class, 'editProfile'])->name('admin.profile');
     Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+
+    // Profile Settings page (Contact, Social, Avatar, CV)
+    Route::get('/profile-settings', [AdminController::class, 'editProfileSettings'])->name('admin.profile_settings');
+    Route::post('/profile-settings', [AdminController::class, 'updateProfileSettings'])->name('admin.profile_settings.update');
 
     // Projects CMS CRUD
     Route::get('/projects', [AdminController::class, 'projectsIndex'])->name('admin.projects.index');

@@ -8,23 +8,77 @@
     <section id="hero" class="relative h-[100vh] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
         
         <!-- Blurred Video Background -->
-        <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 blur-2xl opacity-50">
+        @php
+            $blurPx = round(($profile->hero_blur_amount ?? 35) * 0.3);
+            $opacityVal = max(0.2, 0.7 - (($profile->hero_blur_amount ?? 35) / 100) * 0.35);
+
+            $gradEnabled = $profile->hero_gradient_enabled ?? false;
+            $gradType = $profile->hero_gradient_type ?? 'linear';
+            $gradAngle = $profile->hero_gradient_angle ?? 180;
+            $gradOpacity = $profile->hero_gradient_opacity ?? 100;
+            $gradStops = $profile->hero_gradient_stops ?? [
+                ['position' => 0, 'color' => '#D9D9D9', 'opacity' => 100],
+                ['position' => 100, 'color' => '#737373', 'opacity' => 100],
+            ];
+
+            $gradStyle = '';
+            if ($gradEnabled && count($gradStops) > 0) {
+                // Sort by position
+                usort($gradStops, function($a, $b) {
+                    return $a['position'] <=> $b['position'];
+                });
+                
+                $gAlpha = $gradOpacity / 100;
+
+                $hexToRgba = function($hex, $alphaPercent) use ($gAlpha) {
+                    $alpha = ($alphaPercent / 100) * $gAlpha;
+                    $hex = ltrim($hex, '#');
+                    if (strlen($hex) == 3) {
+                        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                    }
+                    if (strlen($hex) == 6) {
+                        list($r, $g, $b) = sscanf($hex, "%02x%02x%02x");
+                        return "rgba($r, $g, $b, $alpha)";
+                    }
+                    return "rgba(0,0,0,$alpha)";
+                };
+
+                $colorStopsStr = implode(', ', array_map(function($stop) use ($hexToRgba) {
+                    return $hexToRgba($stop['color'], $stop['opacity']) . " " . $stop['position'] . "%";
+                }, $gradStops));
+
+                if ($gradType === 'linear') {
+                    $gradStyle = "background: linear-gradient({$gradAngle}deg, $colorStopsStr);";
+                } else {
+                    $gradStyle = "background: radial-gradient(circle, $colorStopsStr);";
+                }
+            }
+        @endphp
+        <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"
+               style="filter: blur({{ $blurPx }}px); opacity: {{ number_format($opacityVal, 2) }}">
             @if($profile && $profile->hero_video_path)
                 <source src="{{ asset('storage/' . $profile->hero_video_path) }}" type="video/mp4">
             @endif
             <source src="{{ asset('videos/bg_showreel_loop.mp4') }}" type="video/mp4">
         </video>
 
+        @if($gradEnabled && $gradStyle)
+            <!-- User defined gradient overlay -->
+            <div class="absolute inset-0 z-[1] pointer-events-none" style="{{ $gradStyle }}"></div>
+        @endif
+
         <!-- Top Gradient for Navbar legibility -->
-        <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black/80 to-transparent z-[1] pointer-events-none"></div>
+        <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black/80 to-transparent z-[2] pointer-events-none"></div>
         
         <!-- Center Hero Copy -->
         <div class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full">
-            
+
             <!-- Hero Typography Container -->
             <div class="inline-flex flex-col items-stretch select-none mx-auto mb-6">
+
                 <!-- Turning Ideas Into (justified) -->
-                <div class="flex justify-between w-full font-display uppercase text-white leading-none select-none relative z-10" style="font-size: clamp(12px, 4vw, 45px);">
+                <div class="flex justify-between w-full font-display uppercase text-white leading-none select-none relative z-10"
+                     style="font-size: clamp(12px, 4vw, 45px);">
                     @php $topText = $profile->hero_top_text ?? 'TURNING IDEAS INTO'; @endphp
                     @foreach(explode(' ', $topText) as $word)
                         <span>{{ $word }}</span>
@@ -32,9 +86,11 @@
                 </div>
 
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
-                <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center" style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em;">
+                <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center"
+                    style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em; -webkit-text-stroke: 1px black;">
                     {{ $profile->hero_title ?? 'REALITY' }}
                 </h1>
+
             </div>
 
             <!-- One Pixel At A Time -->
@@ -43,11 +99,11 @@
             </p>
 
             <!-- Get Started Button -->
-            <a href="#projects" 
+            <a href="#projects"
                class="px-8 py-3 bg-transparent border border-white font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black transition-colors duration-300 relative z-10">
                 Get Started
             </a>
-            
+
         </div>
 
         <!-- Organic Deep Purple Wave SVG at bottom -->

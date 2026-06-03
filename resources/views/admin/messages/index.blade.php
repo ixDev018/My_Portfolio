@@ -85,7 +85,7 @@
         </thead>
         <tbody>
             @forelse($messages as $msg)
-                <tr class="{{ !$msg->is_read ? 'unread' : '' }}">
+                <tr class="{{ !$msg->is_read ? 'unread' : '' }}" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
 
                     {{-- Status --}}
                     <td>
@@ -118,19 +118,40 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td style="text-align:right;">
-                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;">
-                            <a href="{{ route('admin.messages.show', $msg->id) }}" class="btn-open">
-                                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                Open
-                            </a>
-                            <form action="{{ route('admin.messages.delete', $msg->id) }}" method="POST"
-                                  onsubmit="return confirm('Permanently delete this message?')">
-                                @csrf
-                                <button type="submit" class="btn-del-icon" title="Delete">
-                                    <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </form>
+                    <td style="padding-right:0.75rem; text-align:right;">
+                        <div class="cms-dots-wrap">
+                            <button class="cms-dots-btn"
+                                    :class="menuOpen ? 'open' : ''"
+                                    @click="menuOpen = !menuOpen"
+                                    title="Actions">
+                                <svg style="width:15px;height:15px;" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                                </svg>
+                            </button>
+                            <div class="cms-dropdown"
+                                 x-show="menuOpen"
+                                 x-cloak
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 @click.stop>
+                                <a href="{{ route('admin.messages.show', $msg->id) }}">
+                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    Open
+                                </a>
+                                <div class="cms-dd-divider"></div>
+                                <form action="{{ route('admin.messages.delete', $msg->id) }}" method="POST"
+                                      @submit.prevent="if(confirm('Permanently delete this message?')) $el.submit()">
+                                    @csrf
+                                    <button type="submit">
+                                        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </td>
                 </tr>

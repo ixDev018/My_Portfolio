@@ -385,7 +385,6 @@
             margin: 1.5rem 0;
         }
 
-        /* Badge */
         .cms-badge {
             display: inline-flex;
             align-items: center;
@@ -396,6 +395,56 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
+        }
+
+        /* ─── 3-dot dropdown (Global Admin) ──────────────────────── */
+        .cms-dots-wrap { position: relative; display: inline-block; }
+        .cms-dots-btn {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 0.4rem;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            color: #9B9589;
+            transition: all 0.15s;
+        }
+        .cms-dots-btn:hover {
+            background: #F0EDE6;
+            border-color: #D8D4C8;
+            color: #2c2826;
+        }
+        .cms-dots-btn.open {
+            background: #EEE6FF;
+            border-color: #C4A8F0;
+            color: #6829AA;
+        }
+        .cms-dropdown {
+            position: absolute;
+            right: 0; top: calc(100% + 4px);
+            z-index: 50;
+            background: #fff;
+            border: 1px solid #D8D4C8;
+            border-radius: 0.6rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 140px;
+            overflow: hidden;
+        }
+        .cms-dropdown a, .cms-dropdown button {
+            display: flex; align-items: center; gap: 0.5rem;
+            width: 100%; text-align: left;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.8rem; font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            color: #2c2826; background: transparent;
+            border: none; cursor: pointer;
+            text-decoration: none;
+            transition: background 0.12s;
+        }
+        .cms-dropdown a:hover { background: #F7F5EE; }
+        .cms-dropdown button:hover { background: #FFF1F1; color: #dc2626; }
+        .cms-dropdown .cms-dd-divider {
+            height: 1px; background: #F0EDE6; margin: 0.25rem 0;
         }
 
         .cms-badge-cyan {
@@ -435,6 +484,54 @@
             background: rgba(0,0,0,0.7);
             backdrop-filter: blur(4px);
             z-index: 39;
+        }
+
+        /* ── Success Modal ── */
+        @keyframes successModalIn {
+            0%   { opacity: 0; transform: scale(0.7) translateY(30px); }
+            65%  { opacity: 1; transform: scale(1.04) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes successModalOut {
+            0%   { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.85) translateY(20px); }
+        }
+        @keyframes checkDraw {
+            0%   { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes circlePop {
+            0%   { transform: scale(0); opacity: 0; }
+            60%  { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes progressShrink {
+            from { width: 100%; }
+            to   { width: 0%; }
+        }
+        @keyframes rippleOut {
+            0%   { transform: scale(1); opacity: 0.35; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+        .success-modal-card {
+            animation: successModalIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .success-modal-card.hiding {
+            animation: successModalOut 0.3s ease forwards;
+        }
+        .success-check-circle {
+            animation: circlePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+        }
+        .success-check-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkDraw 0.45s ease 0.4s forwards;
+        }
+        .success-ripple {
+            animation: rippleOut 1s ease 0.3s forwards;
+        }
+        .success-progress-bar {
+            animation: progressShrink linear forwards;
         }
     </style>
 </head>
@@ -548,36 +645,110 @@
         <!-- Main content -->
         <main class="cms-main flex-1">
 
-            <!-- Success toast -->
-            @if(session('success'))
-                <div x-data="{ show: true }"
-                     x-show="show"
-                     x-init="setTimeout(() => show = false, 4500)"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 -translate-y-2"
-                     x-transition:enter-end="opacity-100 translate-y-0"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                     class="cms-toast-success">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        {{ session('success') }}
-                    </div>
-                    <button @click="show = false" class="opacity-60 hover:opacity-100 text-lg leading-none">&times;</button>
-                </div>
-            @endif
+            {{-- ── Success / Error Popup Modal ── --}}
+            @if(session('success') || session('error'))
+                @php
+                    $isSuccess = session('success');
+                    $msg = session('success') ?? session('error');
+                @endphp
+                <div
+                    id="cms-success-modal"
+                    x-data="{
+                        show: true,
+                        hiding: false,
+                        dismiss() {
+                            this.hiding = true;
+                            setTimeout(() => this.show = false, 300);
+                        }
+                    }"
+                    x-show="show"
+                    x-init="setTimeout(() => dismiss(), 3500)"
+                    style="display:none;"
+                    class="fixed inset-0 z-[999] flex items-center justify-center"
+                    @click.self="dismiss()"
+                >
+                    {{-- Backdrop --}}
+                    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-            <!-- Error toast -->
-            @if(session('error'))
-                <div x-data="{ show: true }"
-                     x-show="show"
-                     x-init="setTimeout(() => show = false, 5000)"
-                     x-transition
-                     class="cms-toast-error">
-                    <span>{{ session('error') }}</span>
-                    <button @click="show = false" class="opacity-60 hover:opacity-100 text-lg">&times;</button>
+                    {{-- Modal Card --}}
+                    <div class="success-modal-card relative z-10 flex flex-col items-center text-center"
+                         :class="hiding ? 'hiding' : ''"
+                         style="
+                            background: #ffffff;
+                            border-radius: 24px;
+                            padding: 3rem 3.5rem 2.5rem;
+                            min-width: 320px;
+                            max-width: 400px;
+                            box-shadow: 0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.12);
+                         "
+                    >
+                        {{-- Animated Check / Error Icon --}}
+                        <div class="relative mb-6" style="width:88px; height:88px;">
+                            {{-- Ripple ring --}}
+                            <div class="success-ripple absolute inset-0 rounded-full" style="background: {{ $isSuccess ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.18)' }};"></div>
+
+                            {{-- Circle --}}
+                            <div class="success-check-circle absolute inset-0 rounded-full flex items-center justify-center"
+                                 style="background: {{ $isSuccess ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }}; box-shadow: 0 8px 24px {{ $isSuccess ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)' }};">
+                                @if($isSuccess)
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path class="success-check-path" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                @else
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path class="success-check-path" d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Title --}}
+                        <h2 style="font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:800; color:#111827; margin-bottom:0.5rem; letter-spacing:-0.02em;">
+                            {{ $isSuccess ? 'Done!' : 'Oops!' }}
+                        </h2>
+
+                        {{-- Message --}}
+                        <p style="font-family:'Inter',sans-serif; font-size:0.9rem; color:#6b7280; line-height:1.6; margin-bottom:2rem;">
+                            {{ $msg }}
+                        </p>
+
+                        {{-- Dismiss button --}}
+                        <button
+                            @click="dismiss()"
+                            style="
+                                font-family:'Outfit',sans-serif;
+                                font-weight:700;
+                                font-size:0.8rem;
+                                letter-spacing:0.06em;
+                                text-transform:uppercase;
+                                padding:0.65rem 2.5rem;
+                                border-radius:100px;
+                                border:none;
+                                cursor:pointer;
+                                transition: all 0.2s ease;
+                                background: {{ $isSuccess ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }};
+                                color: white;
+                                box-shadow: 0 4px 14px {{ $isSuccess ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)' }};
+                            "
+                            onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px {{ $isSuccess ? 'rgba(16,185,129,0.5)' : 'rgba(239,68,68,0.5)' }}'"
+                            onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 14px {{ $isSuccess ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)' }}'"
+                        >
+                            Got it
+                        </button>
+
+                        {{-- Auto-dismiss progress bar --}}
+                        <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:rgba(0,0,0,0.06); border-radius:0 0 24px 24px; overflow:hidden;">
+                            <div
+                                class="success-progress-bar"
+                                style="
+                                    height:100%;
+                                    background: {{ $isSuccess ? 'linear-gradient(90deg,#10b981,#34d399)' : 'linear-gradient(90deg,#ef4444,#f87171)' }};
+                                    animation-duration: 3.5s;
+                                    border-radius:0 0 24px 24px;
+                                "
+                            ></div>
+                        </div>
+                    </div>
                 </div>
             @endif
 

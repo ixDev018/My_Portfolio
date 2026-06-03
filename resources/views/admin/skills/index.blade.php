@@ -169,7 +169,7 @@
                     <p class="sk-cat-label">{{ $cat }}</p>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.65rem;">
                         @foreach($list as $skill)
-                            <div class="sk-card">
+                            <div class="sk-card" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
                                 <div style="flex:1;min-width:0;">
                                     <div style="display:flex;justify-content:space-between;align-items:baseline;">
                                         <span class="sk-name">{{ $skill->name }}</span>
@@ -179,13 +179,37 @@
                                         <div class="sk-bar-fill" style="width:{{ $skill->proficiency }}%"></div>
                                     </div>
                                 </div>
-                                <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST"
-                                      onsubmit="return confirm('Remove {{ $skill->name }}?')">
-                                    @csrf
-                                    <button type="submit" class="sk-delete-btn" title="Delete">
-                                        <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </button>
-                                </form>
+                                <div style="flex-shrink:0; position:relative; z-index:20;">
+                                    <div class="cms-dots-wrap">
+                                        <button class="cms-dots-btn"
+                                                :class="menuOpen ? 'open' : ''"
+                                                @click="menuOpen = !menuOpen"
+                                                title="Actions">
+                                            <svg style="width:15px;height:15px;" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                                            </svg>
+                                        </button>
+                                        <div class="cms-dropdown"
+                                             x-show="menuOpen"
+                                             x-cloak
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             @click.stop>
+                                            <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST"
+                                                  @submit.prevent="if(confirm('Remove {{ $skill->name }}?')) $el.submit()">
+                                                @csrf
+                                                <button type="submit">
+                                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     </div>

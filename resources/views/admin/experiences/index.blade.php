@@ -167,7 +167,7 @@
     @else
         <ul id="experience-list" style="list-style:none;padding:0;margin:0;">
             @foreach($experiences as $exp)
-                <li data-id="{{ $exp->id }}" x-data="{ editing: false }">
+                <li data-id="{{ $exp->id }}" x-data="{ editing: false, menuOpen: false }" @click.outside="menuOpen = false">
                     <div class="exp-row">
 
                         {{-- Drag handle --}}
@@ -232,13 +232,41 @@
                         </div>
 
                         {{-- Actions --}}
-                        <div style="display:flex;gap:0.4rem;flex-shrink:0;" x-show="!editing">
-                            <button @click="editing=true" class="lt-btn-secondary" style="padding:0.35rem 0.7rem;font-size:0.72rem;">Edit</button>
-                            <form action="{{ route('admin.experiences.delete', $exp->id) }}" method="POST"
-                                  onsubmit="return confirm('Delete this experience?')">
-                                @csrf
-                                <button type="submit" class="lt-btn-danger" style="padding:0.35rem 0.7rem;font-size:0.72rem;">Delete</button>
-                            </form>
+                        <div style="flex-shrink:0; position:relative; z-index:20;" x-show="!editing">
+                            <div class="cms-dots-wrap">
+                                <button class="cms-dots-btn"
+                                        :class="menuOpen ? 'open' : ''"
+                                        @click="menuOpen = !menuOpen"
+                                        title="Actions">
+                                    <svg style="width:15px;height:15px;" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                                    </svg>
+                                </button>
+                                <div class="cms-dropdown"
+                                     x-show="menuOpen"
+                                     x-cloak
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     @click.stop>
+                                    <button @click="editing = true; menuOpen = false">
+                                        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit
+                                    </button>
+                                    <div class="cms-dd-divider"></div>
+                                    <form action="{{ route('admin.experiences.delete', $exp->id) }}" method="POST"
+                                          @submit.prevent="if(confirm('Delete this experience?')) $el.submit()">
+                                        @csrf
+                                        <button type="submit">
+                                            <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </li>

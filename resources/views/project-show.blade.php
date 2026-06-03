@@ -3,43 +3,56 @@
 @section('title', $project->title . ' | ' . ($project->medium ?? 'Output'))
 
 @section('content')
+    <style>
+        /* Hide the global navbar on this specific page to match the neo-brutalist design */
+        header, nav { display: none !important; }
+
+        .grid-bg-section {
+            background-image:
+                linear-gradient(rgba(104,41,170,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104,41,170,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            background-attachment: fixed;
+        }
+    </style>
+
+    <!-- ── STICKY NAV WRAPPER ── -->
+    <div class="sticky top-0 z-[100] w-full flex flex-col">
+        <!-- Custom Black Header -->
+        <div class="bg-black w-full py-5 px-6 shadow-md border-b border-black/10">
+            <div class="max-w-[1400px] mx-auto flex items-center">
+                <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
+                    <span class="text-[#ff6b00] font-display text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- STICKY BACK NAVIGATION --}}
+        <div class="w-full bg-[#FAF7E6]/95 backdrop-blur-md border-b border-black/5 py-2.5 px-6 transition-all">
+            <div class="max-w-[1400px] mx-auto flex items-center">
+                <a href="{{ route('portfolio.outputs') }}"
+                   class="inline-flex items-center gap-2.5 font-sans text-[12px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
+                    <div class="w-7 h-7 rounded-full border border-current flex items-center justify-center bg-[#FAF7E6]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    </div>
+                    <span class="font-bold uppercase tracking-widest mt-0.5">Back</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
 {{-- ═══════════════════════════════════════════════════════════
      PROJECT OUTPUT — SPA-STYLE DETAIL PAGE
      Layout: sticky marquee bg → playback hero → CMS body
 ═══════════════════════════════════════════════════════════ --}}
-<div class="bg-[#FAF7E6] text-black min-h-screen" style="font-family: 'Bitcount Single', monospace;">
+<div class="bg-[#FAF7E6] grid-bg-section text-black min-h-screen" style="font-family: 'Bitcount Single', monospace;">
 
     {{-- ── HERO BLOCK ── --}}
-    <div class="relative w-full pt-32 pb-6">
+    <div class="relative w-full pt-16 pb-6">
         
         {{-- Container for Back Button & Title --}}
         <div class="max-w-4xl mx-auto px-6 w-full relative z-20">
             
-            {{-- ── IN-FLOW BACK NAVIGATION (Aligned to left of content) ── --}}
-            <a href="{{ route('portfolio.index') }}#works"
-               class="absolute left-6 top-0 hidden md:inline-flex items-center gap-3 font-sans text-[13px] text-[#512b81] hover:opacity-70 transition-opacity"
-               style="font-family: 'Poppins', sans-serif;">
-                <span class="w-8 h-8 rounded-full border border-[#512b81] flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                </span>
-                back to home
-            </a>
-            
-            {{-- Mobile Back Button (Centered) --}}
-            <a href="{{ route('portfolio.index') }}#works"
-               class="md:hidden flex items-center justify-center gap-3 font-sans text-[13px] text-[#512b81] hover:opacity-70 transition-opacity mb-6"
-               style="font-family: 'Poppins', sans-serif;">
-                <span class="w-8 h-8 rounded-full border border-[#512b81] flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                </span>
-                back to home
-            </a>
-
             {{-- Project label + title --}}
             <div class="text-center">
                 @if($project->medium)
@@ -77,27 +90,34 @@
     {{-- ── PLAYBACK DISPLAY CARD ── --}}
             <div class="relative z-10 w-full max-w-4xl px-6">
                 <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
-                    @if($project->media_type === 'video' && $project->video_url)
-                        <video src="{{ $project->video_url }}"
+                    @if($project->main_media_type === 'video' && $project->main_video_path)
+                        <video src="{{ asset('storage/' . $project->main_video_path) }}"
                                autoplay loop muted playsinline controls
-                               class="w-full h-full object-cover"
+                               class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
-                    @elseif($project->thumbnail_type === 'video' && $project->thumbnail_video_path)
+                    @elseif($project->thumbnail_video_path)
                         <video src="{{ asset('storage/' . $project->thumbnail_video_path) }}"
                                autoplay loop muted playsinline controls
-                               class="w-full h-full object-cover"
+                               class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
-                    @elseif(!empty($project->thumbnail_images))
-                        <div x-data="{ currentSlide: 0, total: {{ count($project->thumbnail_images) }} }"
+                    @elseif($project->video_url)
+                        <video src="{{ $project->video_url }}"
+                               autoplay loop muted playsinline controls
+                               class="w-full h-full object-contain"
+                               @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
+                        </video>
+                    @elseif(!empty($project->main_images) || !empty($project->thumbnail_images))
+                        @php $images = !empty($project->main_images) ? $project->main_images : $project->thumbnail_images; @endphp
+                        <div x-data="{ currentSlide: 0, total: {{ count($images) }} }"
                              x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                              class="relative w-full h-full overflow-hidden">
-                            @foreach($project->thumbnail_images as $index => $img)
+                            @foreach($images as $index => $img)
                                 <img src="{{ asset('storage/' . $img) }}"
                                      x-show="currentSlide === {{ $index }}"
                                      x-transition.opacity.duration.700ms
-                                     class="absolute inset-0 w-full h-full object-cover">
+                                     class="absolute inset-0 w-full h-full object-contain">
                             @endforeach
                             <!-- Dots indicator -->
                             <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
@@ -108,10 +128,14 @@
                                 </template>
                             </div>
                         </div>
+                    @elseif($project->main_image_path)
+                        <img src="{{ Str::startsWith($project->main_image_path, 'http') ? $project->main_image_path : asset('storage/' . $project->main_image_path) }}"
+                             alt="{{ $project->title }}"
+                             class="w-full h-full object-contain">
                     @elseif($project->thumbnail_path)
                         <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : asset('storage/' . $project->thumbnail_path) }}"
                              alt="{{ $project->title }}"
-                             class="w-full h-full object-cover">
+                             class="w-full h-full object-contain">
                     @else
                         {{-- Placeholder display --}}
                         <div class="w-full h-full bg-gradient-to-br from-slate-100 via-white to-slate-50 flex flex-col items-center justify-center relative">
@@ -187,46 +211,144 @@
             <div class="flex-1 h-px bg-black/10"></div>
         </div>
 
-        {{-- Overview short description --}}
-        @if($project->description)
-            <p class="font-mono text-sm md:text-base text-black/60 leading-relaxed mb-10 font-medium">
-                {{ $project->description }}
-            </p>
-        @endif
+        {{-- Overview short description removed per user request --}}
 
-        {{-- TipTap Rich Text Body Content --}}
+        {{-- Content Body Render --}}
         @if($project->body_content)
-            <div class="cms-tiptap-content space-y-6 mb-16 text-black/80 font-sans" 
-                 style="font-family: 'Poppins', sans-serif;"
+            <div class="space-y-2 mb-16 text-black/80" 
                  @click="if($event.target.tagName === 'IMG') { lightboxOpen = true; lightboxSrc = $event.target.src; }">
                 
-                @if(Str::startsWith(trim($project->body_content), '{'))
-                    {{-- Legacy JSON fallback if somehow still stored as JSON without migration --}}
+                @php
+                    $content = trim($project->body_content);
+                    $isJsonBlocks = Str::startsWith($content, '[');
+                    $isLegacyJson = Str::startsWith($content, '{');
+                    $isHtml = preg_match('/<[a-z][\s\S]*>/i', $content);
+                @endphp
+
+                @if($isJsonBlocks)
+                    @php
+                        $blocks = json_decode($content, true);
+                        $inBulletList = false;
+                        $inNumberedList = false;
+                    @endphp
+                    @if(is_array($blocks))
+                        @foreach($blocks as $index => $block)
+                            @php
+                                $type = $block['type'] ?? '';
+                                $nextType = $blocks[$index + 1]['type'] ?? '';
+                            @endphp
+                            
+                            @switch($type)
+                                @case('heading2')
+                                    <h2 class="mt-12 mb-6 font-display text-2xl font-bold text-black tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h2>
+                                    @break
+                                @case('heading3')
+                                    <h3 class="mt-8 mb-4 font-display text-xl font-bold text-black tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h3>
+                                    @break
+                                @case('paragraph')
+                                    <p class="font-poppins text-sm sm:text-base leading-[1.85] mb-6">{!! $block['content'] ?? '' !!}</p>
+                                    @break
+                                @case('bullet')
+                                    @if(!$inBulletList) <ul class="list-disc pl-6 mb-6 space-y-2 font-poppins"> @php $inBulletList = true; @endphp @endif
+                                    <li class="text-sm sm:text-base leading-[1.85]">{!! $block['content'] ?? '' !!}</li>
+                                    @if($nextType !== 'bullet') </ul> @php $inBulletList = false; @endphp @endif
+                                    @break
+                                @case('numbered')
+                                    @if(!$inNumberedList) <ol class="list-decimal pl-6 mb-6 space-y-2 font-poppins"> @php $inNumberedList = true; @endphp @endif
+                                    <li class="text-sm sm:text-base leading-[1.85]">{!! $block['content'] ?? '' !!}</li>
+                                    @if($nextType !== 'numbered') </ol> @php $inNumberedList = false; @endphp @endif
+                                    @break
+                                @case('quote')
+                                    <blockquote class="font-poppins border-l-[3px] border-[#512b81] pl-6 my-8 py-2 italic text-black/60 font-medium text-lg">
+                                        {!! $block['content'] ?? '' !!}
+                                    </blockquote>
+                                    @break
+                                @case('code')
+                                    <pre class="bg-[#FAF7E6] border border-black/10 rounded-xl p-5 my-6 overflow-x-auto shadow-inner"><code class="font-mono text-xs sm:text-sm text-[#512b81]">{!! $block['content'] ?? '' !!}</code></pre>
+                                    @break
+                                @case('image')
+                                    @if(!empty($block['src']))
+                                        @php
+                                            $ratio = $block['ratio'] ?? 'auto';
+                                            $posX = $block['posX'] ?? 50;
+                                            $posY = $block['posY'] ?? 50;
+                                            $imgClass = "w-full rounded-xl shadow-md border border-black/5 cursor-zoom-in hover:scale-[1.01] transition-transform duration-300";
+                                            $imgStyle = "";
+                                            if ($ratio === '16:9') {
+                                                $imgStyle = "aspect-ratio: 16/9; object-fit: cover; object-position: {$posX}% {$posY}%;";
+                                            } elseif ($ratio === '3:4') {
+                                                $imgStyle = "aspect-ratio: 3/4; object-fit: cover; object-position: {$posX}% {$posY}%;";
+                                            }
+                                        @endphp
+                                        <figure class="my-10">
+                                            <img src="{{ $block['src'] }}" alt="{{ $block['caption'] ?? 'Project image' }}" class="{{ $imgClass }}" style="{{ $imgStyle }}">
+                                            @if(!empty($block['caption']))
+                                                <figcaption class="text-center mt-4 font-mono text-[10px] uppercase tracking-widest text-black/40">{{ $block['caption'] }}</figcaption>
+                                            @endif
+                                        </figure>
+                                    @endif
+                                    @break
+                                @case('video')
+                                    @if(!empty($block['src']))
+                                        @php
+                                            $ratio = $block['ratio'] ?? '16:9';
+                                            $vidStyle = ($ratio === '3:4') ? "aspect-ratio: 3/4;" : "aspect-ratio: 16/9;";
+                                            $videoSrc = $block['src'];
+                                            $isYouTube = preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/', $videoSrc, $ytMatch);
+                                            $isVimeo = !$isYouTube && preg_match('/vimeo\.com\/(\d+)/', $videoSrc, $vmMatch);
+                                            $isEmbed = $isYouTube || $isVimeo;
+                                        @endphp
+                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}">
+                                            @if($isEmbed)
+                                                @php
+                                                    $embedUrl = $isYouTube
+                                                        ? 'https://www.youtube.com/embed/' . $ytMatch[1]
+                                                        : 'https://player.vimeo.com/video/' . $vmMatch[1];
+                                                @endphp
+                                                <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen></iframe>
+                                            @else
+                                                <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline></video>
+                                            @endif
+                                        </div>
+                                        @if(!empty($block['caption']))
+                                            <p class="text-center mt-2 font-mono text-[10px] uppercase tracking-widest text-black/40">{{ $block['caption'] }}</p>
+                                        @endif
+                                    @endif
+                                    @break
+                                @case('divider')
+                                    <hr class="my-12 border-t border-black/10">
+                                    @break
+                            @endswitch
+                        @endforeach
+                    @endif
+                @elseif($isHtml)
+                    {{-- Legacy TipTap HTML Content --}}
+                    <div class="cms-tiptap-content">
+                        {!! $project->body_content !!}
+                    </div>
+                @elseif($isLegacyJson)
                     <p class="text-sm italic text-black/40">Legacy JSON format content block. Please edit and re-save project to render rich HTML.</p>
-                @elseif(preg_match('/<[a-z][\s\S]*>/i', $project->body_content))
-                    {{-- Real TipTap HTML Content --}}
-                    {!! $project->body_content !!}
                 @else
                     {{-- Very old plaintext fallback --}}
                     @foreach(array_filter(explode("\n\n", $project->body_content)) as $para)
-                        <p class="font-sans text-sm sm:text-base leading-[1.85]">{{ trim($para) }}</p>
+                        <p class="font-poppins text-sm sm:text-base leading-[1.85] mb-6">{{ trim($para) }}</p>
                     @endforeach
                 @endif
             </div>
 
             <style>
-                /* TipTap Markdown Styles */
-                .cms-tiptap-content p { margin-bottom: 1.5em; line-height: 1.8; font-size: 15px; }
+                /* TipTap Markdown Styles (For legacy HTML fallback) */
+                .cms-tiptap-content p { margin-bottom: 1.5em; line-height: 1.85; font-size: 15px; }
                 .cms-tiptap-content h2 { font-size: 1.5rem; font-weight: 700; font-family: 'Bitcount Single', monospace; margin-top: 2em; margin-bottom: 1em; color: black; }
                 .cms-tiptap-content h3 { font-size: 1.25rem; font-weight: 600; font-family: 'Bitcount Single', monospace; margin-top: 1.5em; margin-bottom: 0.75em; color: black; }
                 .cms-tiptap-content strong { font-weight: 700; color: black; }
-                .cms-tiptap-content blockquote { border-left: 4px solid rgba(0,0,0,0.1); padding-left: 1.5rem; font-style: italic; color: rgba(0,0,0,0.6); margin: 2em 0; }
-                .cms-tiptap-content ul { list-style-type: disc; padding-left: 2rem; margin-bottom: 1.5em; }
-                .cms-tiptap-content ol { list-style-type: decimal; padding-left: 2rem; margin-bottom: 1.5em; }
-                .cms-tiptap-content li { margin-bottom: 0.5em; line-height: 1.8; }
-                .cms-tiptap-content img { width: 100%; height: auto; border-radius: 0.5rem; margin: 2em 0; cursor: zoom-in; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.05); transition: transform 0.2s; }
+                .cms-tiptap-content blockquote { border-left: 3px solid #512b81; padding-left: 1.5rem; font-style: italic; color: rgba(0,0,0,0.6); margin: 2em 0; }
+                .cms-tiptap-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5em; }
+                .cms-tiptap-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5em; }
+                .cms-tiptap-content li { margin-bottom: 0.5em; line-height: 1.85; }
+                .cms-tiptap-content img { width: 100%; height: auto; border-radius: 0.75rem; margin: 2em 0; cursor: zoom-in; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.05); transition: transform 0.3s; }
                 .cms-tiptap-content img:hover { transform: scale(1.01); }
-                .cms-tiptap-content iframe { width: 100%; aspect-ratio: 16/9; border-radius: 0.5rem; margin: 2em 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+                .cms-tiptap-content iframe { width: 100%; aspect-ratio: 16/9; border-radius: 0.75rem; margin: 2em 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
             </style>
         @endif
 

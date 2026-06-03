@@ -4,31 +4,42 @@
     <style>
         /* Hide the global navbar on this specific page to match the neo-brutalist design */
         header, nav { display: none !important; }
+
+        .grid-bg-section {
+            background-image:
+                linear-gradient(rgba(104,41,170,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104,41,170,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            background-attachment: fixed;
+        }
     </style>
 
-    <!-- Custom Black Header - Sticky "Back to Home" Widget -->
-    <div class="bg-black w-full py-5 px-6 sticky top-0 z-[100] shadow-md border-b border-black/10">
-        <div class="max-w-[1400px] mx-auto flex items-center">
-            <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
-                <span class="text-[#ff6b00] font-display text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
-            </a>
+    <!-- ── STICKY NAV WRAPPER ── -->
+    <div class="sticky top-0 z-[100] w-full flex flex-col">
+        <!-- Custom Black Header -->
+        <div class="bg-black w-full py-5 px-6 shadow-md border-b border-black/10">
+            <div class="max-w-[1400px] mx-auto flex items-center">
+                <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
+                    <span class="text-[#ff6b00] font-display text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- STICKY BACK NAVIGATION --}}
+        <div class="w-full bg-[#fdfaf0]/95 backdrop-blur-md border-b border-black/5 py-2.5 px-6 transition-all">
+            <div class="max-w-[1400px] mx-auto flex items-center">
+                <a href="{{ route('portfolio.index') }}#outputs"
+                   class="inline-flex items-center gap-2.5 font-sans text-[12px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
+                    <div class="w-7 h-7 rounded-full border border-current flex items-center justify-center bg-[#fdfaf0]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    </div>
+                    <span class="font-bold uppercase tracking-widest mt-0.5">Back</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    {{-- STICKY BACK NAVIGATION --}}
-    <div class="sticky top-[68px] z-[90] w-full bg-[#fdfaf0]/95 backdrop-blur-md border-b border-black/5 py-4 px-6 transition-all">
-        <div class="max-w-[1400px] mx-auto flex items-center">
-            <a href="{{ route('portfolio.index') }}#outputs"
-               class="inline-flex items-center gap-3 font-sans text-[13px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
-                <div class="w-9 h-9 rounded-full border border-current flex items-center justify-center bg-[#fdfaf0]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                </div>
-                <span class="font-bold uppercase tracking-widest mt-0.5">Back</span>
-            </a>
-        </div>
-    </div>
-
-    <section class="pt-6 pb-20 bg-[#fdfaf0] min-h-screen">
+    <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
         <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all' }">
 
             <div class="mb-10 text-center">
@@ -77,8 +88,16 @@
                        @mouseleave="$el.style.transform='scale(1)'">
 
                         <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
-                            @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
-                                <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                            @if(($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) || ($proj->main_media_type === 'video' && ($proj->main_video_path || $proj->video_url)))
+                                @php
+                                    $vidSrc = '';
+                                    if ($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) {
+                                        $vidSrc = asset('storage/' . $proj->thumbnail_video_path);
+                                    } elseif ($proj->main_media_type === 'video') {
+                                        $vidSrc = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : $proj->video_url;
+                                    }
+                                @endphp
+                                <video src="{{ $vidSrc }}"
                                        muted playsinline autoplay loop
                                        class="w-full h-auto object-cover pointer-events-none"
                                        x-init="
@@ -91,16 +110,22 @@
                                                    vid.currentTime = loopStart;
                                                }
                                            };
-                                           if (vid.readyState >= 1) {
-                                               initLoop();
+                                           const setup = () => {
+                                               if (vid.readyState >= 1) initLoop();
+                                               else vid.addEventListener('loadedmetadata', initLoop);
+                                               vid.addEventListener('timeupdate', () => {
+                                                   if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
+                                               });
+                                           };
+                                           if (vid.src && vid.src.startsWith('http') && !vid.src.startsWith('blob:')) {
+                                               fetch(vid.src).then(r => r.blob()).then(b => {
+                                                   vid.src = URL.createObjectURL(b);
+                                                   setup();
+                                                   vid.load();
+                                               }).catch(() => setup());
                                            } else {
-                                               vid.addEventListener('loadedmetadata', initLoop);
+                                               setup();
                                            }
-                                           vid.addEventListener('timeupdate', () => {
-                                               if (loopEnd > 0 && vid.currentTime >= loopEnd) {
-                                                   vid.currentTime = loopStart;
-                                               }
-                                           });
                                        "></video>
                             @elseif(!empty($proj->thumbnail_images))
                                 <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"

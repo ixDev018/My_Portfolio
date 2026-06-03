@@ -2,142 +2,365 @@
 
 @section('admin_content')
 
-    <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="cms-page-title">Dashboard</h1>
-        <p class="cms-page-subtitle">Site overview & visitor activity at a glance</p>
-    </div>
+<style>
+    .cms-main { background: #EDEAE0; }
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+    /* ── page header ── */
+    .db-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem; font-weight: 800;
+        color: #1a1207; letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+    }
 
-        <!-- Projects -->
-        <a href="{{ route('admin.projects.index') }}" class="cms-card p-5 flex items-center gap-4 hover:border-[rgba(77,217,240,0.3)] transition-all duration-200 group" style="text-decoration:none; display:flex;">
-            <div style="width:48px;height:48px;border-radius:0.75rem;background:rgba(77,217,240,0.1);border:1px solid rgba(77,217,240,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg style="width:22px;height:22px;color:#4dd9f0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                </svg>
-            </div>
-            <div>
-                <p style="font-family:'Space Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:0.25rem;">Outputs / Projects</p>
-                <p style="font-size:1.75rem;font-weight:800;color:#fff;font-family:'Outfit',sans-serif;line-height:1;">{{ $projectsCount }}</p>
-            </div>
-            <svg style="width:14px;height:14px;color:rgba(255,255,255,0.2);margin-left:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-        </a>
+    /* ── hero banner ── */
+    .db-hero {
+        width: 100%;
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(135deg, #6829AA 0%, #3a1860 60%, #1d0e3a 100%);
+        margin-bottom: 1.25rem;
+    }
+    .db-hero-cover {
+        width: 100%; height: 100px;
+        object-fit: cover; display: block;
+        opacity: 0.35;
+    }
+    .db-hero-cover-ph {
+        width: 100%; height: 100px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+    }
+    .db-hero-info {
+        display: flex; align-items: center; gap: 1.25rem;
+        padding: 0 1.75rem 1.5rem;
+        margin-top: -38px;
+        position: relative; z-index: 1;
+    }
+    .db-avatar {
+        width: 76px; height: 76px;
+        border-radius: 50%; overflow: hidden;
+        border: 3px solid #EDEAE0;
+        background: #D8D4C8; flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .db-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .db-hero-name {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem; font-weight: 800;
+        color: #fff; letter-spacing: -0.01em;
+        line-height: 1.2;
+    }
+    .db-hero-sub {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.58rem; text-transform: uppercase;
+        letter-spacing: 0.1em; color: rgba(255,255,255,0.5);
+        margin-top: 0.2rem;
+    }
 
-        <!-- Skills -->
-        <a href="{{ route('admin.skills.index') }}" class="cms-card p-5 flex items-center gap-4 hover:border-[rgba(77,217,240,0.3)] transition-all duration-200 group" style="text-decoration:none; display:flex;">
-            <div style="width:48px;height:48px;border-radius:0.75rem;background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg style="width:22px;height:22px;color:#ff6b00;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                </svg>
-            </div>
-            <div>
-                <p style="font-family:'Space Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:0.25rem;">Skills</p>
-                <p style="font-size:1.75rem;font-weight:800;color:#fff;font-family:'Outfit',sans-serif;line-height:1;">{{ $skillsCount }}</p>
-            </div>
-            <svg style="width:14px;height:14px;color:rgba(255,255,255,0.2);margin-left:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-        </a>
+    /* ── grid shell ── */
+    .db-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+    @media (max-width: 960px) {
+        .db-grid { grid-template-columns: 1fr; }
+    }
 
-        <!-- Unread Messages -->
-        <a href="{{ route('admin.messages.index') }}" class="cms-card p-5 flex items-center gap-4 hover:border-[rgba(77,217,240,0.3)] transition-all duration-200 group" style="text-decoration:none; display:flex;">
-            <div style="width:48px;height:48px;border-radius:0.75rem;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg style="width:22px;height:22px;color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-            </div>
-            <div>
-                <p style="font-family:'Space Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:0.25rem;">Unread Messages</p>
-                <p style="font-size:1.75rem;font-weight:800;color:#fff;font-family:'Outfit',sans-serif;line-height:1;">{{ $unreadMessagesCount }}</p>
-            </div>
-            @if($unreadMessagesCount > 0)
-                <span class="cms-badge cms-badge-orange" style="margin-left:auto;">New</span>
+    /* ── card base ── */
+    .db-card {
+        background: #fff;
+        border: 1px solid #D8D4C8;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .db-card-header {
+        padding: 0.75rem 1.15rem;
+        border-bottom: 1px solid #E2DDD3;
+        background: #F7F5EE;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .db-card-title {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.68rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: #1a1207;
+    }
+
+    /* ── profile views card ── */
+    .db-views-body {
+        padding: 1.5rem 1.25rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .db-views-stat { text-align: center; }
+    .db-views-stat .num {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3rem; font-weight: 800;
+        color: #1a1207; line-height: 1;
+    }
+    .db-views-stat .label {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.6rem; text-transform: uppercase;
+        letter-spacing: 0.1em; color: #9B9589;
+        margin-top: 0.4rem;
+    }
+    .db-views-divider {
+        position: absolute; top: 15%; bottom: 15%;
+        left: 50%; width: 1px;
+        background: #E2DDD3;
+    }
+
+    /* ── bottom stats row ── */
+    .db-stats-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .db-stat-mini {
+        background: #fff; border: 1px solid #D8D4C8;
+        border-radius: 1rem; padding: 1.1rem 1.15rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        display: flex; flex-direction: column;
+    }
+    .db-stat-mini-label {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.6rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: #1a1207; margin-bottom: 0.75rem;
+    }
+    .db-stat-mini .num {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.5rem; font-weight: 800;
+        color: #1a1207; line-height: 1;
+    }
+    .db-stat-mini .sub {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.58rem; color: #9B9589;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        margin-top: auto; padding-top: 0.5rem;
+    }
+    .db-see-details {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        padding: 0.35rem 0.85rem;
+        background: #F7F5EE; border: 1px solid #D8D4C8;
+        border-radius: 100px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.58rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: #5A5248; text-decoration: none;
+        transition: all 0.15s; cursor: pointer;
+        margin-top: auto;
+    }
+    .db-see-details:hover {
+        background: #EEE6FF; border-color: #C4A8F0; color: #6829AA;
+    }
+
+    /* ── inbox card ── */
+    .db-inbox-counts {
+        display: flex; align-items: center; gap: 0.75rem;
+    }
+    .db-inbox-pill {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.56rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .db-inbox-pill .val { color: #1a1207; }
+    .db-inbox-pill .lbl { color: #9B9589; }
+
+    /* message rows */
+    .db-msg-row {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.7rem 1.15rem;
+        border-bottom: 1px solid #F0EDE6;
+        transition: background 0.12s;
+    }
+    .db-msg-row:last-child { border-bottom: none; }
+    .db-msg-row:hover { background: #F7F5EE; }
+    .db-msg-row.unread {
+        background: #FDFBFF;
+    }
+    .db-msg-row.unread:hover { background: #F5EEFF; }
+    .db-msg-sender {
+        font-size: 0.78rem; font-weight: 600; color: #1a1207;
+        white-space: nowrap; flex-shrink: 0;
+        max-width: 120px; overflow: hidden; text-overflow: ellipsis;
+    }
+    .db-msg-sep {
+        color: #D8D4C8; font-size: 0.7rem; flex-shrink: 0;
+    }
+    .db-msg-preview {
+        font-size: 0.72rem; color: #9B9589;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        flex: 1; min-width: 0;
+    }
+    .db-msg-time {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.56rem; color: #B0A99F;
+        white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* see more button */
+    .db-see-more {
+        display: flex; align-items: center; justify-content: center;
+        padding: 0.65rem;
+        background: linear-gradient(180deg, #F7F5EE 0%, #E8E4D8 100%);
+        border-top: 1px solid #E2DDD3;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .db-see-more:hover { background: #EEE6FF; }
+    .db-see-more span {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.6rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: #6829AA;
+        padding: 0.3rem 1.25rem;
+        background: #fff; border: 1px solid #D8D4C8;
+        border-radius: 100px;
+        transition: all 0.15s;
+    }
+    .db-see-more:hover span {
+        background: #6829AA; color: #fff; border-color: #6829AA;
+    }
+
+    /* unread dot */
+    .db-unread-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #6829AA; flex-shrink: 0;
+    }
+</style>
+
+{{-- ═══ Title ═══ --}}
+<h1 class="db-title">Dashboard</h1>
+
+{{-- ═══ Hero Banner ═══ --}}
+<div class="db-hero">
+    {{-- Cover area --}}
+    <div class="db-hero-cover-ph"></div>
+
+    {{-- Avatar + Name --}}
+    <div class="db-hero-info">
+        <div class="db-avatar">
+            @if($profile && $profile->avatar_path)
+                <img src="{{ asset('storage/'.$profile->avatar_path) }}" alt="Avatar">
             @else
-                <svg style="width:14px;height:14px;color:rgba(255,255,255,0.2);margin-left:auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
+                <img src="{{ asset('images/intro/profile.png') }}" alt="Avatar">
             @endif
-        </a>
+        </div>
+        <div>
+            <p class="db-hero-name">{{ $profile->hero_title ?? 'Your Name' }}</p>
+            <p class="db-hero-sub">{{ $profile->hero_subtitle ?? 'Set your subtitle in Hero settings' }}</p>
+        </div>
     </div>
+</div>
 
-    <!-- Quick Links Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
-        @php
-        $quickLinks = [
-            ['label' => 'Hero & Profile', 'route' => 'admin.profile', 'icon' => 'M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z', 'badge' => null],
-            ['label' => 'Intro Slides', 'route' => 'admin.intro_slides.index', 'icon' => 'M4 6h16M4 10h16M4 14h16M4 18h16', 'badge' => null],
-            ['label' => 'Skills & Tools', 'route' => 'admin.skills.index', 'icon' => 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4', 'badge' => null],
-            ['label' => 'Achievements', 'route' => 'admin.achievements.index', 'icon' => 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z', 'badge' => null],
-            ['label' => 'Work Experience', 'route' => 'admin.experiences.index', 'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'badge' => null],
-            ['label' => 'Visitor Inbox', 'route' => 'admin.messages.index', 'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'badge' => $unreadMessagesCount > 0 ? $unreadMessagesCount : null],
-        ];
-        @endphp
-        @foreach($quickLinks as $link)
-            <a href="{{ route($link['route']) }}"
-               style="text-decoration:none; display:flex; flex-direction:column; gap:0.75rem; padding:1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; transition:all 0.2s ease; position:relative;"
-               onmouseover="this.style.background='rgba(77,217,240,0.06)'; this.style.borderColor='rgba(77,217,240,0.2)';"
-               onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.07)';">
-                <svg style="width:18px;height:18px;color:rgba(77,217,240,0.7);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $link['icon'] }}"/>
-                </svg>
-                <span style="font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.65);">{{ $link['label'] }}</span>
-                @if($link['badge'])
-                    <span class="cms-badge cms-badge-orange" style="position:absolute;top:0.6rem;right:0.75rem;">{{ $link['badge'] }}</span>
-                @endif
-            </a>
-        @endforeach
-    </div>
+{{-- ═══ Main Grid ═══ --}}
+<div class="db-grid">
 
-    <!-- Recent Messages -->
-    <div class="cms-card overflow-hidden">
-        <div style="padding:1.25rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between;">
-            <h2 style="font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.5rem;">
-                <svg style="width:16px;height:16px;color:#4dd9f0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>
-                Recent Visitor Messages
-            </h2>
-            <a href="{{ route('admin.messages.index') }}" style="font-size:0.7rem;font-family:'Space Mono',monospace;color:#4dd9f0;text-decoration:none;text-transform:uppercase;letter-spacing:0.08em;">
-                View All &rarr;
-            </a>
+    {{-- ── LEFT Column ── --}}
+    <div>
+        {{-- Total Profile Views --}}
+        <div class="db-card">
+            <div class="db-card-header">
+                <span class="db-card-title">Total Profile Views</span>
+            </div>
+            <div class="db-views-body" style="position:relative;">
+                <div class="db-views-stat">
+                    <p class="num">0</p>
+                    <p class="label">This Week</p>
+                </div>
+                <div class="db-views-divider"></div>
+                <div class="db-views-stat">
+                    <p class="num">{{ $totalMessagesCount + $projectsCount }}</p>
+                    <p class="label">Overall</p>
+                </div>
+            </div>
         </div>
 
-        @forelse($recentMessages as $msg)
-            <div style="padding:1rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:space-between; gap:1rem; transition:background 0.15s ease;"
-                 onmouseover="this.style.background='rgba(255,255,255,0.02)'"
-                 onmouseout="this.style.background='transparent'">
-                <div style="flex:1; min-width:0;">
-                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-                        <span style="font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">{{ $msg->name }}</span>
-                        <span style="font-size:0.65rem; color:rgba(255,255,255,0.3); font-family:'Space Mono',monospace; white-space:nowrap;">{{ $msg->created_at->diffForHumans() }}</span>
-                        @if(!$msg->is_read)
-                            <span class="cms-badge cms-badge-orange">New</span>
-                        @endif
-                    </div>
-                    <p style="font-size:0.75rem; color:rgba(255,255,255,0.35); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:400px;">
-                        {{ $msg->subject ?? '(No Subject)' }} — {{ Str::limit($msg->message, 60) }}
+        {{-- Bottom mini-stats row --}}
+        <div class="db-stats-row">
+            {{-- CV Downloads --}}
+            <div class="db-stat-mini">
+                <p class="db-stat-mini-label">CV Downloads</p>
+                <p class="num">0</p>
+                <p class="sub">
+                    @if($profile && $profile->cv_path)
+                        CV uploaded
+                    @else
+                        No CV uploaded
+                    @endif
+                </p>
+            </div>
+
+            {{-- Most Viewed Project --}}
+            <div class="db-stat-mini">
+                <p class="db-stat-mini-label">Most Viewed Project</p>
+                @if($mostViewedProject)
+                    <p style="font-size:0.82rem;font-weight:600;color:#1a1207;margin-bottom:0.35rem;line-height:1.3;">
+                        {{ Str::limit($mostViewedProject->title, 28) }}
                     </p>
-                </div>
-                <a href="{{ route('admin.messages.show', $msg->id) }}" class="cms-btn-secondary" style="white-space:nowrap; padding:0.45rem 0.875rem; font-size:0.7rem;">
-                    View
+                @else
+                    <p style="font-size:0.82rem;color:#B0A99F;font-style:italic;margin-bottom:0.35rem;">No Data yet</p>
+                @endif
+                <a href="{{ route('admin.projects.index') }}" class="db-see-details">
+                    See Details
+                    <svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
-        @empty
-            <div style="padding:3rem; text-align:center;">
-                <svg style="width:36px;height:36px;color:rgba(255,255,255,0.1);margin:0 auto 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                <p style="font-size:0.8rem; color:rgba(255,255,255,0.25); font-family:'Space Mono',monospace;">No messages yet.</p>
-            </div>
-        @endforelse
+        </div>
     </div>
+
+    {{-- ── RIGHT Column: Inbox ── --}}
+    <div class="db-card" style="display:flex;flex-direction:column;">
+        {{-- Header --}}
+        <div class="db-card-header">
+            <span class="db-card-title">Inbox</span>
+            <div class="db-inbox-counts">
+                <span class="db-inbox-pill">
+                    <span class="lbl">Unread:</span>
+                    <span class="val">{{ $unreadMessagesCount }}</span>
+                </span>
+                <span class="db-inbox-pill">
+                    <span class="lbl">Read:</span>
+                    <span class="val">{{ $readMessagesCount }}</span>
+                </span>
+            </div>
+        </div>
+
+        {{-- Message rows --}}
+        <div style="flex:1;overflow-y:auto;">
+            @forelse($recentMessages as $msg)
+                <a href="{{ route('admin.messages.show', $msg->id) }}" class="db-msg-row {{ !$msg->is_read ? 'unread' : '' }}" style="text-decoration:none;">
+                    @if(!$msg->is_read)
+                        <span class="db-unread-dot"></span>
+                    @endif
+                    <span class="db-msg-sender">{{ $msg->name }}</span>
+                    <span class="db-msg-sep">—</span>
+                    <span class="db-msg-preview">{{ $msg->subject ?? Str::limit($msg->message, 40) }}</span>
+                    <span class="db-msg-time">{{ $msg->created_at->format('g:iA') }}</span>
+                </a>
+            @empty
+                <div style="padding:2.5rem 1rem;text-align:center;">
+                    <svg style="width:2rem;height:2rem;color:#D8D4C8;margin:0 auto 0.6rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <p style="font-family:'Space Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No messages yet</p>
+                </div>
+            @endforelse
+        </div>
+
+        {{-- See More footer --}}
+        <a href="{{ route('admin.messages.index') }}" class="db-see-more">
+            <span>See More</span>
+        </a>
+    </div>
+
+</div>
 
 @endsection

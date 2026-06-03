@@ -2,113 +2,188 @@
 
 @section('admin_content')
 
-    <!-- Skills Header -->
-    <div class="mb-10">
-        <h1 class="text-3xl font-extrabold text-white tracking-tight font-display">Manage Skills</h1>
-        <p class="text-sm text-slate-400 font-mono mt-1">Configure your active coding technologies and expertise indices</p>
+<style>
+    .cms-main { background: #EDEAE0; }
+    .lt-label {
+        display:block; font-family:'Space Mono',monospace;
+        font-size:0.58rem; text-transform:uppercase;
+        letter-spacing:0.1em; color:#9B9589; margin-bottom:0.35rem;
+    }
+    .lt-input {
+        width:100%; background:#fff; border:1px solid #D8D4C8;
+        border-radius:0.5rem; padding:0.45rem 0.8rem;
+        color:#1a1207; font-size:0.8125rem;
+        font-family:'Inter',sans-serif; outline:none;
+        transition:border-color 0.18s,box-shadow 0.18s;
+    }
+    .lt-input:focus { border-color:#6829AA; box-shadow:0 0 0 3px rgba(104,41,170,0.1); }
+    .lt-input::placeholder { color:#B0A99F; }
+    select.lt-input { cursor:pointer; }
+    .lt-btn-primary {
+        display:inline-flex; align-items:center; gap:0.4rem;
+        padding:0.55rem 1.1rem; background:#6829AA; color:#fff;
+        border:none; border-radius:0.55rem; font-size:0.8rem;
+        font-weight:700; font-family:'Outfit',sans-serif; cursor:pointer;
+        box-shadow:0 3px 10px rgba(104,41,170,0.25); transition:all .15s;
+    }
+    .lt-btn-primary:hover { background:#5720A0; }
+    .lt-btn-secondary {
+        display:inline-flex; align-items:center; gap:0.4rem;
+        padding:0.5rem 0.9rem; background:#fff;
+        border:1px solid #D8D4C8; border-radius:0.5rem;
+        color:#5A5248; font-size:0.78rem; font-weight:600;
+        font-family:'Outfit',sans-serif; cursor:pointer; transition:all .15s;
+    }
+    .lt-btn-secondary:hover { background:#F7F5EE; border-color:#C4BDB2; color:#1a1207; }
+    .lt-btn-danger {
+        display:inline-flex; align-items:center; gap:0.4rem;
+        padding:0.5rem 0.9rem; background:#FFF1F1;
+        border:1px solid #FECACA; border-radius:0.5rem;
+        color:#dc2626; font-size:0.78rem; font-weight:600;
+        font-family:'Outfit',sans-serif; cursor:pointer; transition:all .15s;
+    }
+    .lt-btn-danger:hover { background:#FEE2E2; }
+    .lt-err { color:#dc2626; font-size:0.72rem; margin-top:0.25rem; }
+    .lt-card {
+        background:#fff; border:1px solid #D8D4C8;
+        border-radius:1rem; overflow:hidden;
+        box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    }
+    .lt-card-header {
+        padding:0.85rem 1.25rem; border-bottom:1px solid #E2DDD3;
+        background:#F7F5EE;
+        display:flex; align-items:center; gap:0.6rem;
+    }
+    .lt-card-title {
+        font-family:'Outfit',sans-serif; font-size:0.875rem;
+        font-weight:700; color:#1a1207;
+    }
+    .lt-count-badge {
+        padding:0.15rem 0.55rem; border-radius:100px;
+        font-family:'Space Mono',monospace; font-size:0.58rem;
+        font-weight:700; background:#EEE6FF; color:#6829AA;
+        border:1px solid #D8C0F8;
+    }
+    .lt-form-card {
+        background:#fff; border:1px solid #D8D4C8;
+        border-radius:1rem; padding:1.25rem;
+        margin-bottom:1rem;
+        box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* skill card */
+    .sk-card {
+        padding:0.8rem 0.9rem;
+        background:#F7F5EE;
+        border:1px solid #E2DDD3;
+        border-radius:0.65rem;
+        display:flex; align-items:center; justify-content:space-between; gap:0.75rem;
+        transition:border-color 0.15s,box-shadow 0.15s;
+    }
+    .sk-card:hover { border-color:#C4BDB2; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .sk-name { font-size:0.82rem; font-weight:600; color:#1a1207; }
+    .sk-pct  { font-family:'Space Mono',monospace; font-size:0.68rem; color:#6829AA; font-weight:700; }
+    .sk-bar-track { width:100%; height:4px; background:#E2DDD3; border-radius:4px; margin-top:0.35rem; overflow:hidden; }
+    .sk-bar-fill  { height:4px; border-radius:4px; background:linear-gradient(90deg,#6829AA,#4dd9f0); }
+    .sk-delete-btn {
+        background:transparent; border:none; cursor:pointer;
+        color:#C4BDB2; padding:0.3rem; border-radius:0.35rem;
+        transition:all .15s; flex-shrink:0;
+    }
+    .sk-delete-btn:hover { color:#dc2626; background:#FFF1F1; }
+
+    /* category heading */
+    .sk-cat-label {
+        font-family:'Space Mono',monospace; font-size:0.6rem;
+        text-transform:uppercase; letter-spacing:0.12em;
+        color:#9B9589; margin-bottom:0.6rem;
+        padding-bottom:0.4rem; border-bottom:1px solid #E2DDD3;
+    }
+</style>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;flex-wrap:wrap;gap:0.75rem;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Skills &amp; Tools</h1>
+        <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Coding technologies and expertise indices</p>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;">
+
+    {{-- ADD FORM --}}
+    <div class="lt-form-card">
+        <p style="font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1207;margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#6829AA;display:inline-block;"></span>
+            Add Technical Skill
+        </p>
+        <form action="{{ route('admin.skills.store') }}" method="POST" style="display:flex;flex-direction:column;gap:0.9rem;">
+            @csrf
+            <div>
+                <label class="lt-label">Skill Name</label>
+                <input type="text" name="name" id="name" required
+                       placeholder="e.g. Laravel, React, Docker" class="lt-input">
+                @error('name')<p class="lt-err">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="lt-label">Category</label>
+                <select name="category" id="category" required class="lt-input">
+                    <option value="Frontend">Frontend</option>
+                    <option value="Backend">Backend</option>
+                    <option value="Tools">Tools</option>
+                </select>
+                @error('category')<p class="lt-err">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="lt-label">Proficiency / Skill Index (0 – 100%)</label>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <input type="range" name="proficiency" id="proficiency"
+                           min="0" max="100" value="80"
+                           oninput="this.nextElementSibling.value = this.value + '%'"
+                           style="flex:1;accent-color:#6829AA;cursor:pointer;height:4px;">
+                    <output style="font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;color:#6829AA;width:36px;text-align:right;">80%</output>
+                </div>
+                @error('proficiency')<p class="lt-err">{{ $message }}</p>@enderror
+            </div>
+            <button type="submit" class="lt-btn-primary" style="width:100%;justify-content:center;">
+                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Add Skill
+            </button>
+        </form>
     </div>
 
-    <!-- Main Workspace Split Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- Left Side: Add Skill Form -->
-        <div class="lg:col-span-4 bg-slate-900 border border-slate-850 p-6 rounded-2xl shadow-xl">
-            <h2 class="text-base font-bold text-white mb-4 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-                Add Technical Skill
-            </h2>
-
-            <form action="{{ route('admin.skills.store') }}" method="POST" class="space-y-5">
-                @csrf
-
-                <!-- Name -->
-                <div>
-                    <label for="name" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Skill Name</label>
-                    <input type="text" 
-                           name="name" 
-                           id="name" 
-                           required 
-                           placeholder="e.g. Laravel, React, Docker"
-                           class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-2.5 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
-                    @error('name')
-                        <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Category -->
-                <div>
-                    <label for="category" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Category</label>
-                    <select name="category" 
-                            id="category" 
-                            required
-                            class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-2.5 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200 cursor-pointer">
-                        <option value="Frontend">Frontend</option>
-                        <option value="Backend">Backend</option>
-                        <option value="Tools">Tools</option>
-                    </select>
-                    @error('category')
-                        <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Proficiency -->
-                <div>
-                    <label for="proficiency" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Proficiency / Skill Index (0 - 100%)</label>
-                    <div class="flex items-center gap-4">
-                        <input type="range" 
-                               name="proficiency" 
-                               id="proficiency" 
-                               min="0" 
-                               max="100" 
-                               value="80"
-                               oninput="this.nextElementSibling.value = this.value + '%'"
-                               class="w-full bg-slate-950 accent-cyan-500 cursor-pointer h-1.5 rounded-lg appearance-none">
-                        <output class="text-xs font-bold text-cyan-400 font-mono w-10 text-right">80%</output>
-                    </div>
-                    @error('proficiency')
-                        <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Submit -->
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600 text-white font-semibold rounded-xl shadow shadow-cyan-500/10 active:scale-95 transition-all">
-                    Add Skill
-                </button>
-
-            </form>
+    {{-- SKILL GRID --}}
+    <div class="lt-card">
+        <div class="lt-card-header">
+            <span class="lt-card-title" style="display:flex;align-items:center;gap:0.4rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#4dd9f0;display:inline-block;"></span>
+                Active Technical Grid
+            </span>
+            <span class="lt-count-badge">{{ $skills->count() }}</span>
         </div>
 
-        <!-- Right Side: Active Skills Listing grouped by category -->
-        <div class="lg:col-span-8 bg-slate-900 border border-slate-850 p-6 rounded-2xl shadow-xl space-y-6">
-            <h2 class="text-base font-bold text-white mb-4 border-b border-slate-800 pb-2 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                Active Technical Grid
-            </h2>
-
-            @php
-                $groupedSkills = $skills->groupBy('category');
-            @endphp
+        <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1.5rem;">
+            @php $groupedSkills = $skills->groupBy('category'); @endphp
 
             @forelse($groupedSkills as $cat => $list)
-                <div class="mb-6">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono mb-3 border-b border-slate-950 pb-1.5">{{ $cat }}</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <p class="sk-cat-label">{{ $cat }}</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.65rem;">
                         @foreach($list as $skill)
-                            <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl flex items-center justify-between gap-3 hover:border-slate-800 transition-colors">
-                                <div class="min-w-0 flex-grow">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-sm font-semibold text-slate-200 truncate">{{ $skill->name }}</span>
-                                        <span class="text-xs font-mono text-cyan-400 font-medium">{{ $skill->proficiency }}%</span>
+                            <div class="sk-card">
+                                <div style="flex:1;min-width:0;">
+                                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                                        <span class="sk-name">{{ $skill->name }}</span>
+                                        <span class="sk-pct">{{ $skill->proficiency }}%</span>
                                     </div>
-                                    <div class="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
-                                        <div class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1 rounded-full" style="width: {{ $skill->proficiency }}%"></div>
+                                    <div class="sk-bar-track">
+                                        <div class="sk-bar-fill" style="width:{{ $skill->proficiency }}%"></div>
                                     </div>
                                 </div>
-                                
-                                <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST" onsubmit="return confirm('Remove {{ $skill->name }}?');">
+                                <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST"
+                                      onsubmit="return confirm('Remove {{ $skill->name }}?')">
                                     @csrf
-                                    <button type="submit" class="text-slate-500 hover:text-rose-400 p-1.5 transition-colors" title="Delete Skill">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button type="submit" class="sk-delete-btn" title="Delete">
+                                        <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </form>
                             </div>
@@ -116,13 +191,14 @@
                     </div>
                 </div>
             @empty
-                <div class="p-12 text-center text-slate-500">
-                    <p class="text-sm font-medium">No active skills added to database.</p>
+                <div style="padding:3rem;text-align:center;">
+                    <svg style="width:2.5rem;height:2.5rem;color:#D8D4C8;margin:0 auto 0.75rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No skills added yet.</p>
                 </div>
             @endforelse
-
         </div>
-
     </div>
+
+</div>
 
 @endsection

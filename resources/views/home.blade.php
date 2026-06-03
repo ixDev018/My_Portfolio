@@ -4,6 +4,16 @@
 
 @section('content')
 
+    <style>
+        .grid-bg-section {
+            background-image:
+                linear-gradient(rgba(104,41,170,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104,41,170,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            background-attachment: fixed;
+        }
+    </style>
+
     <!-- HERO SECTION -->
     <section id="hero" class="relative h-[100vh] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
         
@@ -310,7 +320,7 @@
     </section>
 
     <!-- WORKS AND OUTPUTS SECTION -->
-    <section id="works" class="w-full bg-[#FAF7E6] text-black pt-16 pb-0 relative">
+    <section id="works" class="w-full bg-[#FAF7E6] grid-bg-section text-black pt-16 pb-0 relative">
         <div class="max-w-[1400px] mx-auto px-6 w-full">
 
             <!-- Section Title -->
@@ -443,10 +453,14 @@
 
                                     <!-- Image / placeholder -->
                                     <div class="relative w-full rounded-2xl overflow-hidden border border-black/10
-                                                @if($proj->thumbnail_path || $proj->thumbnail_video_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
+                                                @if(($proj->use_custom_thumbnail && $proj->thumbnail_path) || $proj->main_video_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
                                                 flex items-center justify-center">
-                                        @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
-                                            <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                                        @if($proj->use_custom_thumbnail && $proj->thumbnail_path)
+                                            <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                                 alt="{{ $proj->title }}"
+                                                 class="w-full h-auto object-cover">
+                                        @elseif($proj->main_media_type === 'video' && $proj->main_video_path)
+                                            <video src="{{ asset('storage/' . $proj->main_video_path) }}"
                                                    muted playsinline autoplay loop
                                                    class="w-full h-auto object-cover pointer-events-none"
                                                    x-init="
@@ -470,11 +484,11 @@
                                                            }
                                                        });
                                                    "></video>
-                                        @elseif(!empty($proj->thumbnail_images))
-                                            <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
+                                        @elseif($proj->main_media_type === 'image' && !empty($proj->main_images))
+                                            <div x-data="{ currentSlide: 0, total: {{ count($proj->main_images) }} }"
                                                  x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000)"
                                                  class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
-                                                @foreach($proj->thumbnail_images as $index => $img)
+                                                @foreach($proj->main_images as $index => $img)
                                                     <img src="{{ asset('storage/' . $img) }}"
                                                          x-show="currentSlide === {{ $index }}"
                                                          x-transition.opacity.duration.700ms
@@ -488,8 +502,8 @@
                                                     </template>
                                                 </div>
                                             </div>
-                                        @elseif($proj->thumbnail_path)
-                                            <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                        @elseif($proj->main_image_path)
+                                            <img src="{{ Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : asset('storage/' . $proj->main_image_path) }}"
                                                  alt="{{ $proj->title }}"
                                                  class="w-full h-auto object-cover">
                                         @else
@@ -649,8 +663,16 @@
                                @mouseleave="$el.style.transform='scale(1)'">
 
                                 <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
-                                    @if($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path)
-                                        <video src="{{ asset('storage/' . $proj->thumbnail_video_path) }}"
+                                    @if(($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) || ($proj->main_media_type === 'video' && ($proj->main_video_path || $proj->video_url)))
+                                        @php
+                                            $vidSrc = '';
+                                            if ($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) {
+                                                $vidSrc = asset('storage/' . $proj->thumbnail_video_path);
+                                            } elseif ($proj->main_media_type === 'video') {
+                                                $vidSrc = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : $proj->video_url;
+                                            }
+                                        @endphp
+                                        <video src="{{ $vidSrc }}"
                                                muted playsinline autoplay loop
                                                class="w-full h-auto object-cover pointer-events-none"
                                                x-init="
@@ -663,16 +685,22 @@
                                                            vid.currentTime = loopStart;
                                                        }
                                                    };
-                                                   if (vid.readyState >= 1) {
-                                                       initLoop();
+                                                   const setup = () => {
+                                                       if (vid.readyState >= 1) initLoop();
+                                                       else vid.addEventListener('loadedmetadata', initLoop);
+                                                       vid.addEventListener('timeupdate', () => {
+                                                           if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
+                                                       });
+                                                   };
+                                                   if (vid.src && vid.src.startsWith('http') && !vid.src.startsWith('blob:')) {
+                                                       fetch(vid.src).then(r => r.blob()).then(b => {
+                                                           vid.src = URL.createObjectURL(b);
+                                                           setup();
+                                                           vid.load();
+                                                       }).catch(() => setup());
                                                    } else {
-                                                       vid.addEventListener('loadedmetadata', initLoop);
+                                                       setup();
                                                    }
-                                                   vid.addEventListener('timeupdate', () => {
-                                                       if (loopEnd > 0 && vid.currentTime >= loopEnd) {
-                                                           vid.currentTime = loopStart;
-                                                       }
-                                                   });
                                                "></video>
                                     @elseif(!empty($proj->thumbnail_images))
                                         <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"

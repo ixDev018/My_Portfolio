@@ -17,6 +17,11 @@ class Project extends Model
         'thumbnail_type',
         'thumbnail_images',
         'thumbnail_video_path',
+        'main_media_type',
+        'main_video_path',
+        'main_images',
+        'main_image_path',
+        'use_custom_thumbnail',
         'video_loop_start',
         'video_loop_end',
         'full_video_url',
@@ -37,8 +42,10 @@ class Project extends Model
 
     protected $casts = [
         'featured'        => 'boolean',
+        'use_custom_thumbnail' => 'boolean',
         'gallery_images'  => 'array',
         'thumbnail_images'=> 'array',
+        'main_images'     => 'array',
         'video_loop_start'=> 'float',
         'video_loop_end'  => 'float',
     ];

@@ -227,8 +227,8 @@
             
             @php
                 $categoryColors = [
-                    'CORE' => 'bg-[#d0f69a]',
-                    'EXTERNAL' => 'bg-[#faf597]'
+                    'Core' => 'bg-[#d0f69a]',
+                    'External' => 'bg-[#faf597]'
                 ];
             @endphp
 
@@ -243,7 +243,7 @@
                     
                     <!-- Mobile Header for Category -->
                     <div class="md:hidden w-full px-6 py-3 border-b border-black/10">
-                        <span class="font-mono font-bold tracking-[0.2em] uppercase text-slate-800 text-[10px]">{{ $category }}</span>
+                        <span class="font-mono font-bold tracking-[0.2em] uppercase text-slate-800 text-[10px]">{{ strtoupper($category) }}</span>
                     </div>
 
                     <!-- Skills Grid -->
@@ -252,13 +252,22 @@
                         <!-- Left Sidebar (Category Name Desktop) -->
                         <div class="hidden md:flex items-center justify-center border-r border-black py-8">
                             <span class="font-mono font-bold tracking-[0.3em] uppercase text-slate-800 -rotate-90 whitespace-nowrap text-xs">
-                                {{ $category }}
+                                {{ strtoupper($category) }}
                             </span>
                         </div>
 
+                        @php
+                            $skillCount = $skills->count();
+                            $desktopGridClass = 'md:grid-cols-6';
+                            if ($skillCount == 1) $desktopGridClass = 'md:grid-cols-1';
+                            elseif ($skillCount == 2) $desktopGridClass = 'md:grid-cols-2';
+                            elseif ($skillCount == 3) $desktopGridClass = 'md:grid-cols-3';
+                            elseif ($skillCount == 4) $desktopGridClass = 'md:grid-cols-4';
+                            elseif ($skillCount == 5) $desktopGridClass = 'md:grid-cols-5';
+                        @endphp
                         <!-- Skills Cards -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 md:col-span-4 w-full">
-                            @foreach($skills->take(4) as $index => $skill)
+                        <div class="grid grid-cols-2 {{ $desktopGridClass }} md:col-span-4 w-full">
+                            @foreach($skills as $index => $skill)
                                 <div class="p-4 md:p-6 border-r border-b md:border-b-0 border-black flex flex-col justify-between min-h-[120px] md:min-h-[260px] transition-all duration-300 hover:bg-black/5 md:hover:bg-gradient-to-br md:hover:from-white/90 md:hover:via-white/40 md:hover:to-transparent cursor-default group">
                                     <div class="w-6 h-6 md:w-7 md:h-7 rounded-full border border-black flex items-center justify-center text-[10px] md:text-[11px] font-sans text-black">
                                         {{ $index + 1 }}
@@ -268,10 +277,15 @@
                                     </h3>
                                 </div>
                             @endforeach
-                            <!-- Fill empty -->
-                            @for($i = $skills->count(); $i < 4; $i++)
-                                <div class="border-r border-b md:border-b-0 border-black hidden md:block"></div>
-                            @endfor
+                            
+                            @if($skillCount % 2 !== 0)
+                                <!-- Mobile placeholder for odd counts -->
+                                <div class="p-4 border-r border-b border-black flex flex-col justify-center items-center min-h-[120px] bg-black/10 md:hidden cursor-default">
+                                    <p class="font-mono text-[9px] uppercase text-black/60 text-center leading-relaxed">
+                                        Cooking a skill: actively learning more skills to add here
+                                    </p>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Right Sidebar Desktop -->

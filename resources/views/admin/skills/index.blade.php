@@ -127,22 +127,10 @@
             <div>
                 <label class="lt-label">Category</label>
                 <select name="category" id="category" required class="lt-input">
-                    <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="Tools">Tools</option>
+                    <option value="Core">Core</option>
+                    <option value="External">External</option>
                 </select>
                 @error('category')<p class="lt-err">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label class="lt-label">Proficiency / Skill Index (0 – 100%)</label>
-                <div style="display:flex;align-items:center;gap:0.75rem;">
-                    <input type="range" name="proficiency" id="proficiency"
-                           min="0" max="100" value="80"
-                           oninput="this.nextElementSibling.value = this.value + '%'"
-                           style="flex:1;accent-color:#6829AA;cursor:pointer;height:4px;">
-                    <output style="font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;color:#6829AA;width:36px;text-align:right;">80%</output>
-                </div>
-                @error('proficiency')<p class="lt-err">{{ $message }}</p>@enderror
             </div>
             <button type="submit" class="lt-btn-primary" style="width:100%;justify-content:center;">
                 <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -169,17 +157,27 @@
                     <p class="sk-cat-label">{{ $cat }}</p>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.65rem;">
                         @foreach($list as $skill)
-                            <div class="sk-card" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
-                                <div style="flex:1;min-width:0;">
+                            <div class="sk-card" x-data="{ editing: false, menuOpen: false }" @click.outside="menuOpen = false">
+                                <div style="flex:1;min-width:0;" x-show="!editing">
                                     <div style="display:flex;justify-content:space-between;align-items:baseline;">
                                         <span class="sk-name">{{ $skill->name }}</span>
-                                        <span class="sk-pct">{{ $skill->proficiency }}%</span>
-                                    </div>
-                                    <div class="sk-bar-track">
-                                        <div class="sk-bar-fill" style="width:{{ $skill->proficiency }}%"></div>
                                     </div>
                                 </div>
-                                <div style="flex-shrink:0; position:relative; z-index:20;">
+                                <div x-show="editing" style="display:none;flex:1;">
+                                    <form action="{{ route('admin.skills.update', $skill->id) }}" method="POST" style="display:flex; flex-direction:column; gap:0.5rem;">
+                                        @csrf
+                                        <input type="text" name="name" value="{{ $skill->name }}" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
+                                        <select name="category" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
+                                            <option value="Core" {{ $skill->category == 'Core' ? 'selected' : '' }}>Core</option>
+                                            <option value="External" {{ $skill->category == 'External' ? 'selected' : '' }}>External</option>
+                                        </select>
+                                        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+                                            <button type="submit" class="lt-btn-primary" style="padding:0.38rem 0.9rem;font-size:0.73rem;">Update</button>
+                                            <button type="button" @click="editing=false" class="lt-btn-secondary" style="padding:0.38rem 0.7rem;font-size:0.73rem;">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div style="flex-shrink:0; position:relative; z-index:20;" x-show="!editing">
                                     <div class="cms-dots-wrap">
                                         <button class="cms-dots-btn"
                                                 :class="menuOpen ? 'open' : ''"
@@ -199,6 +197,11 @@
                                              x-transition:leave-start="opacity-100 scale-100"
                                              x-transition:leave-end="opacity-0 scale-95"
                                              @click.stop>
+                                            <button @click="editing = true; menuOpen = false">
+                                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                Edit
+                                            </button>
+                                            <div class="cms-dd-divider"></div>
                                             <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST"
                                                   @submit.prevent="if(confirm('Remove {{ $skill->name }}?')) $el.submit()">
                                                 @csrf

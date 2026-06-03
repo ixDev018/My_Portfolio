@@ -503,7 +503,7 @@ class AdminController extends Controller
     */
     public function skillsIndex()
     {
-        $skills = Skill::orderBy('category')->orderBy('proficiency', 'desc')->get();
+        $skills = Skill::orderBy('category')->orderBy('id', 'asc')->get();
         return view('admin.skills.index', compact('skills'));
     }
 
@@ -511,13 +511,30 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'category' => 'required|string|in:Frontend,Backend,Tools',
-            'proficiency' => 'required|integer|min:0|max:100',
+            'category' => 'required|string|in:Core,External',
         ]);
+        
+        $validated['proficiency'] = 0;
 
         Skill::create($validated);
 
         return redirect()->route('admin.skills.index')->with('success', 'Skill added successfully!');
+    }
+
+    public function skillsUpdate(Request $request, $id)
+    {
+        $skill = Skill::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'category' => 'required|string|in:Core,External',
+        ]);
+        
+        $validated['proficiency'] = 0;
+
+        $skill->update($validated);
+
+        return redirect()->route('admin.skills.index')->with('success', 'Skill updated successfully!');
     }
 
     public function skillsDestroy($id)

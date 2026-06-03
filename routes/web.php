@@ -51,6 +51,7 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     // Skills CMS CRUD
     Route::get('/skills', [AdminController::class, 'skillsIndex'])->name('admin.skills.index');
     Route::post('/skills/store', [AdminController::class, 'skillsStore'])->name('admin.skills.store');
+    Route::post('/skills/update/{id}', [AdminController::class, 'skillsUpdate'])->name('admin.skills.update');
     Route::post('/skills/delete/{id}', [AdminController::class, 'skillsDestroy'])->name('admin.skills.delete');
 
     // Messages / Inbox CMS

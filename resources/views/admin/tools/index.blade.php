@@ -36,6 +36,19 @@
                     @enderror
                 </div>
 
+                <!-- Tooltip Info -->
+                <div>
+                    <label for="tooltip_info" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Tooltip Info (Optional)</label>
+                    <input type="text" 
+                           name="tooltip_info" 
+                           id="tooltip_info" 
+                           placeholder="e.g. 5+ Years Experience"
+                           class="w-full bg-slate-950 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-2.5 text-slate-200 text-sm outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all duration-200">
+                    @error('tooltip_info')
+                        <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Category / Row -->
                 <div>
                     <label for="row_label" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Marquee Category</label>

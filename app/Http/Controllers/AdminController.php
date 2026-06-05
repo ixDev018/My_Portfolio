@@ -570,9 +570,10 @@ class AdminController extends Controller
     public function toolItemsStore(Request $request)
     {
         $validated = $request->validate([
-            'name'       => 'required|string|max:100',
-            'row_label'  => 'required|string|max:100',
-            'image_data' => 'nullable|string', // base64 from CropperJS
+            'name'         => 'required|string|max:100',
+            'tooltip_info' => 'nullable|string|max:255',
+            'row_label'    => 'required|string|max:100',
+            'image_data'   => 'nullable|string', // base64 from CropperJS
         ]);
 
         $imagePath = null;
@@ -588,10 +589,11 @@ class AdminController extends Controller
         $maxOrder = ToolItem::where('row_label', $validated['row_label'])->max('sort_order') ?? -1;
 
         ToolItem::create([
-            'name'       => $validated['name'],
-            'row_label'  => $validated['row_label'],
-            'image_path' => $imagePath,
-            'sort_order' => $maxOrder + 1,
+            'name'         => $validated['name'],
+            'tooltip_info' => $validated['tooltip_info'] ?? null,
+            'row_label'    => $validated['row_label'],
+            'image_path'   => $imagePath,
+            'sort_order'   => $maxOrder + 1,
         ]);
 
         return redirect()->route('admin.tools.index')->with('success', 'Tool item added!');

@@ -294,13 +294,13 @@
                     <div class="flex-1 flex overflow-hidden relative items-center">
                         <div class="animate-marquee flex whitespace-nowrap items-center gap-10 md:gap-16 pl-10 md:pl-16">
                             @foreach(array_merge($tools->toArray(), $tools->toArray()) as $item)
-                                <span class="font-normal font-sans text-xs md:text-xl flex items-center gap-3">
+                                <span class="font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative cursor-help">
                                     @if(!empty($item['image_path']))
-                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center bg-white/10 overflow-hidden">
+                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center bg-white/10 overflow-hidden" title="{{ $item['tooltip_info'] ?? $item['name'] }}">
                                             <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain">
                                         </div>
                                     @else
-                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase">{{ substr($item['name'], 0, 2) }}</div>
+                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase" title="{{ $item['tooltip_info'] ?? $item['name'] }}">{{ substr($item['name'], 0, 2) }}</div>
                                     @endif
                                     {{ $item['name'] }}
                                 </span>

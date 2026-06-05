@@ -529,6 +529,92 @@
 
     </section>
 
+    <!-- THE BEST WORKS SECTION -->
+    @php
+        $featuredProjects = $projects->where('is_best_work', true)->values();
+    @endphp
+    @if($featuredProjects->count() > 0)
+    <section id="best-works" class="w-full bg-[#FAF7E6] grid-bg-section text-[#1a1207] pt-16 pb-16 relative overflow-hidden" x-data="{
+        slide: 0,
+        total: {{ $featuredProjects->count() }},
+        prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
+        next() { this.slide = (this.slide + 1) % this.total; }
+    }">
+        <div class="max-w-[1400px] mx-auto px-6 w-full relative z-10">
+            <!-- Section Title -->
+            <h2 class="text-center font-display text-4xl md:text-5xl uppercase tracking-[0.2em] text-[#1a1207] mb-2" style="text-shadow: 0 4px 20px rgba(0,0,0,0.05);">The Best Works</h2>
+            <p class="text-center text-xs font-mono text-[#6829AA] tracking-[0.3em] uppercase mb-12">Handpicked Featured Projects</p>
+
+            <!-- Slider Container -->
+            <div class="relative w-full aspect-[4/3] md:aspect-[16/9] max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-black/10 group">
+                
+                @foreach($featuredProjects as $index => $fp)
+                <div x-show="slide === {{ $index }}"
+                     x-transition:enter="transition ease-out duration-700"
+                     x-transition:enter-start="opacity-0 scale-105"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-500"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute inset-0 w-full h-full">
+                    
+                    <!-- Background Image -->
+                    <img src="{{ $fp->featured_thumbnail ? asset('storage/' . $fp->featured_thumbnail) : ($fp->thumbnail_path ? asset('storage/' . $fp->thumbnail_path) : asset('images/placeholder.jpg')) }}" 
+                         alt="{{ $fp->title }}" class="w-full h-full object-cover">
+                    
+                    <!-- Gradient Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    
+                    <!-- Content -->
+                    <div class="absolute bottom-0 left-0 w-full p-5 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+                        <div class="max-w-2xl">
+                            <div class="flex items-center gap-3 mb-2 md:mb-3">
+                                <span class="px-2 md:px-3 py-1 bg-[#FF851B] text-[#783800] text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-sm">{{ $fp->category ?? 'Featured' }}</span>
+                                <span class="text-white/60 font-mono text-[10px] md:text-xs uppercase tracking-widest">{{ $fp->year ?? '2025' }}</span>
+                            </div>
+                            <h3 class="font-display text-3xl md:text-6xl text-white uppercase leading-none mb-2 md:mb-4">{{ $fp->title }}</h3>
+                            <p class="font-poppins text-xs md:text-base text-white/80 line-clamp-2 md:line-clamp-3 max-w-xl">
+                                {{ $fp->description ?? $fp->subtitle }}
+                            </p>
+                        </div>
+                        
+                        <a href="{{ route('portfolio.project.show', $fp->slug) }}" class="shrink-0 group/btn relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 bg-white text-black font-sans text-[10px] md:text-xs font-bold uppercase tracking-widest overflow-hidden">
+                            <span class="relative z-10 flex items-center gap-2 transition-transform duration-300 group-hover/btn:-translate-y-10">
+                                View Case Study
+                            </span>
+                            <span class="absolute inset-0 z-10 flex items-center justify-center gap-2 translate-y-full transition-transform duration-300 group-hover/btn:translate-y-0 text-white bg-[#6829AA]">
+                                Explore Now <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                @endforeach
+
+                <!-- Navigation Controls -->
+                <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button @click="prev()" class="pointer-events-auto w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-[#FF851B] text-white border border-white/20 hover:border-transparent rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button @click="next()" class="pointer-events-auto w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-[#FF851B] text-white border border-white/20 hover:border-transparent rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                
+                <!-- Pagination Indicators -->
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+                    <template x-for="i in total" :key="i">
+                        <button @click="slide = i - 1" 
+                                class="h-1.5 transition-all duration-300 rounded-full"
+                                :class="slide === i - 1 ? 'w-8 bg-[#FF851B]' : 'w-2 bg-white/30 hover:bg-white/50'">
+                        </button>
+                    </template>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- WORKS AND OUTPUTS SECTION -->
     <section id="works" class="w-full bg-[#FAF7E6] grid-bg-section text-black pt-16 pb-0 relative">
         <div class="max-w-[1400px] mx-auto px-6 w-full">

@@ -29,6 +29,12 @@
     removeThumbnail: false,
     cropper: null,
     
+    // Featured Thumbnail
+    isDraggingFeaturedThumb: false,
+    featuredThumbPreview: null,
+    removeFeaturedThumbnail: false,
+    featuredCropper: null,
+    
     init() {
         this.$nextTick(() => {
             // Small delay to ensure Alpine x-show has fully rendered the video div
@@ -517,6 +523,35 @@
         if(this.cropper) { this.cropper.destroy(); this.cropper = null; }
         document.getElementById('custom_thumbnail_upload').value = '';
         document.getElementById('custom_thumbnail_base64').value = '';
+    },
+
+    processFeaturedThumbFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        this.removeFeaturedThumbnail = false;
+        let url = window.URL.createObjectURL(file);
+        this.featuredThumbPreview = url;
+        
+        this.$nextTick(() => {
+            let img = document.getElementById('featured-thumb-crop-image');
+            img.src = url;
+            if(this.featuredCropper) { this.featuredCropper.destroy(); }
+            this.featuredCropper = new Cropper(img, {
+                aspectRatio: 16 / 9,
+                viewMode: 1,
+                crop: (event) => {
+                    let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                    document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+                }
+            });
+        });
+    },
+
+    removeFeaturedThumb() {
+        this.removeFeaturedThumbnail = true;
+        this.featuredThumbPreview = null;
+        if(this.featuredCropper) { this.featuredCropper.destroy(); this.featuredCropper = null; }
+        document.getElementById('featured_thumbnail_upload').value = '';
+        document.getElementById('featured_thumbnail_base64').value = '';
     }
 }">
 
@@ -665,6 +700,8 @@
     <input type="hidden" name="use_custom_thumbnail" :value="useCustomThumbnail ? '1' : '0'">
     <input type="hidden" name="remove_thumbnail" :value="removeThumbnail ? '1' : '0'">
     <input type="hidden" name="custom_thumbnail_base64" id="custom_thumbnail_base64">
+    <input type="hidden" name="remove_featured_thumbnail" :value="removeFeaturedThumbnail ? '1' : '0'">
+    <input type="hidden" name="featured_thumbnail_base64" id="featured_thumbnail_base64">
     <input type="hidden" name="video_loop_start" id="video_loop_start_input" :value="loopStart">
     <input type="hidden" name="video_loop_end" id="video_loop_end_input" :value="loopEnd">
 
@@ -816,6 +853,47 @@
             <div x-show="!thumbPreview && !removeThumbnail">
                 @if(isset($project) && $project->thumbnail_path)
                     <img src="{{ asset('storage/' . $project->thumbnail_path) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="pe-section-divider" style="margin: 1.25rem 0 0.85rem;" x-show="is_best_work" x-cloak></div>
+
+    <!-- BEST WORK THUMBNAIL SECTION -->
+    <div x-show="is_best_work" x-cloak style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+        <span style="font-family:'Outfit',sans-serif; font-size:1.15rem; font-weight:800; color:#1a1207;">Best Work Slider Thumbnail (16:9)</span>
+    </div>
+    
+    <div x-show="is_best_work" x-cloak style="margin-top:0.5rem;">
+        <div class="mu-dropzone" :class="isDraggingFeaturedThumb ? 'dragging' : ''"
+             @dragover.prevent="isDraggingFeaturedThumb = true" @dragleave.prevent="isDraggingFeaturedThumb = false"
+             @drop.prevent="isDraggingFeaturedThumb = false; if($event.dataTransfer.files.length) { document.getElementById('featured_thumbnail_upload').files = $event.dataTransfer.files; processFeaturedThumbFile($event.dataTransfer.files[0]); }"
+             @click="document.getElementById('featured_thumbnail_upload').click()">
+            <input type="file" id="featured_thumbnail_upload" accept="image/*" class="hidden" style="display:none;" @change="if($event.target.files.length) processFeaturedThumbFile($event.target.files[0])">
+            <div style="pointer-events:none;">
+                <div class="mu-dropzone-icon"><svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+                <p class="mu-dropzone-title">Drop Best Work Thumbnail</p>
+                <p class="mu-dropzone-tip">Required for the homepage "Best Works" slider.</p>
+            </div>
+        </div>
+
+        <!-- Featured Thumbnail Cropper Preview -->
+        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="featuredThumbPreview || {{ (isset($project) && $project->featured_thumbnail) ? 'true' : 'false' }}">
+            <div class="flex items-center justify-between mb-3">
+                <span class="mu-preview-label" style="margin-bottom:0;">Featured Thumbnail Preview</span>
+                <button type="button" @click="removeFeaturedThumb()" class="text-xs text-red-500 hover:text-red-700 font-bold">Remove</button>
+            </div>
+            
+            <!-- Cropper Container -->
+            <div x-show="featuredThumbPreview" style="display:none; width:100%; max-height:400px; overflow:hidden; border-radius:0.5rem; background:#000;">
+                <img id="featured-thumb-crop-image" style="max-width:100%; display:block;">
+            </div>
+
+            <!-- Existing Featured Thumbnail -->
+            <div x-show="!featuredThumbPreview && !removeFeaturedThumbnail">
+                @if(isset($project) && $project->featured_thumbnail)
+                    <img src="{{ asset('storage/' . $project->featured_thumbnail) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
                 @endif
             </div>
         </div>

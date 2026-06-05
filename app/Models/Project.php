@@ -37,11 +37,14 @@ class Project extends Model
         'demo_url',
         'github_url',
         'featured',
+        'is_best_work',
+        'featured_thumbnail',
         'gallery_images',
     ];
 
     protected $casts = [
         'featured'        => 'boolean',
+        'is_best_work'    => 'boolean',
         'use_custom_thumbnail' => 'boolean',
         'gallery_images'  => 'array',
         'thumbnail_images'=> 'array',

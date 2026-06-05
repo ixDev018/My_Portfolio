@@ -611,45 +611,61 @@
         </div>
 
         {{-- ═══ RIGHT: Sidebar ═══ --}}
-        <div class="pe-sidebar" x-data="{ tab: 'media' }">
+        <div class="pe-sidebar" x-data="{ tab: 'media', featured: {{ old('featured', $project->featured ?? false) ? 'true' : 'false' }}, is_best_work: {{ old('is_best_work', $project->is_best_work ?? false) ? 'true' : 'false' }} }">
             <div class="pe-sidebar-header">
                 <span style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; color:#9B9589;">Project Details</span>
                 <span style="font-family:'Space Mono',monospace; font-size:0.58rem; color:#6829AA; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">Editing</span>
             </div>
 
             <div class="pe-sidebar-scroll">
-                
+
+                {{-- Toggles: Featured & Best Work --}}
+                <div class="flex gap-2" style="margin-bottom: 0.65rem;">
+                    <!-- Featured Toggle -->
+                    <div class="pe-featured-row">
+                        <input type="hidden" name="featured" :value="featured ? '1' : '0'">
+                        <button type="button" @click="featured = !featured" 
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-200"
+                                :class="featured ? 'bg-[#FFF9E6] border-[#FF851B] text-[#783800]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'">
+                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" x-show="featured" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!featured"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <span class="font-sans text-[10px] font-bold uppercase tracking-widest" x-text="featured ? 'Featured' : 'Feature'"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Best Work Toggle -->
+                    <div class="pe-featured-row">
+                        <input type="hidden" name="is_best_work" :value="is_best_work ? '1' : '0'">
+                        <button type="button" @click="is_best_work = !is_best_work" 
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-200"
+                                :class="is_best_work ? 'bg-[#F3ECFF] border-[#6829AA] text-[#6829AA]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'">
+                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" x-show="is_best_work" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!is_best_work"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <span class="font-sans text-[10px] font-bold uppercase tracking-widest">Best Work</span>
+                        </button>
+                    </div>
+                </div>
+
                 {{-- Tabs Header --}}
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid #D8D4C8; margin-bottom: 0.85rem; position:relative;">
                     <div style="display:flex; gap:1.25rem;">
                         <button type="button" @click="tab = 'media'" 
-                                style="font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:500; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
-                                :style="tab === 'media' ? 'color:#1a1207; font-weight:600;' : 'color:#B0A99F;'">
+                                style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
+                                :style="{ color: tab === 'media' ? '#1a1207' : '#B0A99F', fontWeight: tab === 'media' ? '700' : '600' }">
                             Media
                             <div x-show="tab === 'media'" style="position:absolute; bottom:-1px; left:0; right:0; height:2px; background:#1a1207; border-radius:1px;"></div>
                         </button>
                         <button type="button" @click="tab = 'meta'" 
-                                style="font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:500; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
-                                :style="tab === 'meta' ? 'color:#1a1207; font-weight:600;' : 'color:#B0A99F;'">
+                                style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
+                                :style="{ color: tab === 'meta' ? '#1a1207' : '#B0A99F', fontWeight: tab === 'meta' ? '700' : '600' }">
                             Details
                             <div x-show="tab === 'meta'" style="position:absolute; bottom:-1px; left:0; right:0; height:2px; background:#1a1207; border-radius:1px;"></div>
                         </button>
                         <button type="button" @click="tab = 'links'" 
-                                style="font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:500; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
-                                :style="tab === 'links' ? 'color:#1a1207; font-weight:600;' : 'color:#B0A99F;'">
+                                style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; padding-bottom:0.5rem; background:transparent; border:none; cursor:pointer; position:relative; transition:color 0.2s;"
+                                :style="{ color: tab === 'links' ? '#1a1207' : '#B0A99F', fontWeight: tab === 'links' ? '700' : '600' }">
                             Links
                             <div x-show="tab === 'links'" style="position:absolute; bottom:-1px; left:0; right:0; height:2px; background:#1a1207; border-radius:1px;"></div>
-                        </button>
-                    </div>
-
-                    {{-- Featured / Star --}}
-                    <div class="pe-featured-row" x-data="{ featured: {{ old('featured', $project->featured ?? false) ? 'true' : 'false' }} }" style="margin: 0 0 0.35rem 0; padding: 0; border: none; align-items:center;">
-                        <input type="hidden" name="featured" :value="featured ? '1' : '0'">
-                        <button type="button" @click="featured = !featured" 
-                                style="width: 1.35rem; height: 1.35rem; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition: all 0.2s; background:#E2DDD3; color:#9B9589;"
-                                :style="featured ? 'background:#F3ECFF; color:#6829AA;' : ''">
-                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" x-show="featured" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!featured"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         </button>
                     </div>
                 </div>

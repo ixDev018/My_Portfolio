@@ -237,17 +237,22 @@ class AdminController extends Controller
             'video_url'           => 'nullable|url',
             'full_video_url'      => 'nullable|url',
             'featured'            => 'nullable|boolean',
+            'is_best_work'        => 'nullable|boolean',
             'main_media_type'     => 'nullable|string|in:image,video',
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
             'video_loop_end'      => 'nullable|numeric|min:0',
             'use_custom_thumbnail'=> 'nullable|boolean',
             'custom_thumbnail_base64' => 'nullable|string',
+            'featured_thumbnail_base64' => 'nullable|string',
             'gallery.*'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
-        $validated['slug']         = Str::slug($validated['title']);
-        $validated['featured']     = $request->input('featured') == '1';
+        if (isset($validated['title'])) {
+            $validated['slug'] = Str::slug($validated['title']);
+        }
+        $validated['featured'] = $request->input('featured') == '1';
+        $validated['is_best_work'] = $request->input('is_best_work') == '1';
         $validated['main_media_type'] = $request->input('main_media_type', 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
         
@@ -285,6 +290,19 @@ class AdminController extends Controller
                 Storage::disk('public')->put($filename, $data);
                 $validated['thumbnail_path'] = $filename;
                 $validated['thumbnail_type'] = 'image';
+            }
+        }
+
+        // Featured Thumbnail Processing (Cropper Base64)
+        if ($validated['featured'] && $request->input('featured_thumbnail_base64')) {
+            $base64 = $request->input('featured_thumbnail_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $data = substr($base64, strpos($base64, ',') + 1);
+                $type = strtolower($type[1]); // jpg, png, etc
+                $data = base64_decode($data);
+                $filename = 'projects/featured_thumbnails/' . uniqid() . '.' . $type;
+                Storage::disk('public')->put($filename, $data);
+                $validated['featured_thumbnail'] = $filename;
             }
         }
 
@@ -328,24 +346,35 @@ class AdminController extends Controller
             'video_url'           => 'nullable|url',
             'full_video_url'      => 'nullable|url',
             'featured'            => 'nullable|boolean',
+            'is_best_work'        => 'nullable|boolean',
             'main_media_type'     => 'nullable|string|in:image,video',
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
             'video_loop_end'      => 'nullable|numeric|min:0',
             'use_custom_thumbnail'=> 'nullable|boolean',
             'custom_thumbnail_base64' => 'nullable|string',
+            'featured_thumbnail_base64' => 'nullable|string',
             'gallery.*'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
             'delete_gallery'      => 'nullable|array',
         ]);
 
         $validated['slug']           = Str::slug($validated['title']);
         $validated['featured']       = $request->input('featured') == '1';
+        $validated['is_best_work']   = $request->input('is_best_work') == '1';
         
         $validated['main_media_type'] = $request->input('main_media_type', $project->main_media_type ?? 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
         
         // Add description mapping since frontend removed the field
         $validated['description']    = $validated['subtitle'] ?? '';
+
+        // Featured Thumbnail Deletion
+        if ($request->input('remove_featured_thumbnail') == '1' || !$validated['is_best_work']) {
+            if ($project->featured_thumbnail) {
+                Storage::disk('public')->delete($project->featured_thumbnail);
+            }
+            $validated['featured_thumbnail'] = null;
+        }
 
         // Custom Thumbnail Deletion
         if ($request->input('remove_thumbnail') == '1') {
@@ -410,6 +439,23 @@ class AdminController extends Controller
                 Storage::disk('public')->put($filename, $data);
                 $validated['thumbnail_path'] = $filename;
                 $validated['thumbnail_type'] = 'image';
+            }
+        }
+
+        // Featured Thumbnail Processing (Cropper Base64)
+        if ($validated['featured'] && $request->input('featured_thumbnail_base64')) {
+            $base64 = $request->input('featured_thumbnail_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                
+                // delete old featured thumbnail if it exists
+                if ($project->featured_thumbnail) Storage::disk('public')->delete($project->featured_thumbnail);
+                
+                $data = substr($base64, strpos($base64, ',') + 1);
+                $type = strtolower($type[1]); // jpg, png, etc
+                $data = base64_decode($data);
+                $filename = 'projects/featured_thumbnails/' . uniqid() . '.' . $type;
+                Storage::disk('public')->put($filename, $data);
+                $validated['featured_thumbnail'] = $filename;
             }
         }
 

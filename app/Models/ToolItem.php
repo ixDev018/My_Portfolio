@@ -12,5 +12,6 @@ class ToolItem extends Model
         'row_label',
         'image_path',
         'sort_order',
+        'proficiency',
     ];
 }

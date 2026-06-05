@@ -504,19 +504,42 @@ class AdminController extends Controller
     public function skillsIndex()
     {
         $skills = Skill::orderBy('category')->orderBy('id', 'asc')->get();
-        return view('admin.skills.index', compact('skills'));
+        $toolItems = \App\Models\ToolItem::orderBy('row_label')->orderBy('sort_order')->get();
+        $groupedTools = $toolItems->groupBy('row_label');
+        $rowLabels = $toolItems->pluck('row_label')->unique()->values();
+        return view('admin.skills.index', compact('skills', 'toolItems', 'groupedTools', 'rowLabels'));
     }
 
     public function skillsStore(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
+            'tooltip_info' => 'nullable|string|max:255',
             'category' => 'required|string|in:Core,External',
+            'proficiency' => 'required|integer|min:1|max:5',
+            'image_data'   => 'nullable|string',
         ]);
-        
-        $validated['proficiency'] = 0;
 
-        Skill::create($validated);
+        $imagePath = null;
+        if (!empty($validated['image_data'])) {
+            $imageParts = explode(";base64,", $validated['image_data']);
+            if (count($imageParts) == 2) {
+                $imageTypeAux = explode("image/", $imageParts[0]);
+                $imageType = $imageTypeAux[1];
+                $imageBase64 = base64_decode($imageParts[1]);
+                $fileName = 'skill_' . time() . '_' . uniqid() . '.png';
+                $imagePath = 'skills/' . $fileName;
+                Storage::disk('public')->put($imagePath, $imageBase64);
+            }
+        }
+
+        Skill::create([
+            'name' => $validated['name'],
+            'tooltip_info' => $validated['tooltip_info'] ?? null,
+            'category' => $validated['category'],
+            'proficiency' => $validated['proficiency'],
+            'image_path' => $imagePath,
+        ]);
 
         return redirect()->route('admin.skills.index')->with('success', 'Skill added successfully!');
     }
@@ -527,12 +550,34 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:100',
+            'tooltip_info' => 'nullable|string|max:255',
             'category' => 'required|string|in:Core,External',
+            'proficiency' => 'required|integer|min:1|max:5',
+            'image_data'   => 'nullable|string',
         ]);
-        
-        $validated['proficiency'] = 0;
 
-        $skill->update($validated);
+        if (!empty($validated['image_data'])) {
+            $imageParts = explode(";base64,", $validated['image_data']);
+            if (count($imageParts) == 2) {
+                $imageTypeAux = explode("image/", $imageParts[0]);
+                $imageType = $imageTypeAux[1];
+                $imageBase64 = base64_decode($imageParts[1]);
+                $fileName = 'skill_' . time() . '_' . uniqid() . '.png';
+                $imagePath = 'skills/' . $fileName;
+                Storage::disk('public')->put($imagePath, $imageBase64);
+                
+                if ($skill->image_path) {
+                    Storage::disk('public')->delete($skill->image_path);
+                }
+                $skill->image_path = $imagePath;
+            }
+        }
+
+        $skill->name = $validated['name'];
+        $skill->tooltip_info = $validated['tooltip_info'] ?? null;
+        $skill->category = $validated['category'];
+        $skill->proficiency = $validated['proficiency'];
+        $skill->save();
 
         return redirect()->route('admin.skills.index')->with('success', 'Skill updated successfully!');
     }
@@ -590,6 +635,7 @@ class AdminController extends Controller
             'name'         => 'required|string|max:100',
             'tooltip_info' => 'nullable|string|max:255',
             'row_label'    => 'required|string|max:100',
+            'proficiency'  => 'required|integer|min:1|max:5',
             'image_data'   => 'nullable|string', // base64 from CropperJS
         ]);
 
@@ -609,11 +655,12 @@ class AdminController extends Controller
             'name'         => $validated['name'],
             'tooltip_info' => $validated['tooltip_info'] ?? null,
             'row_label'    => $validated['row_label'],
+            'proficiency'  => $validated['proficiency'],
             'image_path'   => $imagePath,
             'sort_order'   => $maxOrder + 1,
         ]);
 
-        return redirect()->route('admin.tools.index')->with('success', 'Tool item added!');
+        return redirect()->route('admin.skills.index')->with('success', 'Tool item added!');
     }
 
     public function toolItemsDestroy($id)
@@ -624,6 +671,41 @@ class AdminController extends Controller
         }
         $tool->delete();
 
-        return redirect()->route('admin.tools.index')->with('success', 'Tool item removed.');
+        return redirect()->route('admin.skills.index')->with('success', 'Tool item removed.');
+    }
+
+    public function toolItemsUpdate(Request $request, $id)
+    {
+        $tool = ToolItem::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'         => 'required|string|max:100',
+            'tooltip_info' => 'nullable|string|max:255',
+            'row_label'    => 'required|string|max:100',
+            'proficiency'  => 'required|integer|min:1|max:5',
+            'image_data'   => 'nullable|string', // base64 from CropperJS
+        ]);
+
+        if (!empty($validated['image_data'])) {
+            // Delete old image if exists
+            if ($tool->image_path) {
+                Storage::disk('public')->delete($tool->image_path);
+            }
+            
+            // Strip the data URI header, decode and save as PNG
+            $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
+            $data = base64_decode($data);
+            $filename = 'tools/' . Str::uuid() . '.png';
+            Storage::disk('public')->put($filename, $data);
+            $tool->image_path = $filename;
+        }
+
+        $tool->name = $validated['name'];
+        $tool->tooltip_info = $validated['tooltip_info'] ?? null;
+        $tool->row_label = $validated['row_label'];
+        $tool->proficiency = $validated['proficiency'];
+        $tool->save();
+
+        return redirect()->route('admin.skills.index')->with('success', 'Tool item updated!');
     }
 }

@@ -83,7 +83,8 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::post('/intro-slides/reorder', [IntroSlideController::class, 'reorder'])->name('admin.intro_slides.reorder');
 
     // Tool Items CRUD (Marquee Section)
-    Route::get('/tools', [AdminController::class, 'toolItemsIndex'])->name('admin.tools.index');
+    // Removed index since it's merged into skills: Route::get('/tools', [AdminController::class, 'toolItemsIndex'])->name('admin.tools.index');
     Route::post('/tools/store', [AdminController::class, 'toolItemsStore'])->name('admin.tools.store');
+    Route::post('/tools/update/{id}', [AdminController::class, 'toolItemsUpdate'])->name('admin.tools.update');
     Route::post('/tools/delete/{id}', [AdminController::class, 'toolItemsDestroy'])->name('admin.tools.delete');
 });

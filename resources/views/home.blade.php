@@ -221,7 +221,7 @@
     </section>
 
     <!-- SKILLS SECTION -->
-    <section id="skills" class="w-full bg-[#512b81] text-black pt-16">
+    <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-16 relative">
         
         <div class="w-full flex flex-col border-y border-black relative z-10">
             
@@ -268,11 +268,12 @@
                         <!-- Skills Cards -->
                         <div class="grid grid-cols-2 {{ $desktopGridClass }} md:col-span-4 w-full">
                             @foreach($skills as $index => $skill)
-                                <div class="p-4 md:p-6 border-r border-b md:border-b-0 border-black flex flex-col justify-between min-h-[120px] md:min-h-[260px] transition-all duration-300 hover:bg-black/5 md:hover:bg-gradient-to-br md:hover:from-white/90 md:hover:via-white/40 md:hover:to-transparent cursor-default group">
+                                <div @click="skillModal = { show: true, name: '{{ addslashes($skill->name) }}', category: '{{ addslashes($skill->category) }} Skill', desc: '{{ addslashes($skill->tooltip_info ?? '') }}', proficiency: {{ $skill->proficiency ?? 5 }}, image: '{{ !empty($skill->image_path) ? asset('storage/' . $skill->image_path) : '' }}' }" 
+                                     class="p-4 md:p-6 border-r border-b md:border-b-0 border-black flex flex-col justify-between min-h-[120px] md:min-h-[260px] transition-all duration-300 hover:bg-black/5 md:hover:bg-gradient-to-br md:hover:from-white/90 md:hover:via-white/40 md:hover:to-transparent cursor-pointer group">
                                     <div class="w-6 h-6 md:w-7 md:h-7 rounded-full border border-black flex items-center justify-center text-[10px] md:text-[11px] font-sans text-black">
                                         {{ $index + 1 }}
                                     </div>
-                                    <h3 class="font-poppins font-black text-xs md:text-base uppercase text-black leading-snug mt-4 md:mt-8">
+                                    <h3 class="font-poppins font-black text-xs md:text-base uppercase text-black leading-snug mt-4 md:mt-8 group-hover:text-[#FF851B] transition-colors">
                                         {{ $skill->name }}
                                     </h3>
                                 </div>
@@ -300,35 +301,230 @@
             </div>
 
             <!-- Marquee rows -->
-            @foreach($toolsByRow as $rowLabel => $tools)
-                <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[14vh] md:min-h-[11vh]">
-                    <div class="w-24 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[9px] md:text-sm tracking-widest uppercase text-center leading-tight z-10 px-2">
-                        {{ $rowLabel }}
+            <div x-data="{ tooltip: { show: false, name: '', desc: '', x: 0, y: 0 }, toolModal: { show: false, name: '', desc: '', image: '', category: '', proficiency: 5 } }" class="relative">
+                
+                <!-- Custom Cursor Tooltip -->
+                <div x-show="tooltip.show" 
+                     x-transition.opacity.duration.200ms
+                     class="fixed z-50 pointer-events-none bg-[#512b81] text-white p-3 rounded-lg shadow-2xl max-w-xs border border-white/20"
+                     :style="`left: ${tooltip.x + 15}px; top: ${tooltip.y + 15}px; transform: translate(0, 0);`"
+                     style="display: none;">
+                    <div class="font-display font-bold text-sm text-[#d0f69a] mb-1" x-text="tooltip.name"></div>
+                    <div class="font-sans text-xs text-white/80 leading-snug" x-show="tooltip.desc" x-text="tooltip.desc"></div>
+                </div>
+
+                @foreach($toolsByRow as $rowLabel => $tools)
+                    <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[14vh] md:min-h-[11vh]">
+                        <div class="w-24 md:w-48 shrink-0 border-r border-[#783800]/30 flex items-center justify-center font-display text-[9px] md:text-sm tracking-widest uppercase text-center leading-tight z-10 px-2">
+                            {{ $rowLabel }}
+                        </div>
+                        <div class="flex-1 flex overflow-hidden relative items-center group/marquee">
+                            @php
+                                // Duplicate items enough times to guarantee they exceed viewport width
+                                $repeatedTools = array_merge($tools->toArray(), $tools->toArray(), $tools->toArray(), $tools->toArray(), $tools->toArray());
+                            @endphp
+                            <!-- Block 1 -->
+                            <div class="animate-marquee flex whitespace-nowrap items-center shrink-0">
+                                @foreach($repeatedTools as $item)
+                                    <span class="cursor-pointer ml-10 md:ml-16 font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative transition-opacity duration-300 group-has-[:hover]/marquee:opacity-30 hover:!opacity-100"
+                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? asset('storage/' . $item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
+                                          @mouseenter="tooltip = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', x: $event.clientX, y: $event.clientY }"
+                                          @mouseleave="tooltip.show = false"
+                                          @mousemove="tooltip.x = $event.clientX; tooltip.y = $event.clientY">
+                                        @if(!empty($item['image_path']))
+                                            <div class="h-10 md:h-14 w-auto flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                                                <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
+                                            </div>
+                                        @else
+                                            <div class="h-10 w-10 md:h-12 md:w-12 border border-[#783800]/20 rounded-md flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase shrink-0">{{ substr($item['name'], 0, 2) }}</div>
+                                            <span class="transition-colors font-bold">{{ $item['name'] }}</span>
+                                        @endif
+                                    </span>
+                                @endforeach
+                            </div>
+                            <!-- Block 2 (Duplicate for seamless loop) -->
+                            <div class="animate-marquee flex whitespace-nowrap items-center shrink-0" aria-hidden="true">
+                                @foreach($repeatedTools as $item)
+                                    <span class="cursor-pointer ml-10 md:ml-16 font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative transition-opacity duration-300 group-has-[:hover]/marquee:opacity-30 hover:!opacity-100"
+                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? asset('storage/' . $item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
+                                          @mouseenter="tooltip = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', x: $event.clientX, y: $event.clientY }"
+                                          @mouseleave="tooltip.show = false"
+                                          @mousemove="tooltip.x = $event.clientX; tooltip.y = $event.clientY">
+                                        @if(!empty($item['image_path']))
+                                            <div class="h-10 md:h-14 w-auto flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                                                <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
+                                            </div>
+                                        @else
+                                            <div class="h-10 w-10 md:h-12 md:w-12 border border-[#783800]/20 rounded-md flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase shrink-0">{{ substr($item['name'], 0, 2) }}</div>
+                                            <span class="transition-colors font-bold">{{ $item['name'] }}</span>
+                                        @endif
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex-1 flex overflow-hidden relative items-center">
-                        <div class="animate-marquee flex whitespace-nowrap items-center gap-10 md:gap-16 pl-10 md:pl-16">
-                            @foreach(array_merge($tools->toArray(), $tools->toArray()) as $item)
-                                <span class="font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative cursor-help">
-                                    @if(!empty($item['image_path']))
-                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center bg-white/10 overflow-hidden" title="{{ $item['tooltip_info'] ?? $item['name'] }}">
-                                            <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="w-full h-full object-contain">
+                @endforeach
+
+                <!-- Interactive Tool Modal -->
+                <div x-show="toolModal.show" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <!-- Dimmed Backdrop -->
+                    <div x-show="toolModal.show"
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"></div>
+
+                    <!-- Modal Container -->
+                    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <!-- Modal Card -->
+                            <div x-show="toolModal.show"
+                                 @click.away="toolModal.show = false"
+                                 x-transition:enter="ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                 x-transition:leave="ease-in duration-200"
+                                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                 class="relative transform overflow-hidden bg-[#111111] border border-[#333] rounded-2xl text-left shadow-[0_0_40px_rgba(255,133,27,0.1)] transition-all sm:my-8 sm:w-full sm:max-w-md flex flex-col">
+                                
+                                <!-- Close Button -->
+                                <button @click="toolModal.show = false" class="absolute top-4 right-4 text-white/50 hover:text-[#FF851B] transition-colors focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+
+                                <div class="p-8 flex flex-col items-center">
+                                    <!-- Image/Icon -->
+                                    <div class="w-32 h-32 mb-6 flex items-center justify-center">
+                                        <template x-if="toolModal.image">
+                                            <img :src="toolModal.image" :alt="toolModal.name" class="max-w-full max-h-full object-contain drop-shadow-lg">
+                                        </template>
+                                        <template x-if="!toolModal.image">
+                                            <div class="text-4xl font-bold uppercase text-[#FF851B]" x-text="toolModal.name.substring(0, 2)"></div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Title & Category -->
+                                    <h3 class="font-display text-3xl text-white mb-1 tracking-wide text-center" x-text="toolModal.name"></h3>
+                                    <p class="font-mono text-[10px] uppercase tracking-widest text-[#FF851B] mb-6 text-center border border-[#FF851B]/30 px-3 py-1 rounded-full bg-[#FF851B]/5" x-text="toolModal.category"></p>
+
+                                    <!-- Description -->
+                                    <div class="w-full bg-[#1A1A1A] rounded-xl p-5 mb-6 border border-[#333] shadow-inner">
+                                        <p class="font-poppins text-sm text-white/70 text-center leading-relaxed" x-text="toolModal.desc || 'A core component of my creative and technical workflow.'"></p>
+                                    </div>
+
+                                    <!-- Skill Level Visualization -->
+                                    <div class="w-full flex flex-col items-center">
+                                        <span class="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-3">Proficiency Rating</span>
+                                        <div class="flex gap-2 mb-2">
+                                            <!-- 5 Glowing Stars -->
+                                            <template x-for="i in 5">
+                                                <svg class="w-7 h-7 transition-colors duration-300" 
+                                                     :class="i <= toolModal.proficiency ? 'text-[#FF851B] drop-shadow-[0_0_10px_rgba(255,133,27,0.6)]' : 'text-white/10'" 
+                                                     fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            </template>
                                         </div>
-                                    @else
-                                        <div class="w-8 h-8 md:w-10 md:h-10 border border-[#783800]/20 rounded flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase" title="{{ $item['tooltip_info'] ?? $item['name'] }}">{{ substr($item['name'], 0, 2) }}</div>
-                                    @endif
-                                    {{ $item['name'] }}
-                                </span>
-                            @endforeach
+                                        <span class="font-display text-base text-[#FF851B] tracking-widest uppercase" x-text="toolModal.proficiency === 5 ? 'Expert / Master' : (toolModal.proficiency === 4 ? 'Advanced' : (toolModal.proficiency === 3 ? 'Intermediate' : (toolModal.proficiency === 2 ? 'Beginner' : 'Novice')))"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            @endforeach
+
+            </div>
         </div>
 
         <div class="w-full bg-[#FAF7E6] leading-none">
             <svg viewBox="0 0 1440 75" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-[30px] md:h-[45px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
                 <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#FF851B"></path>
             </svg>
+        </div>
+        </div>
+
+        <!-- Interactive Skill Modal -->
+        <div x-show="skillModal.show" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <!-- Dimmed Backdrop -->
+            <div x-show="skillModal.show"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"></div>
+
+            <!-- Modal Container -->
+            <div class="fixed inset-0 z-[110] w-screen overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <!-- Modal Card -->
+                    <div x-show="skillModal.show"
+                         @click.away="skillModal.show = false"
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         class="relative transform overflow-hidden bg-[#111111] border border-[#333] rounded-2xl text-left shadow-[0_0_40px_rgba(255,133,27,0.1)] transition-all sm:my-8 sm:w-full sm:max-w-md flex flex-col">
+                        
+                        <!-- Close Button -->
+                        <button @click="skillModal.show = false" class="absolute top-4 right-4 text-white/50 hover:text-[#FF851B] transition-colors focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div class="p-8 flex flex-col items-center">
+                            <!-- Icon/Image -->
+                            <template x-if="skillModal.image">
+                                <div class="w-24 h-24 mb-6 flex items-center justify-center">
+                                    <img :src="skillModal.image" alt="Skill Logo" class="max-w-full max-h-full object-contain drop-shadow-md">
+                                </div>
+                            </template>
+                            <template x-if="!skillModal.image">
+                                <div class="w-24 h-24 mb-6 flex items-center justify-center text-white">
+                                    <svg class="w-16 h-16 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                </div>
+                            </template>
+
+                            <!-- Title & Category -->
+                            <h3 class="font-display text-3xl text-white mb-1 tracking-wide text-center" x-text="skillModal.name"></h3>
+                            <p class="font-mono text-[10px] uppercase tracking-widest text-[#FF851B] mb-6 text-center border border-[#FF851B]/30 px-3 py-1 rounded-full bg-[#FF851B]/5" x-text="skillModal.category"></p>
+
+                            <!-- Description -->
+                            <div class="w-full bg-[#1A1A1A] rounded-xl p-5 mb-6 border border-[#333] shadow-inner">
+                                <p class="font-poppins text-sm text-white/70 text-center leading-relaxed" x-text="skillModal.desc || 'A core technical skill utilized to craft highly optimized and premium digital experiences.'"></p>
+                            </div>
+
+                            <!-- Skill Level Visualization -->
+                            <div class="w-full flex flex-col items-center">
+                                <span class="font-mono text-[10px] uppercase tracking-widest text-white/40 mb-3">Proficiency Rating</span>
+                                <div class="flex gap-2 mb-2">
+                                    <!-- 5 Glowing Stars -->
+                                    <template x-for="i in 5">
+                                        <svg class="w-7 h-7 transition-colors duration-300" 
+                                             :class="i <= skillModal.proficiency ? 'text-[#FF851B] drop-shadow-[0_0_10px_rgba(255,133,27,0.6)]' : 'text-white/10'" 
+                                             fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </template>
+                                </div>
+                                <span class="font-display text-base text-[#FF851B] tracking-widest uppercase" x-text="skillModal.proficiency === 5 ? 'Expert / Master' : (skillModal.proficiency === 4 ? 'Advanced' : (skillModal.proficiency === 3 ? 'Intermediate' : (skillModal.proficiency === 2 ? 'Beginner' : 'Novice')))"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </section>

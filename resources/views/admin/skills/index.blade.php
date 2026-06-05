@@ -3,7 +3,7 @@
 @section('admin_content')
 
 <style>
-    .cms-main { background: #EDEAE0; }
+    .cms-main { background: #EDEAE0; display: flex; flex-direction: column; }
     .lt-label {
         display:block; font-family:'Space Mono',monospace;
         font-size:0.58rem; text-transform:uppercase;
@@ -48,27 +48,24 @@
         background:#fff; border:1px solid #D8D4C8;
         border-radius:1rem; overflow:hidden;
         box-shadow:0 1px 3px rgba(0,0,0,0.05);
+        display: flex; flex-direction: column;
+        flex: 1; min-height: calc(100vh - 160px); /* Maximize viewport */
     }
     .lt-card-header {
         padding:0.85rem 1.25rem; border-bottom:1px solid #E2DDD3;
         background:#F7F5EE;
-        display:flex; align-items:center; gap:0.6rem;
+        display:flex; align-items:center; justify-content:space-between; gap:0.6rem;
     }
     .lt-card-title {
         font-family:'Outfit',sans-serif; font-size:0.875rem;
         font-weight:700; color:#1a1207;
+        display:flex; align-items:center; gap:0.4rem;
     }
     .lt-count-badge {
         padding:0.15rem 0.55rem; border-radius:100px;
         font-family:'Space Mono',monospace; font-size:0.58rem;
         font-weight:700; background:#EEE6FF; color:#6829AA;
-        border:1px solid #D8C0F8;
-    }
-    .lt-form-card {
-        background:#fff; border:1px solid #D8D4C8;
-        border-radius:1rem; padding:1.25rem;
-        margin-bottom:1rem;
-        box-shadow:0 1px 3px rgba(0,0,0,0.05);
+        border:1px solid #D8C0F8; margin-left: 0.5rem;
     }
 
     /* skill card */
@@ -82,150 +79,600 @@
     }
     .sk-card:hover { border-color:#C4BDB2; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
     .sk-name { font-size:0.82rem; font-weight:600; color:#1a1207; }
-    .sk-pct  { font-family:'Space Mono',monospace; font-size:0.68rem; color:#6829AA; font-weight:700; }
-    .sk-bar-track { width:100%; height:4px; background:#E2DDD3; border-radius:4px; margin-top:0.35rem; overflow:hidden; }
-    .sk-bar-fill  { height:4px; border-radius:4px; background:linear-gradient(90deg,#6829AA,#4dd9f0); }
-    .sk-delete-btn {
-        background:transparent; border:none; cursor:pointer;
-        color:#C4BDB2; padding:0.3rem; border-radius:0.35rem;
-        transition:all .15s; flex-shrink:0;
-    }
-    .sk-delete-btn:hover { color:#dc2626; background:#FFF1F1; }
-
+    
     /* category heading */
     .sk-cat-label {
         font-family:'Space Mono',monospace; font-size:0.6rem;
         text-transform:uppercase; letter-spacing:0.12em;
         color:#9B9589; margin-bottom:0.6rem;
-        padding-bottom:0.4rem; border-bottom:1px solid #E2DDD3;
+    }
+
+    /* Modals */
+    .lt-modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(3px); z-index: 100;
+        display: flex; align-items: center; justify-content: center;
+        padding: 1rem;
+    }
+    .lt-modal-content {
+        background: #fff; border-radius: 1rem; width: 100%; max-width: 420px;
+        padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        position: relative; max-height: 90vh; overflow-y: auto;
+    }
+    .lt-modal-close {
+        position: absolute; top: 1.25rem; right: 1.25rem;
+        background: #F7F5EE; border: none; border-radius: 50%;
+        width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #5A5248; transition: all 0.15s;
+    }
+    .lt-modal-close:hover { background: #E2DDD3; color: #1a1207; }
+
+    /* Tool Tabs */
+    .tool-tab-btn {
+        padding: 0.5rem 1rem; border-radius: 0.5rem;
+        font-family: 'Space Mono', monospace; font-size: 0.65rem;
+        text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+        transition: all 0.2s; border: 1px solid transparent;
+        background: #F7F5EE; color: #9B9589;
+    }
+    .tool-tab-btn.active {
+        background: #FF851B; color: #fff; border-color: #E6720D;
+        box-shadow: 0 2px 5px rgba(255,133,27,0.2);
+    }
+    .tool-tab-btn:not(.active):hover {
+        background: #E2DDD3; color: #1a1207;
     }
 </style>
 
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;flex-wrap:wrap;gap:0.75rem;">
-    <div>
-        <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Skills &amp; Tools</h1>
-        <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Coding technologies and expertise indices</p>
-    </div>
-</div>
-
-<div style="display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;">
-
-    {{-- ADD FORM --}}
-    <div class="lt-form-card">
-        <p style="font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1207;margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;">
-            <span style="width:8px;height:8px;border-radius:50%;background:#6829AA;display:inline-block;"></span>
-            Add Technical Skill
-        </p>
-        <form action="{{ route('admin.skills.store') }}" method="POST" style="display:flex;flex-direction:column;gap:0.9rem;">
-            @csrf
-            <div>
-                <label class="lt-label">Skill Name</label>
-                <input type="text" name="name" id="name" required
-                       placeholder="e.g. Laravel, React, Docker" class="lt-input">
-                @error('name')<p class="lt-err">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label class="lt-label">Category</label>
-                <select name="category" id="category" required class="lt-input">
-                    <option value="Core">Core</option>
-                    <option value="External">External</option>
-                </select>
-                @error('category')<p class="lt-err">{{ $message }}</p>@enderror
-            </div>
-            <button type="submit" class="lt-btn-primary" style="width:100%;justify-content:center;">
-                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Add Skill
-            </button>
-        </form>
-    </div>
-
-    {{-- SKILL GRID --}}
-    <div class="lt-card">
-        <div class="lt-card-header">
-            <span class="lt-card-title" style="display:flex;align-items:center;gap:0.4rem;">
-                <span style="width:8px;height:8px;border-radius:50%;background:#4dd9f0;display:inline-block;"></span>
-                Active Technical Grid
-            </span>
-            <span class="lt-count-badge">{{ $skills->count() }}</span>
+<div x-data="{ tab: 'skills' }" style="display:flex; flex-direction:column; flex:1;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem; flex-shrink:0;">
+        <div>
+            <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Skills &amp; Tools</h1>
+            <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Manage coding technologies and marquee tools</p>
         </div>
+        
+        <!-- TABS NAV -->
+        <div class="flex items-center gap-2 bg-[#F7F5EE] border border-[#D8D4C8] p-1 rounded-lg">
+            <button @click="tab = 'skills'" :class="tab === 'skills' ? 'bg-[#6829AA] text-white shadow-md' : 'text-[#5A5248] hover:bg-[#E2DDD3]'" class="px-4 py-1.5 rounded text-xs font-bold font-mono uppercase tracking-wider transition-all">Technical Skills</button>
+            <button @click="tab = 'tools'" :class="tab === 'tools' ? 'bg-[#FF851B] text-white shadow-md' : 'text-[#5A5248] hover:bg-[#E2DDD3]'" class="px-4 py-1.5 rounded text-xs font-bold font-mono uppercase tracking-wider transition-all">Marquee Tools</button>
+        </div>
+    </div>
 
-        <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1.5rem;">
-            @php $groupedSkills = $skills->groupBy('category'); @endphp
+    <!-- SKILLS TAB -->
+    <div x-show="tab === 'skills'" x-cloak x-data="skillCropperData()" style="display:flex; flex-direction:column; flex:1;">
+        <div class="lt-card">
+            <div class="lt-card-header">
+                <div class="lt-card-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#4dd9f0;display:inline-block;"></span>
+                    Active Technical Grid
+                    <span class="lt-count-badge">{{ $skills->count() }}</span>
+                </div>
+                <button type="button" @click="openAddSkill()" class="lt-btn-primary">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    Add Skill
+                </button>
+            </div>
 
-            @forelse($groupedSkills as $cat => $list)
-                <div>
-                    <p class="sk-cat-label">{{ $cat }}</p>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.65rem;">
-                        @foreach($list as $skill)
-                            <div class="sk-card" x-data="{ editing: false, menuOpen: false }" @click.outside="menuOpen = false">
-                                <div style="flex:1;min-width:0;" x-show="!editing">
-                                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                                        <span class="sk-name">{{ $skill->name }}</span>
-                                    </div>
-                                </div>
-                                <div x-show="editing" style="display:none;flex:1;">
-                                    <form action="{{ route('admin.skills.update', $skill->id) }}" method="POST" style="display:flex; flex-direction:column; gap:0.5rem;">
-                                        @csrf
-                                        <input type="text" name="name" value="{{ $skill->name }}" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
-                                        <select name="category" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
-                                            <option value="Core" {{ $skill->category == 'Core' ? 'selected' : '' }}>Core</option>
-                                            <option value="External" {{ $skill->category == 'External' ? 'selected' : '' }}>External</option>
-                                        </select>
-                                        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-                                            <button type="submit" class="lt-btn-primary" style="padding:0.38rem 0.9rem;font-size:0.73rem;">Update</button>
-                                            <button type="button" @click="editing=false" class="lt-btn-secondary" style="padding:0.38rem 0.7rem;font-size:0.73rem;">Cancel</button>
+            <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.5rem; overflow-y:auto; flex:1;">
+                @php $groupedSkills = $skills->groupBy('category'); @endphp
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-[#D8D4C8] gap-y-8 flex-1 min-h-full">
+                    <!-- Core Column -->
+                    <div class="lg:pr-8">
+                        <p class="sk-cat-label mb-4 text-center">Core</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            @foreach($skills->where('category', 'Core') as $skill)
+                                <div class="p-4 bg-[#111111] border border-[#2A2A2A] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#FF851B] hover:shadow-[0_0_15px_rgba(255,133,27,0.15)] transition-all relative group h-32">
+                                    @if($skill->image_path)
+                                        <div class="w-full h-12 flex items-center justify-center px-2">
+                                            <img src="{{ asset('storage/' . $skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
                                         </div>
-                                    </form>
-                                </div>
-                                <div style="flex-shrink:0; position:relative; z-index:20;" x-show="!editing">
-                                    <div class="cms-dots-wrap">
-                                        <button class="cms-dots-btn"
-                                                :class="menuOpen ? 'open' : ''"
-                                                @click="menuOpen = !menuOpen"
-                                                title="Actions">
-                                            <svg style="width:15px;height:15px;" fill="currentColor" viewBox="0 0 24 24">
-                                                <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
-                                            </svg>
+                                    @else
+                                        <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">
+                                            {{ substr($skill->name, 0, 2) }}
+                                        </div>
+                                    @endif
+                                    
+                                    <span class="text-xs font-semibold text-[#EEEEEE] text-center truncate w-full">{{ $skill->name }}</span>
+                                    
+                                    <div class="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button type="button" @click="openEditSkill({ id: {{ $skill->id }}, name: '{{ addslashes($skill->name) }}', category: '{{ addslashes($skill->category) }}', tooltip_info: '{{ addslashes($skill->tooltip_info) }}', proficiency: {{ $skill->proficiency ?? 5 }}, image_path: '{{ $skill->image_path }}' })" class="text-[#888] hover:text-[#4dd9f0] p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Edit Skill">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </button>
-                                        <div class="cms-dropdown"
-                                             x-show="menuOpen"
-                                             x-cloak
-                                             x-transition:enter="transition ease-out duration-100"
-                                             x-transition:enter-start="opacity-0 scale-95"
-                                             x-transition:enter-end="opacity-100 scale-100"
-                                             x-transition:leave="transition ease-in duration-75"
-                                             x-transition:leave-start="opacity-100 scale-100"
-                                             x-transition:leave-end="opacity-0 scale-95"
-                                             @click.stop>
-                                            <button @click="editing = true; menuOpen = false">
-                                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                                Edit
+                                        <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST" onsubmit="return confirm('Remove {{ $skill->name }}?');">
+                                            @csrf
+                                            <button type="submit" class="text-[#888] hover:text-rose-500 p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Delete Skill">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                             </button>
-                                            <div class="cms-dd-divider"></div>
-                                            <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST"
-                                                  @submit.prevent="if(confirm('Remove {{ $skill->name }}?')) $el.submit()">
-                                                @csrf
-                                                <button type="submit">
-                                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
+                                        </form>
                                     </div>
                                 </div>
+                            @endforeach
+                        </div>
+                        @if($skills->where('category', 'Core')->isEmpty())
+                            <div style="padding:2rem;text-align:center;">
+                                <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No Core skills added yet.</p>
                             </div>
-                        @endforeach
+                        @endif
+                    </div>
+
+                    <!-- External Column -->
+                    <div class="lg:pl-8">
+                        <p class="sk-cat-label mb-4 text-center">External</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            @foreach($skills->where('category', 'External') as $skill)
+                                <div class="p-4 bg-[#111111] border border-[#2A2A2A] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#FF851B] hover:shadow-[0_0_15px_rgba(255,133,27,0.15)] transition-all relative group h-32">
+                                    @if($skill->image_path)
+                                        <div class="w-full h-12 flex items-center justify-center px-2">
+                                            <img src="{{ asset('storage/' . $skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                    @else
+                                        <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">
+                                            {{ substr($skill->name, 0, 2) }}
+                                        </div>
+                                    @endif
+                                    
+                                    <span class="text-xs font-semibold text-[#EEEEEE] text-center truncate w-full">{{ $skill->name }}</span>
+                                    
+                                    <div class="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button type="button" @click="openEditSkill({ id: {{ $skill->id }}, name: '{{ addslashes($skill->name) }}', category: '{{ addslashes($skill->category) }}', tooltip_info: '{{ addslashes($skill->tooltip_info) }}', proficiency: {{ $skill->proficiency ?? 5 }}, image_path: '{{ $skill->image_path }}' })" class="text-[#888] hover:text-[#4dd9f0] p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Edit Skill">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </button>
+                                        <form action="{{ route('admin.skills.delete', $skill->id) }}" method="POST" onsubmit="return confirm('Remove {{ $skill->name }}?');">
+                                            @csrf
+                                            <button type="submit" class="text-[#888] hover:text-rose-500 p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Delete Skill">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if($skills->where('category', 'External')->isEmpty())
+                            <div style="padding:2rem;text-align:center;">
+                                <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No External skills added yet.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
-            @empty
-                <div style="padding:3rem;text-align:center;">
-                    <svg style="width:2.5rem;height:2.5rem;color:#D8D4C8;margin:0 auto 0.75rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                    <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No skills added yet.</p>
-                </div>
-            @endforelse
+            </div>
+        </div>
+
+        <!-- Add / Edit Skill Modal -->
+        <div x-show="isSkillModalOpen" x-cloak class="lt-modal-overlay">
+            <div class="lt-modal-content" @click.outside="isSkillModalOpen = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+                <button type="button" @click="isSkillModalOpen = false" class="lt-modal-close">
+                    <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <h3 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1207;margin-bottom:1.25rem;" x-text="skillFormMode === 'add' ? 'Add Technical Skill' : 'Edit Technical Skill'"></h3>
+                <form :action="getSkillAction()" method="POST" class="space-y-4" @submit="onSkillSubmit">
+                    @csrf
+                    <input type="hidden" name="image_data" id="skill_image_data" x-model="skillCroppedData">
+
+                    <div>
+                        <label class="lt-label">Skill Name</label>
+                        <input type="text" name="name" x-model="skillFormData.name" required placeholder="e.g. Laravel, React, Docker" class="lt-input">
+                        @error('name')<p class="lt-err">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="lt-label">Tooltip / Description</label>
+                        <input type="text" name="tooltip_info" x-model="skillFormData.tooltip_info" placeholder="Brief description of your expertise" class="lt-input">
+                        @error('tooltip_info')<p class="lt-err">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="lt-label">Category</label>
+                        <select name="category" x-model="skillFormData.category" required class="lt-input">
+                            <option value="Core">Core</option>
+                            <option value="External">External</option>
+                        </select>
+                        @error('category')<p class="lt-err">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="lt-label">Proficiency Rating (1-5)</label>
+                        <select name="proficiency" x-model="skillFormData.proficiency" required class="lt-input">
+                            <option value="5">5 - Expert / Master</option>
+                            <option value="4">4 - Advanced</option>
+                            <option value="3">3 - Intermediate</option>
+                            <option value="2">2 - Beginner</option>
+                            <option value="1">1 - Novice</option>
+                        </select>
+                        @error('proficiency')<p class="lt-err">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="lt-label">Skill Icon (Optional, 1:1 ratio)</label>
+                        
+                        <!-- Shows if no new image selected AND no old image exists -->
+                        <div x-show="!skillImageSelected && !skillFormData.old_image" class="relative w-full h-32 border-2 border-dashed border-[#D8D4C8] hover:border-[#FF851B] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors bg-[#F7F5EE] overflow-hidden group">
+                            <input type="file" @change="skillFileSelected" accept="image/png, image/jpeg, image/svg+xml" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <svg class="w-8 h-8 text-[#9B9589] group-hover:text-[#FF851B] mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs text-[#9B9589] font-semibold group-hover:text-[#FF851B] transition-colors">Click or drag image</span>
+                        </div>
+
+                        <!-- Shows if an old image exists and no new image is being cropped -->
+                        <div x-show="!skillImageSelected && skillFormData.old_image" class="relative w-full h-32 border border-[#D8D4C8] rounded-xl flex items-center justify-center bg-[#111111] overflow-hidden group">
+                            <input type="file" @change="skillFileSelected" accept="image/png, image/jpeg, image/svg+xml" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to replace image">
+                            <img :src="skillFormData.old_image" class="h-20 w-auto object-contain">
+                            <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <span class="text-xs font-bold text-white uppercase tracking-wider">Replace Image</span>
+                            </div>
+                        </div>
+
+                        <!-- Shows when actively cropping a new image -->
+                        <div x-show="skillImageSelected" style="display: none;" class="space-y-3 mt-2">
+                            <div class="w-full bg-[#F7F5EE] rounded-xl overflow-hidden border border-[#D8D4C8]" style="max-height: 250px;">
+                                <img id="skill-cropper-image" src="" class="max-w-full hidden">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="resetSkillImage" class="lt-btn-secondary w-full justify-center">Cancel Cropping</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:0.5rem;display:flex;justify-content:flex-end;gap:0.75rem;">
+                        <button type="button" @click="isSkillModalOpen = false" class="lt-btn-secondary">Cancel</button>
+                        <button type="submit" class="lt-btn-primary" x-text="skillFormMode === 'add' ? 'Add Skill' : 'Save Changes'"></button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <!-- TOOLS TAB -->
+    <div x-show="tab === 'tools'" x-cloak x-data="toolCropperData()" style="display:flex; flex-direction:column; flex:1;">
+        
+        <div class="lt-card">
+            <div class="lt-card-header flex-wrap gap-4">
+                <div class="lt-card-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#FF851B;display:inline-block;"></span>
+                    Marquee Display Config
+                    <span class="lt-count-badge" style="background:#FFF1E5; color:#FF851B; border-color:#FFD2AD;">{{ $toolItems->count() }}</span>
+                </div>
+
+                <div class="flex items-center gap-4 flex-wrap">
+                    <!-- Switchable Category Tabs -->
+                    <div class="flex gap-2">
+                        @foreach($rowLabels as $label)
+                            <button @click="toolTab = '{{ $label }}'" 
+                                    :class="toolTab === '{{ $label }}' ? 'active' : ''"
+                                    class="tool-tab-btn">
+                                {{ $label }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Add Button -->
+                    <button @click="openAddModal()" class="lt-btn-primary" style="background:#FF851B;">
+                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Add Tool
+                    </button>
+                </div>
+            </div>
+
+            <div style="padding:1.5rem; overflow-y:auto; flex:1;">
+                @forelse($groupedTools as $cat => $list)
+                    <div x-show="toolTab === '{{ $cat }}'" x-cloak>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                            @foreach($list as $tool)
+                                <!-- Dark background for tools -->
+                                <div class="p-4 bg-[#111111] border border-[#2A2A2A] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#FF851B] hover:shadow-[0_0_15px_rgba(255,133,27,0.15)] transition-all relative group h-32">
+                                    
+                                    @if($tool->image_path)
+                                        <div class="w-full h-12 flex items-center justify-center px-2">
+                                            <img src="{{ asset('storage/' . $tool->image_path) }}" alt="{{ $tool->name }}" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                    @else
+                                        <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">
+                                            {{ substr($tool->name, 0, 2) }}
+                                        </div>
+                                    @endif
+                                    
+                                    <span class="text-xs font-semibold text-[#EEEEEE] text-center truncate w-full">{{ $tool->name }}</span>
+                                    
+                                    <div class="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <!-- Edit Button -->
+                                        <button type="button" @click="openEditModal({ id: {{ $tool->id }}, name: '{{ addslashes($tool->name) }}', tooltip_info: '{{ addslashes($tool->tooltip_info) }}', row_label: '{{ addslashes($tool->row_label) }}', proficiency: {{ $tool->proficiency ?? 5 }}, image_path: '{{ $tool->image_path }}' })" class="text-[#888] hover:text-[#4dd9f0] p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Edit Tool">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </button>
+
+                                        <!-- Delete Form -->
+                                        <form action="{{ route('admin.tools.delete', $tool->id) }}" method="POST" onsubmit="return confirm('Remove {{ $tool->name }}?');">
+                                            @csrf
+                                            <button type="submit" class="text-[#888] hover:text-rose-500 p-1.5 bg-[#222] rounded-md shadow-sm border border-[#333] transition-colors" title="Delete Tool">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <div style="padding:4rem;text-align:center;">
+                        <svg style="width:2.5rem;height:2.5rem;color:#D8D4C8;margin:0 auto 0.75rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No tools added yet.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Add / Edit Tool Modal -->
+        <div x-show="isModalOpen" x-cloak class="lt-modal-overlay">
+            <div class="lt-modal-content" @click.outside="isModalOpen = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+                <button type="button" @click="isModalOpen = false" class="lt-modal-close">
+                    <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <h3 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1207;margin-bottom:1.25rem;" x-text="formMode === 'add' ? 'Add Tool/Software' : 'Edit Tool/Software'"></h3>
+                
+                <form :action="getFormAction()" method="POST" class="space-y-4" @submit="onSubmit">
+                    @csrf
+                    <input type="hidden" name="image_data" id="image_data" x-model="croppedData">
+
+                    <div>
+                        <label for="name" class="lt-label">Tool Name</label>
+                        <input type="text" name="name" id="name" required placeholder="e.g. PHP, Figma" class="lt-input" x-model="formData.name">
+                    </div>
+
+                    <div>
+                        <label for="tooltip_info" class="lt-label">Tooltip / Purpose (Optional)</label>
+                        <input type="text" name="tooltip_info" id="tooltip_info" placeholder="e.g. Backend Framework, UI Design" class="lt-input" x-model="formData.tooltip_info">
+                    </div>
+
+                    <div>
+                        <label for="row_label" class="lt-label">Marquee Category</label>
+                        <input type="text" name="row_label" id="row_label" required list="row_categories" placeholder="e.g. Programming Languages" class="lt-input" x-model="formData.row_label">
+                        
+                        <datalist id="row_categories">
+                            @foreach($rowLabels as $label)
+                                <option value="{{ $label }}">
+                            @endforeach
+                        </datalist>
+                    </div>
+
+                    <div>
+                        <label for="proficiency" class="lt-label">Proficiency Rating (1-5)</label>
+                        <select name="proficiency" id="proficiency" required class="lt-input" x-model="formData.proficiency">
+                            <option value="5">5 - Expert / Master</option>
+                            <option value="4">4 - Advanced</option>
+                            <option value="3">3 - Intermediate</option>
+                            <option value="2">2 - Beginner</option>
+                            <option value="1">1 - Novice</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="lt-label">Tool Icon (Optional PNG)</label>
+                        
+                        <!-- Shows if no new image selected AND no old image exists -->
+                        <div x-show="!imageSelected && !formData.old_image" class="relative w-full h-32 border-2 border-dashed border-[#D8D4C8] hover:border-[#FF851B] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors bg-[#F7F5EE] overflow-hidden group">
+                            <input type="file" @change="fileSelected" accept="image/png, image/jpeg, image/svg+xml" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <svg class="w-8 h-8 text-[#9B9589] group-hover:text-[#FF851B] mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs text-[#9B9589] font-semibold group-hover:text-[#FF851B] transition-colors">Click or drag image</span>
+                        </div>
+
+                        <!-- Shows if an old image exists and no new image is being cropped -->
+                        <div x-show="!imageSelected && formData.old_image" class="relative w-full h-32 border border-[#D8D4C8] rounded-xl flex items-center justify-center bg-[#111111] overflow-hidden group">
+                            <input type="file" @change="fileSelected" accept="image/png, image/jpeg, image/svg+xml" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to replace image">
+                            <img :src="formData.old_image" class="h-20 w-auto object-contain">
+                            <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <span class="text-xs font-bold text-white uppercase tracking-wider">Replace Image</span>
+                            </div>
+                        </div>
+
+                        <!-- Shows when actively cropping a new image -->
+                        <div x-show="imageSelected" style="display: none;" class="space-y-3 mt-2">
+                            <div class="w-full bg-[#F7F5EE] rounded-xl overflow-hidden border border-[#D8D4C8]" style="max-height: 250px;">
+                                <img id="cropper-image" src="" class="max-w-full hidden">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="resetImage" class="lt-btn-secondary w-full justify-center">Cancel Cropping</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:0.5rem;display:flex;justify-content:flex-end;gap:0.75rem;">
+                        <button type="button" @click="isModalOpen = false" class="lt-btn-secondary">Cancel</button>
+                        <button type="submit" class="lt-btn-primary" style="background:#FF851B;" x-text="formMode === 'add' ? 'Add Tool' : 'Save Changes'"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Include CropperJS CSS/JS from CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    function toolCropperData() {
+        return {
+            toolTab: '{{ $rowLabels->first() ?? '' }}',
+            isModalOpen: false,
+            formMode: 'add',
+            formData: {
+                id: null,
+                name: '',
+                tooltip_info: '',
+                row_label: '',
+                proficiency: 5,
+                old_image: ''
+            },
+            imageSelected: false,
+            cropper: null,
+            croppedData: '',
+            
+            openAddModal() {
+                this.formMode = 'add';
+                this.formData = { id: null, name: '', tooltip_info: '', row_label: '', proficiency: 5, old_image: '' };
+                this.resetImage();
+                this.isModalOpen = true;
+            },
+
+            openEditModal(tool) {
+                this.formMode = 'edit';
+                this.formData = { 
+                    id: tool.id, 
+                    name: tool.name, 
+                    tooltip_info: tool.tooltip_info || '', 
+                    row_label: tool.row_label,
+                    proficiency: tool.proficiency || 5,
+                    old_image: tool.image_path ? '/storage/' + tool.image_path : ''
+                };
+                this.resetImage();
+                this.isModalOpen = true;
+            },
+
+            getFormAction() {
+                return this.formMode === 'edit' ? `/admin/tools/update/${this.formData.id}` : `/admin/tools/store`;
+            },
+
+            fileSelected(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.getElementById('cropper-image');
+                    img.src = event.target.result;
+                    img.classList.remove('hidden');
+                    this.imageSelected = true;
+
+                    setTimeout(() => {
+                        if (this.cropper) {
+                            this.cropper.destroy();
+                        }
+                        this.cropper = new Cropper(img, {
+                            aspectRatio: NaN, // Free aspect ratio to support wide/landscape logos
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            background: false,
+                        });
+                    }, 100);
+                };
+                reader.readAsDataURL(file);
+            },
+
+            resetImage() {
+                this.imageSelected = false;
+                this.croppedData = '';
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+                const img = document.getElementById('cropper-image');
+                img.src = '';
+                img.classList.add('hidden');
+            },
+
+            onSubmit(e) {
+                if (this.cropper && this.imageSelected) {
+                    const canvas = this.cropper.getCroppedCanvas({ maxHeight: 300, maxWidth: 600 });
+                    this.croppedData = canvas.toDataURL('image/png');
+                } else {
+                    this.croppedData = ''; // Ensure no empty crop string is sent
+                }
+            }
+        }
+    }
+
+    function skillCropperData() {
+        return {
+            isSkillModalOpen: false,
+            skillFormMode: 'add',
+            skillFormData: {
+                id: null,
+                name: '',
+                category: 'Core',
+                tooltip_info: '',
+                proficiency: 5,
+                old_image: ''
+            },
+            skillImageSelected: false,
+            skillCropper: null,
+            skillCroppedData: '',
+            
+            openAddSkill() {
+                this.skillFormMode = 'add';
+                this.skillFormData = { id: null, name: '', category: 'Core', tooltip_info: '', proficiency: 5, old_image: '' };
+                this.resetSkillImage();
+                this.isSkillModalOpen = true;
+            },
+
+            openEditSkill(skill) {
+                this.skillFormMode = 'edit';
+                this.skillFormData = { 
+                    id: skill.id, 
+                    name: skill.name, 
+                    category: skill.category,
+                    tooltip_info: skill.tooltip_info || '', 
+                    proficiency: skill.proficiency || 5,
+                    old_image: skill.image_path ? '/storage/' + skill.image_path : ''
+                };
+                this.resetSkillImage();
+                this.isSkillModalOpen = true;
+            },
+
+            getSkillAction() {
+                return this.skillFormMode === 'edit' ? `/admin/skills/update/${this.skillFormData.id}` : `/admin/skills/store`;
+            },
+
+            skillFileSelected(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.getElementById('skill-cropper-image');
+                    img.src = event.target.result;
+                    img.classList.remove('hidden');
+                    this.skillImageSelected = true;
+
+                    setTimeout(() => {
+                        if (this.skillCropper) {
+                            this.skillCropper.destroy();
+                        }
+                        this.skillCropper = new Cropper(img, {
+                            aspectRatio: 1, // Strictly 1:1 ratio
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            background: false,
+                        });
+                    }, 100);
+                };
+                reader.readAsDataURL(file);
+            },
+
+            resetSkillImage() {
+                this.skillImageSelected = false;
+                this.skillCroppedData = '';
+                if (this.skillCropper) {
+                    this.skillCropper.destroy();
+                    this.skillCropper = null;
+                }
+                const img = document.getElementById('skill-cropper-image');
+                if(img) {
+                    img.src = '';
+                    img.classList.add('hidden');
+                }
+            },
+
+            onSkillSubmit(e) {
+                if (this.skillCropper && this.skillImageSelected) {
+                    const canvas = this.skillCropper.getCroppedCanvas({ maxHeight: 300, maxWidth: 300 });
+                    this.skillCroppedData = canvas.toDataURL('image/png');
+                } else {
+                    this.skillCroppedData = ''; // Ensure no empty crop string is sent
+                }
+            }
+        }
+    }
+</script>
 
 @endsection

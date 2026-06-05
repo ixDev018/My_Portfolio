@@ -838,7 +838,7 @@
         </div>
 
         <!-- Custom Thumbnail Cropper Preview -->
-        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="thumbPreview || {{ (isset($project) && $project->thumbnail_path) ? 'true' : 'false' }}">
+        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="thumbPreview || {{ isset($project->thumbnail_path) && $project->thumbnail_path ? 'true' : 'false' }}">
             <div class="flex items-center justify-between mb-3">
                 <span class="mu-preview-label" style="margin-bottom:0;">Thumbnail Preview</span>
                 <button type="button" @click="removeCustomThumb()" class="text-xs text-red-500 hover:text-red-700 font-bold">Remove Custom Thumbnail</button>
@@ -851,7 +851,7 @@
 
             <!-- Existing Custom Thumbnail -->
             <div x-show="!thumbPreview && !removeThumbnail">
-                @if(isset($project) && $project->thumbnail_path)
+                @if(isset($project->thumbnail_path) && $project->thumbnail_path)
                     <img src="{{ asset('storage/' . $project->thumbnail_path) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
                 @endif
             </div>
@@ -879,7 +879,7 @@
         </div>
 
         <!-- Featured Thumbnail Cropper Preview -->
-        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="featuredThumbPreview || {{ (isset($project) && $project->featured_thumbnail) ? 'true' : 'false' }}">
+        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="featuredThumbPreview || {{ isset($project->featured_thumbnail) && $project->featured_thumbnail ? 'true' : 'false' }}">
             <div class="flex items-center justify-between mb-3">
                 <span class="mu-preview-label" style="margin-bottom:0;">Featured Thumbnail Preview</span>
                 <button type="button" @click="removeFeaturedThumb()" class="text-xs text-red-500 hover:text-red-700 font-bold">Remove</button>
@@ -892,7 +892,7 @@
 
             <!-- Existing Featured Thumbnail -->
             <div x-show="!featuredThumbPreview && !removeFeaturedThumbnail">
-                @if(isset($project) && $project->featured_thumbnail)
+                @if(isset($project->featured_thumbnail) && $project->featured_thumbnail)
                     <img src="{{ asset('storage/' . $project->featured_thumbnail) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
                 @endif
             </div>

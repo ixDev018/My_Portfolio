@@ -375,6 +375,11 @@
         background:#F7F5EE;
         flex-shrink:0;
     }
+    .pe-last-saved {
+        display:flex; flex-direction:row; flex-wrap:nowrap;
+        align-items:center; gap:0.35rem;
+        white-space:nowrap; flex-shrink:0;
+    }
     .pe-btn-save {
         display:inline-flex; align-items:center; gap:0.4rem;
         padding:0.5rem 1.1rem; background:#6829AA; color:#fff;
@@ -596,7 +601,14 @@
             {{-- Editor footer --}}
             <div class="pe-footer">
                 <a href="{{ route('admin.projects.index') }}" class="pe-btn-cancel">Cancel</a>
-                <div style="display:flex; gap:0.5rem; align-items:center;">
+                <div style="display:flex; gap:0.75rem; align-items:center;">
+                    {{-- Last saved indicator --}}
+                    <div class="pe-last-saved" x-show="lastSaved" x-cloak>
+                        <span style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#9B9589; text-transform:uppercase; letter-spacing:0.1em;">Saved</span>
+                        <svg style="width:10px;height:10px;color:#0A8C5E;flex-shrink:0;" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                        <span style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#9B9589; text-transform:uppercase; letter-spacing:0.1em;" x-text="formatRelativeTime(lastSaved)"></span>
+                    </div>
+                    <span style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#D8D4C8; text-transform:uppercase; letter-spacing:0.1em;" x-show="lastSaved" x-cloak>·</span>
                     <span style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#9B9589; text-transform:uppercase; letter-spacing:0.1em;"
                           x-text="blocks.length + ' blocks'"></span>
                     <button type="submit" class="pe-btn-save" :disabled="isSubmitting">
@@ -856,6 +868,7 @@ function notionEditor() {
         blocks: [],
         activeBlockId: null,
         isSubmitting: false,
+        lastSaved: '{{ $project->updated_at ? $project->updated_at->toIso8601String() : '' }}',
         slashMenuOpen: false,
         slashQuery: '',
         slashBlockId: null,
@@ -866,6 +879,17 @@ function notionEditor() {
         dragOverId: null,
         fmtVisible: false,
         _isTransforming: false,
+
+        formatRelativeTime(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            const diff = Math.floor((Date.now() - d) / 1000);
+            if (diff < 10)    return 'just now';
+            if (diff < 60)   return Math.floor(diff) + 's ago';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        },
 
         blockTypes: [
             { type:'paragraph', label:'Text', desc:'Plain text block', icon:'Aa' },
@@ -1449,6 +1473,7 @@ function notionEditor() {
         // ── Form submission ──
         submitForm(event) {
             this.isSubmitting = true;
+            this.lastSaved = new Date().toISOString();
 
             // Sync block contents from DOM
             this.blocks.forEach(block => {

@@ -189,6 +189,62 @@
         height: 1px; background: #F0EDE6; margin: 0.25rem 0;
     }
 
+    /* ─── Sort dropdown ──────────────────────────────────────── */
+    .op-sort-wrap { position: relative; flex-shrink: 0; }
+    .op-sort-btn {
+        width: 30px; height: 30px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 0.45rem;
+        background: #fff;
+        border: 1px solid #D8D4C8;
+        cursor: pointer;
+        color: #7A7267;
+        transition: all 0.15s;
+    }
+    .op-sort-btn:hover, .op-sort-btn.open {
+        background: #EEE6FF;
+        border-color: #C4A8F0;
+        color: #6829AA;
+    }
+    .op-sort-dropdown {
+        position: absolute;
+        right: 0; top: calc(100% + 5px);
+        z-index: 60;
+        background: #fff;
+        border: 1px solid #D8D4C8;
+        border-radius: 0.6rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        min-width: 170px;
+        overflow: hidden;
+        padding: 0.35rem 0;
+    }
+    .op-sort-label {
+        display: block;
+        padding: 0.3rem 0.85rem 0.2rem;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.55rem; text-transform: uppercase;
+        letter-spacing: 0.1em; color: #B0A99F;
+    }
+    .op-sort-option {
+        display: flex; align-items: center; gap: 0.5rem;
+        width: 100%; text-align: left;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.78rem; font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        color: #2c2826; background: transparent;
+        border: none; cursor: pointer;
+        transition: background 0.12s;
+    }
+    .op-sort-option:hover { background: #F7F5EE; }
+    .op-sort-option.active { color: #6829AA; background: #F3ECFF; }
+
+    /* ─── Date badge ────────────────────────────────────────── */
+    .op-date-cell {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.57rem; color: #9B9589;
+        white-space: nowrap;
+    }
+
     /* ─── Badges ─────────────────────────────────────────────── */
     .op-medium-badge {
         display: inline-flex; align-items: center;
@@ -372,6 +428,8 @@
     search: '',
     activeFilter: 'all',
     openMenuId: null,
+    sortBy: 'updated',
+    sortOpen: false,
     filters: {{ collect($projects->pluck('medium')->filter()->unique()->values())->prepend('all')->toJson() }},
     allProjects: {{ $projects->map(fn($p) => [
         'id'             => $p->id,
@@ -381,6 +439,7 @@
         'year'           => $p->year,
         'tags'           => $p->tags,
         'featured'       => $p->featured,
+        'updated_at'     => $p->updated_at ? $p->updated_at->toIso8601String() : null,
         'thumbnail_path' => $p->thumbnail_path ? asset('storage/'.$p->thumbnail_path) : null,
         'thumbnail_video_path' => $p->thumbnail_video_path ? asset('storage/'.$p->thumbnail_video_path) : ($p->main_media_type === 'video' && $p->main_video_path ? asset('storage/'.$p->main_video_path) : ($p->main_media_type === 'video' ? $p->video_url : null)),
         'main_media_type'=> $p->main_media_type,
@@ -389,7 +448,7 @@
         'view_url'       => route('portfolio.project.show', $p->slug),
     ])->toJson() }},
     get filtered() {
-        return this.allProjects.filter(p => {
+        let list = this.allProjects.filter(p => {
             const matchMedium = this.activeFilter === 'all' || p.medium === this.activeFilter;
             const q = this.search.toLowerCase();
             const matchSearch = !q
@@ -398,6 +457,24 @@
                 || (p.medium && p.medium.toLowerCase().includes(q));
             return matchMedium && matchSearch;
         });
+        if (this.sortBy === 'updated') list = [...list].sort((a,b) => new Date(b.updated_at||0) - new Date(a.updated_at||0));
+        if (this.sortBy === 'oldest')  list = [...list].sort((a,b) => new Date(a.updated_at||0) - new Date(b.updated_at||0));
+        if (this.sortBy === 'az')      list = [...list].sort((a,b) => a.title.localeCompare(b.title));
+        if (this.sortBy === 'za')      list = [...list].sort((a,b) => b.title.localeCompare(a.title));
+        if (this.sortBy === 'year')    list = [...list].sort((a,b) => (b.year||0) - (a.year||0));
+        if (this.sortBy === 'featured')list = [...list].sort((a,b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        return list;
+    },
+    formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        const now = new Date();
+        const diff = Math.floor((now - d) / 1000);
+        if (diff < 60)   return 'Just now';
+        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+        return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
     },
     selectProject(p) { this.selectedProject = p; },
     toggleSelect(id) {
@@ -411,7 +488,7 @@
         e.stopPropagation();
         this.openMenuId = this.openMenuId === id ? null : id;
     },
-    closeMenu() { this.openMenuId = null; }
+    closeMenu() { this.openMenuId = null; this.sortOpen = false; }
 }" @click="closeMenu" @keydown.escape="closeMenu">
 
     {{-- ════ PAGE HEADER ════ --}}
@@ -467,6 +544,48 @@
                         </button>
                     </template>
                 </div>
+
+                {{-- Sort button --}}
+                <div class="op-sort-wrap" @click.stop>
+                    <button class="op-sort-btn" :class="sortOpen ? 'open' : ''" @click="sortOpen = !sortOpen" title="Sort">
+                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                        </svg>
+                    </button>
+                    <div class="op-sort-dropdown" x-show="sortOpen" x-cloak
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95">
+                        <span class="op-sort-label">Sort by</span>
+                        <button class="op-sort-option" :class="sortBy==='updated' ? 'active':''" @click="sortBy='updated'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Recently Updated
+                        </button>
+                        <button class="op-sort-option" :class="sortBy==='oldest' ? 'active':''" @click="sortBy='oldest'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Oldest First
+                        </button>
+                        <button class="op-sort-option" :class="sortBy==='az' ? 'active':''" @click="sortBy='az'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6"/></svg>
+                            Title A → Z
+                        </button>
+                        <button class="op-sort-option" :class="sortBy==='za' ? 'active':''" @click="sortBy='za'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6"/></svg>
+                            Title Z → A
+                        </button>
+                        <button class="op-sort-option" :class="sortBy==='year' ? 'active':''" @click="sortBy='year'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Year (Newest)
+                        </button>
+                        <button class="op-sort-option" :class="sortBy==='featured' ? 'active':''" @click="sortBy='featured'; sortOpen=false">
+                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            Featured First
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {{-- Table --}}
@@ -483,6 +602,7 @@
                             <th>Type</th>
                             <th>Tags</th>
                             <th style="text-align:center;">Featured</th>
+                            <th>Updated</th>
                             <th style="width:2.5rem;"></th>
                         </tr>
                     </thead>
@@ -553,6 +673,11 @@
                                     <template x-if="!p.featured">
                                         <span class="op-featured-no">No</span>
                                     </template>
+                                </td>
+
+                                {{-- Last Updated --}}
+                                <td>
+                                    <span class="op-date-cell" x-text="formatDate(p.updated_at)"></span>
                                 </td>
 
                                 {{-- ··· 3-dot menu --}}

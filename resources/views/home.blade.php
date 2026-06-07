@@ -1370,215 +1370,198 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="bg-[#79ECFF] text-black relative pt-0 pb-24">
-        
-        <!-- Wavy Divider from Achievements to Work Experience -->
-        <!-- Translating slightly up and wider to prevent any sub-pixel rendering lines -->
-        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-0 z-0 transform translate-y-[-1px] scale-x-[1.01]">
-            <svg class="relative block w-[calc(100%+2px)] h-[35px] sm:h-[55px] md:h-[75px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;">
+        <style>
+            #experience ::-webkit-scrollbar { width: 4px; }
+            #experience ::-webkit-scrollbar-track { background: transparent; }
+            #experience ::-webkit-scrollbar-thumb { background: rgba(255,133,27,0.25); border-radius: 2px; }
+            #experience ::-webkit-scrollbar-button { display: none; height: 0; }
+        </style>
+
+        @php
+            $expList = $experiences->map(function($e) {
+                return [
+                    'year'        => $e->duration,
+                    'title'       => $e->role,
+                    'issuer'      => $e->company,
+                    'image'       => $e->image_path ? asset('storage/' . $e->image_path) : null,
+                    'description' => $e->description,
+                ];
+            })->values()->toArray();
+        @endphp
+
+        <!-- ── Background slideshow ── -->
+        <div class="absolute inset-0 z-0" aria-hidden="true"
+             x-data="{
+                bgIndex: 0,
+                bgImages: {{ Js::from(collect($expList)->pluck('image')->filter()->values()) }},
+                init() {
+                    if (this.bgImages.length > 1) {
+                        setInterval(() => {
+                            this.bgIndex = (this.bgIndex + 1) % this.bgImages.length;
+                        }, 5000);
+                    }
+                }
+             }">
+            <template x-for="(src, i) in bgImages" :key="i">
+                <div class="absolute inset-0 bg-center bg-cover transition-opacity duration-[2000ms] ease-in-out"
+                     :style="`background-image: url('${src}')`"
+                     :class="bgIndex === i ? 'opacity-100' : 'opacity-0'">
+                </div>
+            </template>
+            <!-- Muted dark overlay so text pops -->
+            <div class="absolute inset-0 bg-black/70"></div>
+            <!-- Extra vignette gradient top & bottom -->
+            <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(13,13,13,0.7) 0%, transparent 30%, transparent 70%, rgba(13,13,13,0.85) 100%);"></div>
+        </div>
+
+        <!-- Wavy top divider (from white achievements) -->
+        <div class="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10 scale-x-[1.01] -translate-y-px">
+            <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
                 <path fill="#ffffff" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,133.3C1120,117,1280,107,1360,101.3L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
             </svg>
         </div>
-        
-        <div class="max-w-[1100px] mx-auto px-6 pt-24 relative z-10">
-            
-           
-            
-            <!-- Section Header -->
-            <div class="text-center mb-16 md:mb-20">
-                <h3 class="text-[28px] sm:text-[2.5rem] font-bold tracking-tight text-black font-display uppercase">Work Experience</h3>
+
+        <div class="relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-0"
+             style="flex: 1;"
+             x-data="{
+                 activeIndex: null,
+                 experiences: {{ Js::from($expList) }},
+                 select(i) { this.activeIndex = this.activeIndex === i ? null : i; }
+             }">
+
+            <!-- Section header -->
+            <div class="text-center mb-16">
+                <p class="font-mono text-[11px] uppercase tracking-[0.35em] text-[#FF851B] mb-3">Career Path</p>
+                <h2 class="font-display text-[2rem] sm:text-[3rem] uppercase tracking-[0.15em] text-white leading-none" style="text-shadow: 0 0 40px rgba(255,133,27,0.3);">Work Experience</h2>
             </div>
 
-            <!-- Main Work Experience Content -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-stretch"
-                 x-data="{ 
-                     currentSlide: 0, 
-                     modalOpen: false,
-                     experiences: @js($experiences->map(function($e) {
-                         return [
-                             'year' => $e->duration,
-                             'title' => $e->role,
-                             'issuer' => $e->company,
-                             'image' => $e->image_path ? asset('storage/' . $e->image_path) : asset('images/placeholder.jpg'),
-                             'description' => $e->description
-                         ];
-                     }))
-                 }">
-                
-                <!-- Left Side: Interactive Viewer (Hidden on Mobile since it's inside the Modal) -->
-                <div class="hidden md:flex w-full relative z-10 flex-col items-stretch">
-                    
-                    <template x-if="experiences.length > 0">
-                        <div class="contents">
-                            <!-- Title & Slide indicator -->
-                            <div class="flex justify-between items-center mb-4 text-black">
-                                <span class="font-bold text-[14px] md:text-[15px] font-sans" x-text="experiences[currentSlide].issuer"></span>
-                                <span class="font-bold text-[13px] font-sans" x-text="(currentSlide + 1) + '/' + experiences.length"></span>
+            <!-- Layout wrapper: transitions between centered (default) and split (active) -->
+            <div class="relative" style="flex: 1; display: flex; align-items: flex-start;">
+
+                <!-- LEFT: Content panel — only visible when an item is active, slides in from left -->
+                <div x-show="activeIndex !== null"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0 -translate-x-8"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100 translate-x-0"
+                     x-transition:leave-end="opacity-0 -translate-x-8"
+                     class="sticky top-28"
+                     style="flex: 1; height: calc(100vh - 8rem); overflow: hidden; display: flex; flex-direction: column; padding-right: 2rem;">
+
+                    <template x-for="(exp, i) in experiences" :key="i">
+                        <div x-show="activeIndex === i"
+                             x-transition:enter="transition ease-out duration-400"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             class="flex flex-col h-full" style="min-height: 0;">
+
+                            <!-- STICKY: Year Banner -->
+                            <div class="flex-shrink-0 pt-4 pb-5">
+                                <div class="block w-full border border-white/20 rounded-xl px-5 py-4 backdrop-blur-sm" style="background: rgba(255,255,255,0.04);">
+                                    <div class="font-poppins font-black text-[1.4rem] sm:text-[1.8rem] text-white leading-none tracking-wide" x-text="exp.title"></div>
+                                    <div class="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF851B] mt-2 flex items-center gap-2 flex-wrap">
+                                        <span x-text="exp.issuer"></span>
+                                        <span class="text-[#FF851B]/30">·</span>
+                                        <span class="text-[#FF851B]/60" x-text="exp.year"></span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Image Slider -->
-                            <div class="relative w-full aspect-[4/3] md:aspect-video bg-[#e5e7eb] rounded-[1.25rem] md:rounded-[1.5rem] overflow-hidden group shadow-sm border-[3px] border-black shrink-0">
-                                <template x-for="(exp, index) in experiences" :key="index">
-                                    <img :src="exp.image" 
-                                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
-                                         :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'" 
-                                         alt="Work Experience Image">
+                            <!-- SCROLLABLE: Description + Image -->
+                            <div class="flex-1 overflow-y-auto pr-2 py-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
+                                <div class="prose prose-invert max-w-none">
+                                    <p class="text-white/70 font-sans text-[0.85rem] leading-[1.8] whitespace-pre-wrap" x-text="exp.description || 'No description added yet.'"></p>
+                                </div>
+
+                                <template x-if="exp.image">
+                                    <div class="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                                        <img :src="exp.image" :alt="exp.title" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500">
+                                    </div>
                                 </template>
 
-                                <!-- Controls -->
-                                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-3 md:px-4 opacity-100 transition-opacity z-20">
-                                    <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                                    </button>
-                                    <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur border border-black flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                                    </button>
-                                </div>
-
-                                <!-- Indicators -->
-                                <div class="absolute bottom-3 md:bottom-4 left-0 right-0 flex justify-center gap-1.5 md:gap-2 z-20">
-                                    <template x-for="(exp, index) in experiences" :key="index">
-                                        <button @click="currentSlide = index"
-                                                class="h-1.5 md:h-2 rounded-full transition-all duration-300"
-                                                :class="currentSlide === index ? 'w-5 md:w-6 bg-white shadow border border-black' : 'w-1.5 md:w-2 bg-black/50 hover:bg-black/80'"></button>
-                                    </template>
-                                </div>
+                                <div class="h-8"></div>
                             </div>
 
-                            <!-- Info Card Below Image -->
-                            <div class="hidden md:block border-[3px] border-black rounded-[1rem] p-5 md:p-6 bg-[#e2e8f0] mt-4 relative z-0 mb-8 md:mb-64 shrink-0">
-                                <h4 class="font-bold text-black text-[18px] md:text-[20px] leading-snug mb-2 font-sans pr-4" x-text="experiences[currentSlide].title"></h4>
-                                <p class="text-black/75 font-sans leading-relaxed text-[12px] md:text-[13px] whitespace-pre-wrap" x-text="experiences[currentSlide].description"></p>
-                            </div>
                         </div>
                     </template>
-                    <template x-if="experiences.length === 0">
-                        <div class="p-10 text-center border-2 border-dashed border-black/20 rounded-3xl">
-                            <p class="font-sans font-bold text-black/50">No experiences listed yet.</p>
-                        </div>
-                    </template>
-
                 </div>
 
-                <!-- Right Side: Timeline -->
-                <div class="flex flex-col h-full py-4 pl-[48px] md:pl-[56px] relative z-0">
-                    
-                    <!-- Standalone Connector Group -->
-                    <div class="absolute left-[16px] md:left-[24px] top-[24px] bottom-[50px] md:bottom-[62px] w-[24px] flex flex-col items-center z-10 pointer-events-none">
-                        <!-- Top Solid Dot -->
-                        <div class="w-[12px] h-[12px] md:w-[16px] md:h-[16px] bg-black rounded-full shrink-0"></div>
-                        
-                        <!-- Standalone SVG Line -->
-                        <svg class="flex-1 w-[2px] my-2" preserveAspectRatio="none">
-                            <line x1="1" y1="0" x2="1" y2="100%" stroke="black" stroke-width="2" />
-                        </svg>
-                        
-                        <!-- Bottom Dashed Circle -->
-                        <div class="w-[16px] h-[16px] md:w-[20px] md:h-[20px] rounded-full border-[2px] border-dashed border-black bg-[#79ECFF] shrink-0"></div>
-                    </div>
-                    
-                    <!-- Top Content (Timeline Items) -->
-                    <div class="mb-auto">
-                        <template x-if="experiences.length > 0">
-                            <div class="contents">
-                                <h4 class="hidden md:block text-[20px] font-bold font-sans tracking-wide mb-4 mt-0 text-black" x-text="experiences[currentSlide].year"></h4>
-                                
-                                <!-- Mobile Interactive Button Heading -->
-                                <button @click="modalOpen = true" class="md:hidden relative inline-flex items-center justify-center bg-[#bbf7f0] border border-black rounded-[1rem] px-8 py-2.5 mb-6 mt-[-8px] transition-transform active:scale-95 focus:outline-none">
-                                    <span class="text-[16px] font-bold font-sans tracking-wide text-black" x-text="experiences[currentSlide].year"></span>
-                                    <span class="absolute -top-2.5 -right-3 bg-[#1d00d1] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-black">VIEW</span>
-                                </button>
+                <!-- RIGHT / CENTER: Timeline — centered when nothing active, right-aligned when active -->
+                <div class="flex flex-col relative transition-all duration-500 ease-in-out pb-20"
+                     :class="activeIndex !== null
+                        ? 'w-full md:w-[320px] lg:w-[380px] shrink-0 pl-4 md:pl-8 py-4'
+                        : 'w-full max-w-[500px] mx-auto px-6 py-4'"
+                     style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.05) transparent;">
 
-                                <ul class="space-y-3 mt-2 md:mt-4 text-[14px] md:text-[15px] font-sans text-black/90 font-semibold">
-                                    <template x-for="(exp, index) in experiences" :key="index">
-                                        <li class="flex items-start gap-2 cursor-pointer transition-colors"
-                                            :class="currentSlide === index ? 'text-black' : 'text-black/50 hover:text-black/80'"
-                                            @click="currentSlide = index">
-                                            <span class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 transition-colors"
-                                                  :class="currentSlide === index ? 'bg-black' : 'bg-black/30'"></span>
-                                            <span x-text="exp.issuer"></span>
-                                        </li>
-                                    </template>
+                    <!-- Timeline entries -->
+                    <div class="flex flex-col flex-1">
+                        @forelse($experiences as $i => $exp)
+                        <div class="flex">
+                            <!-- Connector column -->
+                            <div class="flex flex-col items-center mr-6 md:mr-8 w-6 shrink-0">
+                                <!-- Dot -->
+                                <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full transition-all duration-300 shrink-0 flex items-center justify-center relative"
+                                     :class="activeIndex === {{ $i }} ? 'bg-[#FF851B] shadow-[0_0_12px_rgba(255,133,27,0.8)] scale-110' : 'bg-white/40'">
+                                    @if(stripos($exp->duration, 'present') !== false || stripos($exp->duration, 'now') !== false)
+                                    <div class="absolute w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300"
+                                         :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b] shadow-[0_0_8px_rgba(163,255,107,0.8)] scale-110' : 'bg-[#0d0d0d]/80 scale-100'"></div>
+                                    @endif
+                                </div>
+                                <!-- Line -->
+                                <div class="w-[3px] sm:w-[4px] flex-1 my-2 transition-all duration-300"
+                                     :class="activeIndex === {{ $i }} ? 'bg-[#FF851B]/50' : 'bg-white/15'"></div>
+                            </div>
+
+                            <!-- Content column -->
+                            <button type="button" @click="select({{ $i }})"
+                                    class="pb-12 pt-0 md:pt-1 text-left transition-all duration-300 focus:outline-none flex-1 group"
+                                    :class="activeIndex === {{ $i }} ? 'opacity-100' : 'opacity-50 hover:opacity-80'">
+                                <!-- Job Title -->
+                                <div class="font-poppins font-black text-[1.3rem] sm:text-[1.6rem] tracking-wide leading-none mb-4 transition-colors"
+                                     :class="activeIndex === {{ $i }} ? 'text-[#FF851B]' : 'text-white'">
+                                    {{ $exp->role }}
+                                </div>
+                                <!-- Bullets -->
+                                <ul class="space-y-2.5 font-sans text-[0.85rem] sm:text-[0.9rem] text-white/70 list-none ml-4">
+                                    <li class="relative before:content-[''] before:absolute before:w-1.5 before:h-1.5 before:bg-white/40 group-hover:before:bg-white/70 transition-all duration-300 before:rounded-full before:left-[-16px] before:top-[8px] uppercase tracking-wider font-bold">
+                                        {{ $exp->company }}
+                                    </li>
+                                    <li class="relative before:content-[''] before:absolute before:w-1.5 before:h-1.5 before:bg-white/40 group-hover:before:bg-white/70 transition-all duration-300 before:rounded-full before:left-[-16px] before:top-[8px]">
+                                        {{ $exp->duration }}
+                                    </li>
                                 </ul>
-                            </div>
-                        </template>
-                    </div>
-                    
-                    <!-- Spacer (Stretches mobile view as well) -->
-                    <div class="flex-1 min-h-[180px] md:min-h-[150px] lg:min-h-[250px]"></div>
-                    
-                    <!-- Bottom Content -->
-                    <div class="mt-8 md:mt-auto pb-4">
-                        <p class="text-[14px] md:text-[16px] font-sans text-black/90 mb-1 tracking-wide pt-1">The Journey is still on it's way</p>
-                        <a href="#contact" class="text-[22px] md:text-[28px] font-black font-sans text-black hover:opacity-70 transition-opacity block leading-[1.2] tracking-tight pb-1">Be a part of my experience</a>
-                    </div>
-
-                </div>
-
-                <!-- Mobile Work Experience Modal (Frame 34 layout) -->
-                <div x-show="modalOpen" 
-                     style="display: none;"
-                     class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm md:hidden">
-                    
-                    <div @click.away="modalOpen = false"
-                         x-show="modalOpen"
-                         x-transition.scale.95
-                         class="bg-[#f8f9fa] w-full max-w-[360px] md:h-auto max-h-[90vh] overflow-y-auto rounded-[2rem] p-6 relative shadow-2xl flex flex-col">
-                        
-                        <!-- Close Button -->
-                        <button @click="modalOpen = false" class="absolute top-5 right-5 text-black hover:bg-black/5 rounded-full p-1 transition-colors z-20">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-
-                        <!-- Year Pill -->
-                        <div class="mb-5">
-                            <span class="px-4 py-1.5 bg-[#1d00d1] text-white font-semibold text-[12px] rounded-full inline-block font-sans" x-text="experiences[currentSlide].year"></span>
-                        </div>
-
-                        <!-- Title -->
-                        <h4 class="text-[22px] font-bold tracking-tight text-black leading-tight mb-2 font-sans pr-6" x-text="experiences[currentSlide].title"></h4>
-                        
-                        <!-- Subtitle (Issuer) -->
-                        <p class="text-[11px] font-bold text-black uppercase tracking-widest font-sans mb-5" x-text="experiences[currentSlide].issuer"></p>
-
-                        <!-- Image -->
-                        <div class="w-full aspect-[4/3] bg-[#d1d5db] rounded-[1.25rem] overflow-hidden relative shadow-inner mb-5 shrink-0">
-                            <img :src="experiences[currentSlide].image" class="w-full h-full object-cover border border-black/10">
-                        </div>
-
-                        <!-- Description -->
-                        <p class="text-black/80 font-sans leading-relaxed text-[13px] line-clamp-[7] mb-6" x-text="experiences[currentSlide].description"></p>
-
-                        <!-- Divider -->
-                        <hr class="border-black mb-6">
-
-                        <!-- Controls -->
-                        <div class="flex items-center justify-between px-2">
-                            <!-- Prev -->
-                            <button @click="currentSlide = currentSlide === 0 ? experiences.length - 1 : currentSlide - 1" class="w-8 h-8 rounded-full border border-[#8675ff] flex items-center justify-center text-[#8675ff] hover:bg-[#8675ff]/10 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/></svg>
                             </button>
+                        </div>
+                        @empty
+                        <p class="text-white/30 font-mono text-xs uppercase tracking-widest pl-12 pb-10">No experiences yet.</p>
+                        @endforelse
 
-                            <!-- Dots -->
-                            <div class="flex items-center gap-2">
-                                <template x-for="(exp, index) in experiences" :key="index">
-                                    <button @click="currentSlide = index"
-                                            class="w-2.5 h-2.5 rounded-full transition-colors"
-                                            :class="currentSlide === index ? 'bg-[#1d00d1]' : 'bg-[#1d00d1]/30'"></button>
-                                </template>
+                        <!-- Bottom Indicator -->
+                        <div class="flex">
+                            <!-- Connector column -->
+                            <div class="flex flex-col items-center mr-6 md:mr-8 w-6 shrink-0">
+                                <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-[2.5px] border-dashed border-white/40 shrink-0"></div>
                             </div>
-
-                            <!-- Next -->
-                            <button @click="currentSlide = currentSlide === experiences.length - 1 ? 0 : currentSlide + 1" class="w-8 h-8 rounded-full border border-[#8675ff] flex items-center justify-center text-[#8675ff] hover:bg-[#8675ff]/10 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
+                            <!-- Content column -->
+                            <div class="pb-4 pt-[-2px] sm:pt-0 flex-1">
+                                <p class="font-mono text-white/40 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] mb-4">The journey is still on it's way</p>
+                                <a href="#contact" class="font-display text-[1.2rem] sm:text-[1.5rem] text-white hover:text-[#FF851B] transition-colors duration-300 uppercase tracking-wider leading-tight block">
+                                    Be part of my<br>experience →
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
+
+
+
     </section>
 
 
@@ -1586,14 +1569,8 @@
     <!-- COLLABORATE (CONTACT) SECTION -->
     <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
 
-        <!-- Wavy Divider from cyan Work Experience into dark Collaborate -->
-        <div class="w-full overflow-hidden leading-[0] absolute top-0 left-0 z-0 transform translate-y-[-1px] scale-x-[1.01]">
-            <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                <path fill="#79ECFF" d="M0,224L60,208C120,192,240,160,360,154.7C480,149,600,171,720,176C840,181,960,171,1080,154.7C1200,139,1320,117,1380,106.7L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-            </svg>
-        </div>
 
-        <div class="max-w-7xl mx-auto px-6 pt-28 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 pt-20 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 
                 <!-- Contact info cards -->

@@ -46,9 +46,9 @@
     .lt-btn-danger:hover { background:#FEE2E2; }
     .lt-err { color:#dc2626; font-size:0.72rem; margin-top:0.25rem; }
     .lt-card {
-        background:#fff; border:1px solid #D8D4C8;
-        border-radius:1rem; overflow:hidden;
-        box-shadow:0 1px 3px rgba(0,0,0,0.05);
+        background:#fff; border-radius:1rem; border:1px solid #D8D4C8;
+        overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);
+        display: flex; flex-direction: column; flex: 1;
     }
     .lt-card-header {
         padding:0.85rem 1.25rem; border-bottom:1px solid #E2DDD3;
@@ -123,7 +123,7 @@
     .lt-modal-close:hover { background: #E2DDD3; color: #1a1207; }
 </style>
 
-<div x-data="achievementData()">
+<div x-data="achievementData()" style="display: flex; flex-direction: column; min-height: calc(100vh - 4rem);">
     {{-- Page header --}}
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;">
         <div>
@@ -157,9 +157,11 @@
                 <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No achievements yet. Add one above.</p>
             </div>
         @else
+            <div style="flex: 1; overflow-y: auto;">
             <table class="ach-table">
                 <thead>
                     <tr>
+                        <th style="width: 40px; text-align: center;">#</th>
                         <th>Media</th>
                         <th>Title</th>
                         <th>Issuer</th>
@@ -169,8 +171,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($achievements as $item)
+                    @foreach($achievements as $index => $item)
                         <tr x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+                            <td style="width: 40px; text-align: center; color: #9B9589; font-family: 'Space Mono', monospace; font-size: 0.75rem;">
+                                {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
+                            </td>
                             <td style="width: 60px; padding: 0.5rem 1rem;">
                                 @if($item->media_path)
                                     <div class="w-10 h-14 bg-[#111] rounded-md overflow-hidden border border-[#D8D4C8] shadow-sm">
@@ -234,6 +239,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         @endif
     </div>
 

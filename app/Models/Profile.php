@@ -26,10 +26,15 @@ class Profile extends Model
         'hero_gradient_stops',
         'location',
         'tool_rows',
+        'exp_default_bg_mode',
+        'exp_default_bg_type',
+        'exp_default_bg_media_path',
+        'exp_default_bg_gallery_images',
     ];
 
     protected $casts = [
         'hero_gradient_stops' => 'array',
         'tool_rows' => 'array',
+        'exp_default_bg_gallery_images' => 'array',
     ];
 }

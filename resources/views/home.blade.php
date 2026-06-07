@@ -1370,7 +1370,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;">
+    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, select(i) { this.activeIndex = this.activeIndex === i ? null : i; } }">
         <style>
             #experience ::-webkit-scrollbar { width: 4px; }
             #experience ::-webkit-scrollbar-track { background: transparent; }
@@ -1378,42 +1378,78 @@
             #experience ::-webkit-scrollbar-button { display: none; height: 0; }
         </style>
 
-        @php
-            $expList = $experiences->map(function($e) {
-                return [
-                    'year'        => $e->duration,
-                    'title'       => $e->role,
-                    'issuer'      => $e->company,
-                    'image'       => $e->image_path ? asset('storage/' . $e->image_path) : null,
-                    'description' => $e->description,
-                ];
-            })->values()->toArray();
-        @endphp
-
-        <!-- ── Background slideshow ── -->
-        <div class="absolute inset-0 z-0" aria-hidden="true"
-             x-data="{
-                bgIndex: 0,
-                bgImages: {{ Js::from(collect($expList)->pluck('image')->filter()->values()) }},
-                init() {
-                    if (this.bgImages.length > 1) {
-                        setInterval(() => {
-                            this.bgIndex = (this.bgIndex + 1) % this.bgImages.length;
-                        }, 5000);
-                    }
-                }
-             }">
-            <template x-for="(src, i) in bgImages" :key="i">
-                <div class="absolute inset-0 bg-center bg-cover transition-opacity duration-[2000ms] ease-in-out"
-                     :style="`background-image: url('${src}')`"
-                     :class="bgIndex === i ? 'opacity-100' : 'opacity-0'">
+        <!-- ── Background media ── -->
+        @if(isset($profile) && $profile->exp_default_bg_mode === 'custom')
+            <div class="absolute inset-0 z-0" aria-hidden="true">
+                <!-- Custom Global Media for Unselected State -->
+                <div x-show="activeIndex === null" x-transition.opacity.duration.1500ms class="absolute inset-0">
+                    @if($profile->exp_default_bg_type === 'video' && $profile->exp_default_bg_media_path)
+                        <video src="{{ asset('storage/' . $profile->exp_default_bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                    @elseif($profile->exp_default_bg_type === 'slideshow' && !empty($profile->exp_default_bg_gallery_images))
+                        <div x-data="{ sIndex: 0, sTotal: {{ count($profile->exp_default_bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === null) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
+                            @foreach($profile->exp_default_bg_gallery_images as $slideIndex => $sImage)
+                                <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                            @endforeach
+                        </div>
+                    @elseif($profile->exp_default_bg_media_path)
+                        <img src="{{ asset('storage/' . $profile->exp_default_bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                    @endif
                 </div>
-            </template>
-            <!-- Muted dark overlay so text pops -->
-            <div class="absolute inset-0 bg-black/70"></div>
-            <!-- Extra vignette gradient top & bottom -->
-            <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(13,13,13,0.7) 0%, transparent 30%, transparent 70%, rgba(13,13,13,0.85) 100%);"></div>
-        </div>
+
+                <!-- Individual Experience Media when selected -->
+                @foreach($experiences as $i => $exp)
+                    <div x-show="activeIndex === {{ $i }}"
+                         x-transition.opacity.duration.1500ms
+                         class="absolute inset-0">
+                         @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
+                             <video src="{{ asset('storage/' . $exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                         @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
+                             <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }}) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
+                                 @foreach($exp->bg_gallery_images as $slideIndex => $sImage)
+                                     <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                                 @endforeach
+                             </div>
+                         @elseif($exp->bg_media_path)
+                             <img src="{{ asset('storage/' . $exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                         @elseif($exp->image_path)
+                             <img src="{{ asset('storage/' . $exp->image_path) }}" class="w-full h-full object-cover opacity-60">
+                         @endif
+                    </div>
+                @endforeach
+
+                <!-- Muted dark overlay so text pops -->
+                <div class="absolute inset-0 bg-black/85 transition-opacity duration-500" :class="activeIndex !== null ? 'opacity-90' : 'opacity-70'"></div>
+                <!-- Extra vignette gradient top & bottom -->
+                <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(13,13,13,0.9) 0%, transparent 25%, transparent 75%, rgba(13,13,13,0.95) 100%); pointer-events: none;"></div>
+            </div>
+        @else
+            <!-- Original Cycling Behavior -->
+            <div class="absolute inset-0 z-0" aria-hidden="true" x-init="setInterval(() => { if (activeIndex === null && {{ count($experiences) }} > 0) bgIndex = (bgIndex + 1) % {{ count($experiences) }} }, 5000)">
+                @foreach($experiences as $i => $exp)
+                    <div x-show="activeIndex === {{ $i }} || (activeIndex === null && bgIndex === {{ $i }})"
+                         x-transition.opacity.duration.1500ms
+                         class="absolute inset-0">
+                         @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
+                             <video src="{{ asset('storage/' . $exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                         @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
+                             <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }} || (activeIndex === null && bgIndex === {{ $i }})) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
+                                 @foreach($exp->bg_gallery_images as $slideIndex => $sImage)
+                                     <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                                 @endforeach
+                             </div>
+                         @elseif($exp->bg_media_path)
+                             <img src="{{ asset('storage/' . $exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                         @elseif($exp->image_path)
+                             <img src="{{ asset('storage/' . $exp->image_path) }}" class="w-full h-full object-cover opacity-60">
+                         @endif
+                    </div>
+                @endforeach
+                <!-- Muted dark overlay so text pops -->
+                <div class="absolute inset-0 bg-black/85 transition-opacity duration-500" :class="activeIndex !== null ? 'opacity-90' : 'opacity-70'"></div>
+                <!-- Extra vignette gradient top & bottom -->
+                <div class="absolute inset-0" style="background: linear-gradient(to bottom, rgba(13,13,13,0.9) 0%, transparent 25%, transparent 75%, rgba(13,13,13,0.95) 100%); pointer-events: none;"></div>
+            </div>
+        @endif
 
         <!-- Wavy top divider (from white achievements) -->
         <div class="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10 scale-x-[1.01] -translate-y-px">
@@ -1422,13 +1458,8 @@
             </svg>
         </div>
 
-        <div class="relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-0"
-             style="flex: 1;"
-             x-data="{
-                 activeIndex: null,
-                 experiences: {{ Js::from($expList) }},
-                 select(i) { this.activeIndex = this.activeIndex === i ? null : i; }
-             }">
+        <div class="relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24"
+             style="flex: 1;">
 
             <!-- Section header -->
             <div class="text-center mb-16">
@@ -1442,16 +1473,22 @@
                 <!-- LEFT: Content panel — only visible when an item is active, slides in from left -->
                 <div x-show="activeIndex !== null"
                      x-transition:enter="transition ease-out duration-500"
-                     x-transition:enter-start="opacity-0 -translate-x-8"
-                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:enter-start="opacity-0 md:-translate-x-8 translate-y-8 md:translate-y-0"
+                     x-transition:enter-end="opacity-100 translate-x-0 translate-y-0"
                      x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100 translate-x-0"
-                     x-transition:leave-end="opacity-0 -translate-x-8"
-                     class="sticky top-28"
-                     style="flex: 1; height: calc(100vh - 8rem); overflow: hidden; display: flex; flex-direction: column; padding-right: 2rem;">
+                     x-transition:leave-start="opacity-100 translate-x-0 translate-y-0"
+                     x-transition:leave-end="opacity-0 md:-translate-x-8 translate-y-8 md:translate-y-0"
+                     class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-20 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28 overflow-hidden"
+                     style="display: none;">
+                     
+                    <!-- Back to Timeline Button -->
+                    <button @click="activeIndex = null" class="group flex items-center gap-2 text-[#FF851B] hover:text-[#ff9c45] transition-colors mb-4 md:mb-0 md:absolute md:-top-12 md:left-0 z-[110] text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] shrink-0 w-fit">
+                        <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Back to Timeline
+                    </button>
 
-                    <template x-for="(exp, i) in experiences" :key="i">
-                        <div x-show="activeIndex === i"
+                    @foreach($experiences as $i => $exp)
+                        <div x-show="activeIndex === {{ $i }}"
                              x-transition:enter="transition ease-out duration-400"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100"
@@ -1461,34 +1498,87 @@
                              class="flex flex-col h-full" style="min-height: 0;">
 
                             <!-- STICKY: Year Banner -->
-                            <div class="flex-shrink-0 pt-4 pb-5">
-                                <div class="block w-full border border-white/20 rounded-xl px-5 py-4 backdrop-blur-sm" style="background: rgba(255,255,255,0.04);">
-                                    <div class="font-poppins font-black text-[1.4rem] sm:text-[1.8rem] text-white leading-none tracking-wide" x-text="exp.title"></div>
-                                    <div class="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF851B] mt-2 flex items-center gap-2 flex-wrap">
-                                        <span x-text="exp.issuer"></span>
-                                        <span class="text-[#FF851B]/30">·</span>
-                                        <span class="text-[#FF851B]/60" x-text="exp.year"></span>
+                            <div class="flex-shrink-0 pt-4 pb-2">
+                                <div class="block w-full border border-white/10 rounded-xl px-5 py-4 backdrop-blur-md" style="background: rgba(255,255,255,0.05);">
+                                    <div class="font-poppins font-black text-[1.4rem] sm:text-[1.8rem] text-[#FF851B] leading-none tracking-wide">{{ $exp->role }}</div>
+                                    <div class="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 mt-2 flex items-center gap-2 flex-wrap">
+                                        <span class="text-white">{{ $exp->company }}</span>
+                                        <span class="text-white/30">·</span>
+                                        <span>{{ $exp->duration }}</span>
+                                        @if($exp->is_active)
+                                            <span class="text-white/30">·</span>
+                                            <span class="text-[#a3ff6b] border border-[#a3ff6b]/30 px-1.5 py-0.5 rounded text-[8px] bg-[#a3ff6b]/10">Present</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
 
                             <!-- SCROLLABLE: Description + Image -->
-                            <div class="flex-1 overflow-y-auto pr-2 py-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
-                                <div class="prose prose-invert max-w-none">
-                                    <p class="text-white/70 font-sans text-[0.85rem] leading-[1.8] whitespace-pre-wrap" x-text="exp.description || 'No description added yet.'"></p>
+                            <div class="flex-1 overflow-y-auto pr-2 pb-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
+                                <div class="prose prose-invert max-w-none text-white/80">
+                                    @php
+                                        $blocks = is_string($exp->body_content) ? json_decode($exp->body_content, true) : $exp->body_content;
+                                    @endphp
+                                    @if(is_array($blocks) && count($blocks) > 0)
+                                        @foreach($blocks as $index => $block)
+                                            @php
+                                                $type = $block['type'] ?? '';
+                                            @endphp
+                                            @switch($type)
+                                                @case('heading2')
+                                                    <h2 class="mt-8 mb-4 font-display text-xl font-bold text-white tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h2>
+                                                    @break
+                                                @case('heading3')
+                                                    <h3 class="mt-6 mb-3 font-display text-lg font-bold text-white/90 tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h3>
+                                                    @break
+                                                @case('paragraph')
+                                                    <p class="font-poppins text-sm leading-[1.8] mb-5">{!! $block['content'] ?? '' !!}</p>
+                                                    @break
+                                                @case('bullet')
+                                                    <div class="flex gap-2 mb-3 font-poppins text-sm leading-[1.8]">
+                                                        <span class="text-[#FF851B] mt-1 shrink-0">•</span>
+                                                        <div>{!! $block['content'] ?? '' !!}</div>
+                                                    </div>
+                                                    @break
+                                                @case('numbered')
+                                                    <div class="flex gap-2 mb-3 font-poppins text-sm leading-[1.8]">
+                                                        <span class="text-[#FF851B] font-mono text-[10px] mt-1.5 shrink-0">{{ $loop->iteration }}.</span>
+                                                        <div>{!! $block['content'] ?? '' !!}</div>
+                                                    </div>
+                                                    @break
+                                                @case('quote')
+                                                    <blockquote class="font-poppins border-l-[3px] border-[#FF851B] pl-5 my-6 py-1 italic text-white/60 font-medium">
+                                                        {!! $block['content'] ?? '' !!}
+                                                    </blockquote>
+                                                    @break
+                                                @case('code')
+                                                    <pre class="bg-black/50 border border-white/10 rounded-lg p-4 my-5 overflow-x-auto"><code class="font-mono text-xs text-[#a3ff6b]">{!! $block['content'] ?? '' !!}</code></pre>
+                                                    @break
+                                                @case('image')
+                                                    @if(!empty($block['src']))
+                                                        <figure class="my-6">
+                                                            <img src="{{ $block['src'] }}" alt="{{ $block['caption'] ?? '' }}" class="w-full rounded-xl shadow-md border border-white/10">
+                                                            @if(!empty($block['caption']))
+                                                                <figcaption class="text-center mt-3 font-mono text-[9px] uppercase tracking-widest text-white/40">{{ $block['caption'] }}</figcaption>
+                                                            @endif
+                                                        </figure>
+                                                    @endif
+                                                    @break
+                                                @case('divider')
+                                                    <hr class="my-8 border-t border-white/10">
+                                                    @break
+                                            @endswitch
+                                        @endforeach
+                                    @else
+                                        <p class="text-white/70 font-sans text-[0.85rem] leading-[1.8] whitespace-pre-wrap">{{ $exp->description ?: 'No description added yet.' }}</p>
+                                    @endif
                                 </div>
-
-                                <template x-if="exp.image">
-                                    <div class="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                                        <img :src="exp.image" :alt="exp.title" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500">
-                                    </div>
-                                </template>
 
                                 <div class="h-8"></div>
                             </div>
 
                         </div>
-                    </template>
+                    @endforeach
                 </div>
 
                 <!-- RIGHT / CENTER: Timeline — centered when nothing active, right-aligned when active -->
@@ -1505,25 +1595,26 @@
                             <!-- Connector column -->
                             <div class="flex flex-col items-center mr-6 md:mr-8 w-6 shrink-0">
                                 <!-- Dot -->
-                                <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full transition-all duration-300 shrink-0 flex items-center justify-center relative"
-                                     :class="activeIndex === {{ $i }} ? 'bg-[#FF851B] shadow-[0_0_12px_rgba(255,133,27,0.8)] scale-110' : 'bg-white/40'">
-                                    @if(stripos($exp->duration, 'present') !== false || stripos($exp->duration, 'now') !== false)
-                                    <div class="absolute w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300"
-                                         :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b] shadow-[0_0_8px_rgba(163,255,107,0.8)] scale-110' : 'bg-[#0d0d0d]/80 scale-100'"></div>
+                                <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full transition-all duration-300 shrink-0 flex items-center justify-center relative border border-white/10"
+                                     :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b] shadow-[0_0_12px_rgba(163,255,107,0.5)] scale-110' : 'bg-black/80'">
+                                    @if($exp->is_active)
+                                    <!-- Active indicator -->
+                                    <div class="absolute w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300 border-[1.5px] border-dotted border-white"
+                                         :class="activeIndex === {{ $i }} ? 'bg-[#0A8C5E]' : 'bg-[#FF851B]'"></div>
                                     @endif
                                 </div>
                                 <!-- Line -->
-                                <div class="w-[3px] sm:w-[4px] flex-1 my-2 transition-all duration-300"
-                                     :class="activeIndex === {{ $i }} ? 'bg-[#FF851B]/50' : 'bg-white/15'"></div>
+                                <div class="w-[2px] sm:w-[3px] flex-1 my-2 transition-all duration-300"
+                                     :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b]/50' : 'bg-white/10'"></div>
                             </div>
 
                             <!-- Content column -->
                             <button type="button" @click="select({{ $i }})"
                                     class="pb-12 pt-0 md:pt-1 text-left transition-all duration-300 focus:outline-none flex-1 group"
                                     :class="activeIndex === {{ $i }} ? 'opacity-100' : 'opacity-50 hover:opacity-80'">
-                                <!-- Job Title -->
-                                <div class="font-poppins font-black text-[1.3rem] sm:text-[1.6rem] tracking-wide leading-none mb-4 transition-colors"
-                                     :class="activeIndex === {{ $i }} ? 'text-[#FF851B]' : 'text-white'">
+                                <!-- Job Title & Duration (Modified per request) -->
+                                <div class="font-poppins font-bold text-[1.1rem] sm:text-[1.3rem] tracking-wide leading-none mb-3 transition-colors"
+                                     :class="activeIndex === {{ $i }} ? 'text-[#a3ff6b]' : 'text-white'">
                                     {{ $exp->role }}
                                 </div>
                                 <!-- Bullets -->

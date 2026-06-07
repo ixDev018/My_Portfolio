@@ -68,11 +68,14 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
 
     // Work Experience CRUD
     Route::get('/experiences', [ExperienceController::class, 'index'])->name('admin.experiences.index');
+    Route::post('/experiences/settings', [ExperienceController::class, 'updateSettings'])->name('admin.experiences.settings');
+    Route::get('/experiences/create', [ExperienceController::class, 'create'])->name('admin.experiences.create');
     Route::post('/experiences/store', [ExperienceController::class, 'store'])->name('admin.experiences.store');
     Route::get('/experiences/edit/{id}', [ExperienceController::class, 'edit'])->name('admin.experiences.edit');
-    Route::post('/experiences/update/{id}', [ExperienceController::class, 'update'])->name('admin.experiences.update');
+    Route::match(['post', 'put'], '/experiences/update/{id}', [ExperienceController::class, 'update'])->name('admin.experiences.update');
     Route::post('/experiences/delete/{id}', [ExperienceController::class, 'destroy'])->name('admin.experiences.delete');
     Route::post('/experiences/reorder', [ExperienceController::class, 'reorder'])->name('admin.experiences.reorder');
+    Route::post('/experiences/upload-body-media', [ExperienceController::class, 'uploadBodyMedia'])->name('admin.experiences.upload_body_media');
 
     // Intro Slides CRUD
     Route::get('/intro-slides', [IntroSlideController::class, 'index'])->name('admin.intro_slides.index');

@@ -100,6 +100,11 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<!-- CropperJS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<div x-data="globalSettingsData()">
 
 {{-- Page header --}}
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;">
@@ -107,47 +112,362 @@
         <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Work Experience</h1>
         <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Timeline entries — drag to reorder</p>
     </div>
-    <button onclick="document.getElementById('add-form').classList.toggle('hidden')" class="lt-btn-primary">
-        <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-        Add Experience
-    </button>
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+        <button type="button" @click="settingsModalOpen = true" class="lt-btn-secondary" style="padding:0.55rem; border-radius:0.55rem;" title="Global Background Settings">
+            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+        </button>
+        <a href="{{ route('admin.experiences.create') }}" class="lt-btn-primary" style="text-decoration:none;">
+            <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Add Experience
+        </a>
+    </div>
 </div>
 
-{{-- Add form --}}
-<div id="add-form" class="{{ $errors->any() ? '' : 'hidden' }} lt-form-card">
-    <p style="font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1207;margin-bottom:1rem;">➕ New Work Experience</p>
-    <form action="{{ route('admin.experiences.store') }}" method="POST" enctype="multipart/form-data">
+{{-- Global Background Settings Modal --}}
+<div x-show="settingsModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);" x-cloak>
+    <form action="{{ route('admin.experiences.settings') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-2xl flex flex-col" @click.stop style="background:#fff; border-radius:1rem; max-height:90vh;" @submit="submitForm">
         @csrf
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;">
+        <div style="padding:1.5rem; border-bottom:1px solid #E2DDD3; display:flex; justify-content:space-between; align-items:center; background:#F7F5EE; flex-shrink:0;">
             <div>
-                <label class="lt-label">Company / Organization</label>
-                <input type="text" name="company" value="{{ old('company') }}" required class="lt-input" placeholder="e.g. School Organization">
-                @error('company')<p class="lt-err">{{ $message }}</p>@enderror
+                <h3 style="font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#1a1207; margin:0 0 0.2rem 0;">Default Unselected Background</h3>
+                <p style="font-family:'Inter',sans-serif; font-size:0.75rem; color:#7A7267; margin:0;">Displayed when no specific timeline entry is hovered or selected.</p>
             </div>
-            <div>
-                <label class="lt-label">Role / Position</label>
-                <input type="text" name="role" value="{{ old('role') }}" required class="lt-input" placeholder="e.g. Multimedia Lead">
+            <button type="button" @click="settingsModalOpen = false" style="background:none; border:none; color:#9B9589; cursor:pointer;">
+                <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div style="padding:1.5rem; overflow-y:auto; flex:1;">
+            <div style="display:flex; gap:1.5rem; margin-bottom:1.25rem; flex-wrap:wrap;">
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="exp_default_bg_mode" value="cycle" x-model="bgMode" style="accent-color:#6829AA;">
+                    <span style="font-size:0.85rem; font-weight:600; color:#1a1207;">Cycle Timeline Media</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="radio" name="exp_default_bg_mode" value="custom" x-model="bgMode" style="accent-color:#6829AA;">
+                    <span style="font-size:0.85rem; font-weight:600; color:#1a1207;">Custom Global Media</span>
+                </label>
             </div>
-            <div>
-                <label class="lt-label">Duration (Year Range)</label>
-                <input type="text" name="duration" value="{{ old('duration') }}" required class="lt-input" placeholder="e.g. 2022 – 2025">
-            </div>
-            <div>
-                <label class="lt-label">Cover Image (optional)</label>
-                <input type="file" name="image" accept="image/*"
-                       style="display:block;width:100%;font-size:0.8rem;color:#5A5248;cursor:pointer;">
-            </div>
-            <div style="grid-column:1/-1;">
-                <label class="lt-label">Description</label>
-                <textarea name="description" rows="3" class="lt-input" placeholder="What did you do in this role?">{{ old('description') }}</textarea>
+
+            <div x-show="bgMode === 'custom'" x-collapse>
+                <div style="background:#F7F5EE; border:1px solid #E2DDD3; border-radius:0.75rem; padding:1.25rem; margin-bottom:1.25rem;">
+                    <div style="display:flex; gap:1.25rem; margin-bottom:1rem; flex-wrap:wrap;">
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="exp_default_bg_type" value="image" x-model="bgType" style="accent-color:#6829AA;">
+                            <span style="font-size:0.8rem; color:#5A5248;">Single Image</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="exp_default_bg_type" value="video" x-model="bgType" style="accent-color:#6829AA;">
+                            <span style="font-size:0.8rem; color:#5A5248;">Video (MP4/WebM)</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                            <input type="radio" name="exp_default_bg_type" value="slideshow" x-model="bgType" style="accent-color:#6829AA;">
+                            <span style="font-size:0.8rem; color:#5A5248;">Image Slideshow</span>
+                        </label>
+                    </div>
+
+                    {{-- Image / Video Upload with Preview --}}
+                    <div x-show="bgType !== 'slideshow'"
+                         style="background:#fff; border:1px solid #E2DDD3; border-radius:0.65rem; padding:0.75rem; position:relative;"
+                         :style="isDraggingSingle ? 'border: 2px dashed #6829AA; background: #F3ECFF;' : ''"
+                         @dragover.prevent="isDraggingSingle = true" @dragleave.prevent="isDraggingSingle = false"
+                         @drop.prevent="isDraggingSingle = false; if($event.dataTransfer.files.length) { document.getElementById('bg_media_file_upload').files = $event.dataTransfer.files; processSingleMedia($event.dataTransfer.files[0]); }">
+                         
+                        <input type="file" name="bg_media_file" id="bg_media_file_upload" class="hidden" style="display:none;" :accept="bgType === 'video' ? 'video/mp4,video/webm' : 'image/*'" @change="if($event.target.files.length) processSingleMedia($event.target.files[0])">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:0.6rem;">
+                            <span style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; color:#9B9589; display:block;" x-text="bgType === 'video' ? 'Video Preview' : 'Image Preview'"></span>
+                            <div style="display:flex; gap:0.5rem; align-items:center;">
+                                <button type="button" @click="openSingleCrop()" style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.06em; color:#6829AA; background:transparent; border:none; cursor:pointer; font-weight:700;" x-show="bgType === 'image' && (singleMediaPreviewUrl || hasInitialMedia)">
+                                    <svg style="width:11px; height:11px; display:inline; margin-bottom:1px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg> CROP IMAGE
+                                </button>
+                                <button type="button" @click="document.getElementById('bg_media_file_upload').click()" style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.06em; color:#6829AA; background:transparent; border:none; cursor:pointer; font-weight:700;" x-show="singleMediaPreviewUrl || hasInitialMedia">
+                                    <svg style="width:11px; height:11px; display:inline; margin-bottom:1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> CHANGE MEDIA
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dropzone Empty State -->
+                        <div x-show="!singleMediaPreviewUrl && !hasInitialMedia" 
+                             style="border: 2px dashed #D8D4C8; border-radius:0.5rem; background:#F7F5EE; padding:2rem 1.5rem; text-align:center; cursor:pointer; min-height:140px; transition:all 0.18s;"
+                             @click="document.getElementById('bg_media_file_upload').click()">
+                            <div style="pointer-events:none;">
+                                <div style="width:2.5rem; height:2.5rem; border-radius:50%; background:#EEE6FF; display:flex; align-items:center; justify-content:center; margin:0 auto 0.6rem; color:#6829AA;"><svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></div>
+                                <p style="font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:700; color:#1a1207; margin-bottom:0.15rem;">Media Drop Zone</p>
+                                <p style="font-size:0.72rem; color:#9B9589;">Drop <span x-text="bgType === 'video' ? 'video' : 'image'"></span> file here</p>
+                            </div>
+                        </div>
+
+                        <!-- Preview Image/Video -->
+                        <div x-show="singleMediaPreviewUrl || hasInitialMedia" style="width:100%; border-radius:0.5rem; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; position:relative;">
+                            <!-- Video -->
+                            <video x-show="bgType === 'video'" :src="singleMediaPreviewUrl ? singleMediaPreviewUrl : initialMediaUrl" style="width:100%; max-height:260px; object-fit:contain; display:block;" muted playsinline controls preload="metadata"></video>
+                            
+                            <!-- Image -->
+                            <img x-show="bgType === 'image'" :src="singleMediaPreviewUrl ? singleMediaPreviewUrl : initialMediaUrl" style="width:100%; max-height:260px; object-fit:cover; display:block;">
+                        </div>
+                    </div>
+
+            {{-- Slideshow logic (Copied from edit.blade.php) --}}
+            <div x-show="bgType === 'slideshow'">
+                <style>
+                    .slide-item .slide-actions { opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+                    .slide-item:hover .slide-actions { opacity: 1; pointer-events: auto; }
+                </style>
+                <input type="hidden" name="reordered_bg_gallery" id="reordered_bg_gallery">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                    <label class="lt-label" style="margin:0;">Slideshow Images</label>
+                    <button type="button" @click="triggerSlideshowUpload" class="lt-btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.65rem;" x-show="slides.length > 0">
+                        + Add Image
+                    </button>
+                </div>
+
+                <div id="slideshow-sortable-global" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem;" x-show="slides.length > 0">
+                    <template x-for="(slide, index) in slides" :key="slide.id">
+                        <div class="slide-item" style="display:flex; align-items:center; gap:0.75rem; background:#fff; padding:0.4rem; border-radius:0.4rem; border:1px solid #D8D4C8; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                            <div class="slide-drag-handle-global" style="cursor:grab; padding:0.2rem; color:#C4BDB2;" title="Drag to reorder">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 3h2v2H9V3zm4 0h2v2h-2V3zM9 7h2v2H9V7zm4 0h2v2h-2V7zM9 11h2v2H9v-2zm4 0h2v2h-2v-2zM9 15h2v2H9v-2zm4 0h2v2h-2v-2zM9 19h2v2H9v-2zm4 0h2v2h-2v-2z"/></svg>
+                            </div>
+                            <div style="font-family:'Space Mono', monospace; font-size:0.65rem; font-weight:bold; color:#9B9589; width:1.2rem; text-align:center;">
+                                <span x-text="'#' + (index + 1)"></span>
+                            </div>
+                            <div style="width:4.8rem; height:2.7rem; border-radius:0.25rem; overflow:hidden; background:#eee; flex-shrink:0; border:1px solid rgba(0,0,0,0.1);">
+                                <img :src="slide.url" style="width:100%; height:100%; object-fit:cover; display:block;">
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <p style="font-size:0.75rem; font-weight:600; color:#333; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" x-text="slide.name"></p>
+                                <p style="font-size:0.6rem; font-family:'Space Mono', monospace; color:#6829AA; margin:0; font-weight:600;" x-text="slide.type === 'new' ? 'New Upload' : 'Saved Image'"></p>
+                            </div>
+                            <div class="slide-actions" style="display:flex; gap:0.25rem;">
+                                <button type="button" @click="openCrop(index)" title="Crop Image" style="background:#F3ECFF; color:#6829AA; border:none; padding:0.35rem; border-radius:0.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;" onmouseover="this.style.background='#EADDFC'" onmouseout="this.style.background='#F3ECFF'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+                                </button>
+                                <button type="button" @click="removeSlide(index)" title="Delete Image" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.35rem; border-radius:0.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;" onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEE2E2'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="slides.length === 0" style="padding:1.5rem; border:2px dashed #D8D4C8; border-radius:0.75rem; text-align:center; cursor:pointer; background:#fff; transition:border-color 0.2s;" @click="triggerSlideshowUpload" onmouseover="this.style.borderColor='#6829AA'" onmouseout="this.style.borderColor='#D8D4C8'">
+                    <svg style="width:24px; height:24px; margin:0 auto 0.5rem; color:#9B9589;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span style="font-size:0.8rem; color:#5A5248; font-weight:600;">Click to add images to the slideshow</span>
+                </div>
+                <input type="file" id="slideshow-upload-input-global" accept="image/*" multiple @change="handleSlideshowFile" style="display:none;">
             </div>
         </div>
-        <div style="margin-top:1rem;display:flex;justify-content:flex-end;gap:0.65rem;">
-            <button type="button" onclick="document.getElementById('add-form').classList.add('hidden')" class="lt-btn-secondary">Cancel</button>
-            <button type="submit" class="lt-btn-primary">Save</button>
+    </div>
+    </div> <!-- end scrollable area -->
+
+    <div style="padding:1rem 1.5rem; border-top:1px solid #E2DDD3; background:#F7F5EE; display:flex; justify-content:flex-end; gap:0.75rem; flex-shrink:0;">
+        <button type="button" @click="settingsModalOpen = false" class="lt-btn-secondary">Cancel</button>
+        <button type="submit" class="lt-btn-primary" :disabled="isSubmitting">
+            <span x-text="isSubmitting ? 'Saving...' : 'Save Settings'"></span>
+        </button>
+    </div>
+
+    {{-- Cropper Modal (z-index higher than settings modal) --}}
+    <div x-show="cropModalOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-4xl flex flex-col" @click.stop style="background:#fff; border-radius:1rem; width:100%; max-width:800px;">
+            <div style="padding:1.5rem; border-bottom:1px solid #E2DDD3; display:flex; justify-content:space-between; align-items:center; background:#F7F5EE;">
+                <h3 style="font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#1a1207; margin:0;">Crop Image</h3>
+                <button type="button" @click="closeCrop()" style="background:none; border:none; color:#9B9589; cursor:pointer;">
+                    <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div style="padding:1.5rem; background:#111; height:450px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <div style="width:100%; height:100%; max-height:100%;">
+                    <img id="cropper-image-global" src="" style="max-width:100%; max-height:100%; display:block; margin:0 auto;">
+                </div>
+            </div>
+            <div style="padding:1rem 1.5rem; border-top:1px solid #E2DDD3; background:#F7F5EE; display:flex; justify-content:flex-end; gap:0.75rem;">
+                <button type="button" @click="closeCrop()" class="lt-btn-secondary">Cancel</button>
+                <button type="button" @click="saveCrop()" class="lt-btn-primary">Apply Crop</button>
+            </div>
         </div>
+    </div>
     </form>
 </div>
+
+<script>
+function globalSettingsData() {
+    return {
+        settingsModalOpen: false,
+        bgMode: '{{ $profile->exp_default_bg_mode ?? 'cycle' }}',
+        bgType: '{{ $profile->exp_default_bg_type ?? 'image' }}',
+        isSubmitting: false,
+        
+        // Single Media state
+        isDraggingSingle: false,
+        singleMediaPreviewUrl: null,
+        singleCroppedBase64: '',
+        hasInitialMedia: {{ ($profile && $profile->exp_default_bg_media_path) ? 'true' : 'false' }},
+        initialMediaUrl: '{{ ($profile && $profile->exp_default_bg_media_path) ? asset('storage/' . $profile->exp_default_bg_media_path) : '' }}',
+
+        // Slideshow state
+        slides: [],
+        cropModalOpen: false,
+        currentCropIndex: null,
+        cropper: null,
+
+        init() {
+            this.$watch('bgType', (value) => {
+                // Keep file input in sync if changed type, but basically rely on new uploads
+                this.singleMediaPreviewUrl = null; 
+            });
+            const existing = @json($profile->exp_default_bg_gallery_images ?? []);
+            this.slides = existing.map((path, idx) => ({
+                id: 'existing_' + idx,
+                type: 'existing',
+                path: path,
+                url: '{{ asset('storage') }}/' + path,
+                name: path.split('/').pop()
+            }));
+
+            this.$nextTick(() => {
+                const el = document.getElementById('slideshow-sortable-global');
+                if (el && typeof Sortable !== 'undefined') {
+                    new Sortable(el, {
+                        animation: 150,
+                        handle: '.slide-drag-handle-global',
+                        onEnd: (evt) => {
+                            const item = this.slides.splice(evt.oldIndex, 1)[0];
+                            this.slides.splice(evt.newIndex, 0, item);
+                        }
+                    });
+                }
+            });
+        },
+
+        processSingleMedia(file) {
+            if (!file) return;
+            this.singleMediaPreviewUrl = URL.createObjectURL(file);
+            this.singleCroppedBase64 = ''; // Reset crop when new file uploaded
+        },
+
+        triggerSlideshowUpload() {
+            document.getElementById('slideshow-upload-input-global').click();
+        },
+
+        handleSlideshowFile(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            for(let i=0; i<files.length; i++) {
+                const f = files[i];
+                const url = URL.createObjectURL(f);
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.slides.push({
+                        id: 'new_' + Date.now() + '_' + i,
+                        type: 'new',
+                        file: f,
+                        url: url,
+                        croppedBase64: e.target.result,
+                        name: f.name
+                    });
+                };
+                reader.readAsDataURL(f);
+            }
+            e.target.value = '';
+        },
+
+        removeSlide(index) {
+            this.slides.splice(index, 1);
+        },
+
+        openSingleCrop() {
+            this.cropModalOpen = true;
+            this.currentCropIndex = 'single';
+            
+            this.$nextTick(() => {
+                const img = document.getElementById('cropper-image-global');
+                img.src = this.singleMediaPreviewUrl || this.initialMediaUrl;
+                
+                if (this.cropper) {
+                    this.cropper.destroy();
+                }
+                this.cropper = new Cropper(img, {
+                    viewMode: 2,
+                });
+            });
+        },
+
+        openCrop(index) {
+            this.currentCropIndex = index;
+            this.cropModalOpen = true;
+            
+            this.$nextTick(() => {
+                const img = document.getElementById('cropper-image-global');
+                img.src = this.slides[index].url;
+                
+                if (this.cropper) {
+                    this.cropper.destroy();
+                }
+                this.cropper = new Cropper(img, {
+                    viewMode: 2,
+                });
+            });
+        },
+
+        closeCrop() {
+            this.cropModalOpen = false;
+            if (this.cropper) {
+                this.cropper.destroy();
+                this.cropper = null;
+            }
+        },
+
+        saveCrop() {
+            if (!this.cropper) return;
+            const canvas = this.cropper.getCroppedCanvas();
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            
+            if (this.currentCropIndex === 'single') {
+                this.singleMediaPreviewUrl = dataUrl;
+                this.singleCroppedBase64 = dataUrl;
+                const fileInput = document.getElementById('bg_media_file_upload');
+                if(fileInput) fileInput.value = ''; // clear original file
+            } else {
+                const slide = this.slides[this.currentCropIndex];
+                slide.url = dataUrl;
+                slide.croppedBase64 = dataUrl;
+            }
+            
+            this.closeCrop();
+        },
+
+        submitForm(e) {
+            this.isSubmitting = true;
+            let slideshowData = this.slides.map(s => {
+                if (s.type === 'existing') {
+                    if (s.croppedBase64) {
+                        return { type: 'new', data: s.croppedBase64 };
+                    }
+                    return { type: 'existing', path: s.path };
+                }
+                return { type: 'new', data: s.croppedBase64 };
+            });
+            document.getElementById('reordered_bg_gallery').value = JSON.stringify(slideshowData);
+            
+            // Add hidden input for single cropped base64
+            if (this.singleCroppedBase64) {
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'single_cropped_base64';
+                input.value = this.singleCroppedBase64;
+                e.target.appendChild(input);
+            }
+        }
+    }
+}
+</script>
+
 
 {{-- Experience list --}}
 <div class="lt-card">
@@ -167,7 +487,7 @@
     @else
         <ul id="experience-list" style="list-style:none;padding:0;margin:0;">
             @foreach($experiences as $exp)
-                <li data-id="{{ $exp->id }}" x-data="{ editing: false, menuOpen: false }" @click.outside="menuOpen = false">
+                <li data-id="{{ $exp->id }}" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
                     <div class="exp-row">
 
                         {{-- Drag handle --}}
@@ -185,54 +505,21 @@
                         @endif
 
                         {{-- Info (view mode) --}}
-                        <div style="flex:1;min-width:0;" x-show="!editing">
+                        <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.2rem;">
-                                <span style="font-weight:700;color:#1a1207;font-size:0.875rem;">{{ $exp->company }}</span>
+                                <span style="font-weight:700;color:#1a1207;font-size:0.875rem;">
+                                    {{ $exp->company }}
+                                    @if($exp->is_active)
+                                        <span style="display:inline-block; width:6px; height:6px; background:#0A8C5E; border-radius:50%; margin-left:4px;" title="Active"></span>
+                                    @endif
+                                </span>
                                 <span class="badge-duration">{{ $exp->duration }}</span>
                             </div>
                             <p style="font-size:0.78rem;color:#7A7267;">{{ $exp->role }}</p>
-                            @if($exp->description)
-                                <p style="font-size:0.72rem;color:#B0A99F;margin-top:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;">
-                                    {{ Str::limit($exp->description, 85) }}
-                                </p>
-                            @endif
-                        </div>
-
-                        {{-- Inline edit --}}
-                        <div x-show="editing" style="display:none;flex:1;">
-                            <form action="{{ route('admin.experiences.update', $exp->id) }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">
-                                    <div>
-                                        <label class="lt-label">Company</label>
-                                        <input type="text" name="company" value="{{ $exp->company }}" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
-                                    </div>
-                                    <div>
-                                        <label class="lt-label">Role</label>
-                                        <input type="text" name="role" value="{{ $exp->role }}" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
-                                    </div>
-                                    <div>
-                                        <label class="lt-label">Duration</label>
-                                        <input type="text" name="duration" value="{{ $exp->duration }}" required class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">
-                                    </div>
-                                    <div>
-                                        <label class="lt-label">Replace Image</label>
-                                        <input type="file" name="image" accept="image/*" style="font-size:0.78rem;color:#5A5248;cursor:pointer;">
-                                    </div>
-                                    <div style="grid-column:1/-1;">
-                                        <label class="lt-label">Description</label>
-                                        <textarea name="description" rows="2" class="lt-input" style="padding:0.35rem 0.65rem;font-size:0.78rem;">{{ $exp->description }}</textarea>
-                                    </div>
-                                </div>
-                                <div style="display:flex;gap:0.5rem;margin-top:0.65rem;">
-                                    <button type="submit" class="lt-btn-primary" style="padding:0.38rem 0.9rem;font-size:0.73rem;">Update</button>
-                                    <button type="button" @click="editing=false" class="lt-btn-secondary" style="padding:0.38rem 0.7rem;font-size:0.73rem;">Cancel</button>
-                                </div>
-                            </form>
                         </div>
 
                         {{-- Actions --}}
-                        <div style="flex-shrink:0; position:relative; z-index:20;" x-show="!editing">
+                        <div style="flex-shrink:0; position:relative; z-index:20;">
                             <div class="cms-dots-wrap">
                                 <button class="cms-dots-btn"
                                         :class="menuOpen ? 'open' : ''"
@@ -252,10 +539,10 @@
                                      x-transition:leave-start="opacity-100 scale-100"
                                      x-transition:leave-end="opacity-0 scale-95"
                                      @click.stop>
-                                    <button @click="editing = true; menuOpen = false">
+                                    <a href="{{ route('admin.experiences.edit', $exp->id) }}" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; color:#1a1207; font-size:0.8rem; text-decoration:none;" @click="menuOpen = false">
                                         <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         Edit
-                                    </button>
+                                    </a>
                                     <div class="cms-dd-divider"></div>
                                     <form action="{{ route('admin.experiences.delete', $exp->id) }}" method="POST"
                                           @submit.prevent="if(confirm('Delete this experience?')) $el.submit()">
@@ -293,5 +580,7 @@
         });
     }
 </script>
+
+</div> {{-- end x-data wrapper --}}
 
 @endsection

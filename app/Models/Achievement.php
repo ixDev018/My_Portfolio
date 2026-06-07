@@ -12,5 +12,6 @@ class Achievement extends Model
         'year',
         'type',
         'description',
+        'media_path',
     ];
 }

@@ -366,7 +366,8 @@
                 @endforeach
 
                 <!-- Interactive Tool Modal -->
-                <div x-show="toolModal.show" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <template x-teleport="body">
+                <div x-show="toolModal.show" style="display: none;" class="relative z-[9999]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                     <!-- Dimmed Backdrop -->
                     <div x-show="toolModal.show"
                          x-transition:enter="ease-out duration-300"
@@ -438,6 +439,7 @@
                         </div>
                     </div>
                 </div>
+                </template>
 
             </div>
         </div>
@@ -450,7 +452,8 @@
         </div>
 
         <!-- Interactive Skill Modal -->
-        <div x-show="skillModal.show" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <template x-teleport="body">
+        <div x-show="skillModal.show" style="display: none;" class="relative z-[9999]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <!-- Dimmed Backdrop -->
             <div x-show="skillModal.show"
                  x-transition:enter="ease-out duration-300"
@@ -524,6 +527,7 @@
                         </div>
                     </div>
                 </div>
+        </template>
             </div>
         </div>
 
@@ -1218,7 +1222,7 @@
                             <!-- Card -->
                             <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
                                  x-transition.opacity
-                                 @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}' }"
+                                 @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}', media_path: {{ Js::from($item->media_path ? asset('storage/' . $item->media_path) : null) }} }"
                                  class="flex-none snap-center lg:snap-start group cursor-pointer relative"
                                  style="width: min(78vw, 300px);">
                                  
@@ -1326,23 +1330,25 @@
                     </button>
 
                     <!-- Left Content -->
-                    <div class="flex-1 flex flex-col justify-center pt-2 md:pt-4 min-h-0">
+                    <div class="flex-1 flex flex-col justify-center pt-2 md:pt-4 min-h-0 min-w-0">
                         <div class="mb-4 md:mb-6 px-4 md:px-0 shrink-0 text-center md:text-left">
                             <span class="px-3 md:px-4 py-1 md:py-1.5 bg-[#5e17eb] text-white font-semibold text-[10px] md:text-[11px] uppercase tracking-widest rounded-full mb-3 md:mb-6 inline-block" x-text="selectedItem.type"></span>
-                            <h4 class="text-2xl md:text-4xl font-bold tracking-tight text-black leading-tight mb-2 md:mb-3 font-sans line-clamp-2 md:line-clamp-none" x-text="selectedItem.title"></h4>
-                            <p class="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wider font-sans" x-text="selectedItem.issuer"></p>
+                            <h4 class="text-2xl md:text-4xl font-bold tracking-tight text-black leading-tight mb-2 md:mb-3 font-sans line-clamp-2 md:line-clamp-none break-words" x-text="selectedItem.title"></h4>
+                            <p class="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wider font-sans break-words" x-text="selectedItem.issuer"></p>
                         </div>
 
                         <!-- Mobile Image (Interlaced, Adaptive) -->
                         <div class="flex-1 min-h-[100px] flex items-center justify-center mb-4 md:mb-6 md:hidden">
                             <div class="h-full aspect-[9/16] bg-[#d1d5db] rounded-[1.25rem] overflow-hidden relative shadow-inner max-w-full">
-                                <!-- Placeholder for slider -->
+                                <template x-if="selectedItem && selectedItem.media_path">
+                                    <img :src="selectedItem.media_path" class="w-full h-full object-cover" alt="Achievement Media">
+                                </template>
                             </div>
                         </div>
 
                         <div class="h-px bg-gray-100 w-full mb-4 md:mb-6 hidden md:block shrink-0"></div>
 
-                        <p class="text-gray-600 font-sans leading-relaxed text-[13px] md:text-[15px] shrink-0 line-clamp-3 md:line-clamp-none text-center md:text-left" x-text="selectedItem.description"></p>
+                        <p class="text-gray-600 font-sans leading-relaxed text-[13px] md:text-[15px] shrink-0 line-clamp-3 md:line-clamp-none text-center md:text-left break-words" x-text="selectedItem.description"></p>
                         
                         <div class="mt-4 md:mt-8 text-center md:text-left shrink-0">
                             <span class="font-semibold text-[11px] md:text-sm bg-gray-100 text-black px-4 md:px-5 py-2 rounded-full font-sans inline-block" x-text="'Awarded: ' + selectedItem.year"></span>
@@ -1352,7 +1358,9 @@
                     <!-- Right Content (Image Slider Placeholder - Desktop only) -->
                     <div class="hidden md:block w-full md:w-[35%] flex-shrink-0">
                         <div class="w-full aspect-[9/16] bg-[#d1d5db] rounded-[1.5rem] overflow-hidden relative shadow-inner">
-                            <!-- Placeholder for slider -->
+                            <template x-if="selectedItem && selectedItem.media_path">
+                                <img :src="selectedItem.media_path" class="w-full h-full object-cover" alt="Achievement Media">
+                            </template>
                         </div>
                     </div>
                 </div>

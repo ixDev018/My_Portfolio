@@ -333,8 +333,8 @@
                 </div>
 
                 <div class="flex items-center gap-4 flex-wrap">
-                    <!-- Switchable Category Tabs -->
-                    <div class="flex gap-2">
+                    <!-- Switchable Category Tabs & Globe Settings Icon -->
+                    <div class="flex gap-2 items-center">
                         @foreach($rowLabels as $label)
                             <button @click="toolTab = '{{ $label }}'" 
                                     :class="toolTab === '{{ $label }}' ? 'active' : ''"
@@ -342,6 +342,11 @@
                                 {{ $label }}
                             </button>
                         @endforeach
+                        
+                        <!-- Settings / Rename Globe Icon -->
+                        <button type="button" @click="openRenameModal()" class="text-[#888] hover:text-[#4dd9f0] p-1.5 bg-[#F7F5EE] border border-[#D8D4C8] rounded-md shadow-sm transition-colors ml-2" title="Rename Marquee Category">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </button>
                     </div>
 
                     <!-- Add Button -->
@@ -483,6 +488,34 @@
                 </form>
             </div>
         </div>
+
+        <!-- Rename Category Modal -->
+        <div x-show="isRenameModalOpen" x-cloak class="lt-modal-overlay">
+            <div class="lt-modal-content" @click.outside="isRenameModalOpen = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0" style="max-width: 400px;">
+                <button type="button" @click="isRenameModalOpen = false" class="lt-modal-close">
+                    <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <h3 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1207;margin-bottom:1.25rem;">Rename Category</h3>
+                
+                <form action="{{ route('admin.tools.rename_row') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="old_label" :value="renameFormData.old_label">
+                    
+                    <div>
+                        <label for="new_label" class="lt-label">New Category Name</label>
+                        <input type="text" name="new_label" id="new_label" required class="lt-input" x-model="renameFormData.new_label" autofocus>
+                    </div>
+
+                    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;gap:0.75rem;">
+                        <button type="button" @click="isRenameModalOpen = false" class="lt-btn-secondary">Cancel</button>
+                        <button type="submit" class="lt-btn-primary" style="background:#FF851B;">Rename</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -504,6 +537,8 @@
                 proficiency: 5,
                 old_image: ''
             },
+            isRenameModalOpen: false,
+            renameFormData: { old_label: '', new_label: '' },
             imageSelected: false,
             cropper: null,
             croppedData: '',
@@ -513,6 +548,12 @@
                 this.formData = { id: null, name: '', tooltip_info: '', row_label: '', proficiency: 5, old_image: '' };
                 this.resetImage();
                 this.isModalOpen = true;
+            },
+
+            openRenameModal() {
+                this.renameFormData.old_label = this.toolTab;
+                this.renameFormData.new_label = this.toolTab;
+                this.isRenameModalOpen = true;
             },
 
             openEditModal(tool) {

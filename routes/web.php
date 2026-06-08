@@ -90,4 +90,5 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::post('/tools/store', [AdminController::class, 'toolItemsStore'])->name('admin.tools.store');
     Route::post('/tools/update/{id}', [AdminController::class, 'toolItemsUpdate'])->name('admin.tools.update');
     Route::post('/tools/delete/{id}', [AdminController::class, 'toolItemsDestroy'])->name('admin.tools.delete');
+    Route::post('/tools/rename-row', [AdminController::class, 'toolItemsRenameRow'])->name('admin.tools.rename_row');
 });

@@ -223,7 +223,7 @@
     <!-- SKILLS SECTION -->
     <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-16 relative">
         
-        <div class="w-full flex flex-col border-y border-black relative z-10">
+        <div class="w-full flex flex-col border-t border-black relative z-10">
             
             @php
                 $categoryColors = [

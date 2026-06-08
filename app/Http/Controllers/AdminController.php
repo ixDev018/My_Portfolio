@@ -754,4 +754,16 @@ class AdminController extends Controller
 
         return redirect()->route('admin.skills.index')->with('success', 'Tool item updated!');
     }
+
+    public function toolItemsRenameRow(Request $request)
+    {
+        $request->validate([
+            'old_label' => 'required|string|max:100',
+            'new_label' => 'required|string|max:100',
+        ]);
+
+        ToolItem::where('row_label', $request->old_label)->update(['row_label' => $request->new_label]);
+
+        return redirect()->route('admin.skills.index')->with('success', 'Marquee row renamed successfully!');
+    }
 }

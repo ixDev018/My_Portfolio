@@ -43,12 +43,40 @@ class ExperienceController extends Controller
             $validated['body_content'] = json_decode($validated['body_content'], true);
         }
 
-        if ($request->hasFile('image')) {
+        if ($request->filled('image_base64')) {
+            $data = $request->input('image_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
+                    $data = base64_decode($data);
+                    if ($data !== false) {
+                        $filename = 'experiences/' . uniqid() . '.' . $ext;
+                        Storage::disk('public')->put($filename, $data);
+                        $validated['image_path'] = $filename;
+                    }
+                }
+            }
+        } elseif ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('experiences', 'public');
         }
 
         // Handle Background Media
-        if ($request->hasFile('bg_media_file')) {
+        if ($request->filled('bg_media_base64') && $validated['bg_media_type'] === 'image') {
+            $data = $request->input('bg_media_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
+                    $data = base64_decode($data);
+                    if ($data !== false) {
+                        $filename = 'experiences/bg/' . uniqid() . '.' . $ext;
+                        Storage::disk('public')->put($filename, $data);
+                        $validated['bg_media_path'] = $filename;
+                    }
+                }
+            }
+        } elseif ($request->hasFile('bg_media_file')) {
             $validated['bg_media_path'] = $request->file('bg_media_file')->store('experiences/bg', 'public');
         }
 
@@ -113,14 +141,48 @@ class ExperienceController extends Controller
             $validated['body_content'] = null;
         }
 
-        if ($request->hasFile('image')) {
+        if ($request->filled('image_base64')) {
+            $data = $request->input('image_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
+                    $data = base64_decode($data);
+                    if ($data !== false) {
+                        if ($experience->image_path) {
+                            Storage::disk('public')->delete($experience->image_path);
+                        }
+                        $filename = 'experiences/' . uniqid() . '.' . $ext;
+                        Storage::disk('public')->put($filename, $data);
+                        $validated['image_path'] = $filename;
+                    }
+                }
+            }
+        } elseif ($request->hasFile('image')) {
             if ($experience->image_path) {
                 Storage::disk('public')->delete($experience->image_path);
             }
             $validated['image_path'] = $request->file('image')->store('experiences', 'public');
         }
 
-        if ($request->hasFile('bg_media_file')) {
+        if ($request->filled('bg_media_base64') && $validated['bg_media_type'] === 'image') {
+            $data = $request->input('bg_media_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
+                    $data = base64_decode($data);
+                    if ($data !== false) {
+                        if ($experience->bg_media_path) {
+                            Storage::disk('public')->delete($experience->bg_media_path);
+                        }
+                        $filename = 'experiences/bg/' . uniqid() . '.' . $ext;
+                        Storage::disk('public')->put($filename, $data);
+                        $validated['bg_media_path'] = $filename;
+                    }
+                }
+            }
+        } elseif ($request->hasFile('bg_media_file')) {
             if ($experience->bg_media_path) {
                 Storage::disk('public')->delete($experience->bg_media_path);
             }

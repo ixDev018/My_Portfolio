@@ -264,7 +264,7 @@
             </button>
             <h3 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1207;margin-bottom:1.25rem;" x-text="mode === 'add' ? 'New Slide' : 'Edit Slide'"></h3>
 
-            <form :action="mode === 'add' ? '{{ route('admin.intro_slides.store') }}' : '{{ url('admin/intro_slides') }}/' + form.id" method="POST" enctype="multipart/form-data" @submit="onSubmit">
+            <form :action="mode === 'add' ? '{{ route('admin.intro_slides.store') }}' : '{{ url('admin/intro-slides/update') }}/' + form.id" method="POST" enctype="multipart/form-data" @submit="onSubmit">
                 @csrf
                 <input type="hidden" name="image_data" x-model="croppedData">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;">
@@ -285,7 +285,7 @@
                         
                         <!-- Shows if no new image selected AND no old image exists AND NOT cropping -->
                         <div x-show="!imagePreviewUrl && !form.old_image && !isCropping" class="relative w-full h-32 border-2 border-dashed border-[#D8D4C8] hover:border-[#6829AA] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors bg-[#F7F5EE] overflow-hidden group">
-                            <input type="file" @change="fileSelected" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <input type="file" name="image" @change="fileSelected" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                             <svg class="w-8 h-8 text-[#9B9589] group-hover:text-[#6829AA] mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span class="text-xs text-[#9B9589] font-semibold group-hover:text-[#6829AA] transition-colors">Click or drag image</span>
                         </div>
@@ -299,7 +299,7 @@
                                 </button>
                             </div>
 
-                            <input type="file" @change="fileSelected" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to replace image">
+                            <input type="file" name="image" @change="fileSelected" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to replace image">
                             <template x-if="imagePreviewUrl || form.old_image">
                                 <img :src="imagePreviewUrl ? imagePreviewUrl : '{{ asset('storage') }}/' + form.old_image" class="h-full w-auto object-cover opacity-90 group-hover:opacity-60 transition-opacity">
                             </template>

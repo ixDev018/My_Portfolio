@@ -116,33 +116,253 @@
 
         </div>
 
-        <!-- Organic Deep Purple Wave SVG at bottom -->
-        <div class="w-full leading-none z-10 -mb-[1px]">
-            <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-[40px] md:h-[60px]">
-                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z" fill="#512b81"></path>
-            </svg>
         </div>
     </section>
 
     <!-- SELF INTRO SECTION -->
-    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col min-h-[90vh]" x-data="{
-        slide: 0,
-        total: {{ $introSlides->count() }},
-        prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
-        next() { this.slide = (this.slide + 1) % this.total; }
-    }">
+    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col min-h-[90vh] overflow-hidden -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20 wave-mask">
 
-        <!-- Section Header -->
-        <div class="text-center pt-5 pb-4 px-6">
-            <h2 class="text-xl font-display uppercase tracking-[0.3em] text-white">Introduction</h2>
+        <!-- Floating 2D Visualizers -->
+        <style>
+            /* Wave Mask for clipping shapes to the top wave */
+            .wave-mask {
+                -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), linear-gradient(black, black);
+                -webkit-mask-size: 100% 40px, 100% calc(100% - 20px);
+                -webkit-mask-position: top left, bottom left;
+                -webkit-mask-repeat: no-repeat;
+                mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), linear-gradient(black, black);
+                mask-size: 100% 40px, 100% calc(100% - 20px);
+                mask-position: top left, bottom left;
+                mask-repeat: no-repeat;
+            }
+            @media (min-width: 768px) {
+                .wave-mask {
+                    -webkit-mask-size: 100% 60px, 100% calc(100% - 40px);
+                    mask-size: 100% 60px, 100% calc(100% - 40px);
+                }
+            }
+
+            @keyframes travelLeft {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(-25px, 0px) rotate(-15deg) scale(0.95); }
+            }
+            @keyframes travelRight {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(25px, 0px) rotate(15deg) scale(0.95); }
+            }
+            @keyframes travelUp {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(0px, -25px) rotate(-10deg) scale(0.95); }
+            }
+            @keyframes travelDown {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(0px, 25px) rotate(10deg) scale(0.95); }
+            }
+            @keyframes morphShape {
+                0%, 100% { border-radius: 0%; transform: scale(1) rotate(0deg); }
+                50% { border-radius: 50%; transform: scale(0.85) rotate(45deg); }
+            }
+            @keyframes pulseDotOpacity {
+                0% { opacity: 0.1; }
+                100% { opacity: 1; }
+            }
+            /* Smooth sine easing for buttery subtle animations */
+            .anim-travel-left { animation: travelLeft 16s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+            .anim-travel-right { animation: travelRight 17s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+            .anim-travel-up { animation: travelUp 18s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+            .anim-travel-down { animation: travelDown 19s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+            .anim-morph { animation: morphShape 15s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+            .anim-dot-1 { animation: pulseDotOpacity 1.4s ease-in-out infinite alternate; }
+            .anim-dot-2 { animation: pulseDotOpacity 2.1s ease-in-out infinite alternate 0.5s; }
+            .anim-dot-3 { animation: pulseDotOpacity 1.8s ease-in-out infinite alternate 0.2s; }
+            .anim-dot-4 { animation: pulseDotOpacity 2.5s ease-in-out infinite alternate 0.7s; }
+            @keyframes drawLine {
+                0% { stroke-dashoffset: 100; }
+                50% { stroke-dashoffset: 0; }
+                100% { stroke-dashoffset: -100; }
+            }
+            .anim-draw-line { stroke-dasharray: 100; animation: drawLine 6s ease-in-out infinite; }
+        </style>
+
+        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+            shapes: [],
+            shown: false,
+            init() {
+                // Pre-defined perfectly balanced aesthetic composition (no randomness to prevent clashing)
+                // Creates a perfect 360-degree frame strictly along the outer edges (Top, Bottom, Left, Right)
+                // Creates a perfect 360-degree frame strictly along the outer edges (Top, Bottom, Left, Right)
+                this.shapes = [
+                    // --- DOTTED GRIDS (Anchored to the absolute hard corners) ---
+                    { type: 'dots', color: 'text-white/25', top: '-2%', left: '-2%', size: '180px', anim: 'anim-travel-right', delay: '-1s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-white/25', top: '-2%', left: '93%', size: '180px', anim: 'anim-travel-left', delay: '-5s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-white/25', top: '88%', left: '-2%', size: '180px', anim: 'anim-travel-up', delay: '-3s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-white/25', top: '88%', left: '93%', size: '180px', anim: 'anim-travel-down', delay: '-8s', rotation: '0deg' },
+
+                    // --- LINE ANIMATIONS (Dynamic 'drawing' paths to add energetic motion) ---
+                    { type: 'zigzag', color: 'text-[#4dd9f0]', top: '15%', left: '15%', size: '100px', anim: 'anim-travel-up', delay: '-2s', rotation: '20deg' },
+                    { type: 'wave', color: 'text-[#FF851B]', top: '12%', left: '75%', size: '120px', anim: 'anim-travel-down', delay: '-6s', rotation: '-15deg' },
+                    { type: 'straight-line', color: 'text-[#d0f69a]', top: '65%', left: '12%', size: '150px', anim: 'anim-travel-right', delay: '-4s', rotation: '45deg', lowOpMobile: true },
+                    { type: 'cross', color: 'text-[#4dd9f0]', top: '60%', left: '80%', size: '80px', anim: 'anim-travel-left', delay: '-7s', rotation: '10deg', lowOpMobile: true },
+
+                    // --- CORNERS (Always visible, responsive size) ---
+                    { type: 'morph', color: 'text-[#4dd9f0]', top: '4%', left: '4%', size: '170px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' }, // Top-Left
+                    { type: 'half-circle', color: 'text-[#d0f69a]', top: '4%', left: '88%', size: '160px', anim: 'anim-travel-down', delay: '-4s', rotation: '80deg' }, // Top-Right
+                    { type: 'right-triangle', color: 'text-[#d0f69a]', top: '73%', left: '4%', size: '150px', anim: 'anim-travel-down', delay: '-8s', rotation: '-15deg', lowOpMobile: true }, // Bottom-Left
+                    { type: 'quarter-circle', color: 'text-[#FF851B]', top: '73%', left: '88%', size: '150px', anim: 'anim-travel-left', delay: '-2s', rotation: '25deg', lowOpMobile: true }, // Bottom-Right
+
+                    // --- TOP EDGE (Hidden on mobile to prevent title clash) ---
+                    { type: 'stairs', desktopOnly: true, color: 'text-[#FF851B]', top: '2%', left: '30%', size: '130px', anim: 'anim-travel-right', delay: '-3s', rotation: '45deg' },
+                    { type: 'pill', desktopOnly: true, color: 'text-[#4dd9f0]', top: '6%', left: '65%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
+
+                    // --- BOTTOM EDGE (Translucent watermark on mobile) ---
+                    { type: 'circle', color: 'text-[#d0f69a]', top: '75%', left: '35%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
+                    { type: 'diamond', color: 'text-[#4dd9f0]', top: '71%', left: '60%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
+
+                    // --- LEFT EDGE (Always visible, responsive size) ---
+                    { type: 'circle', color: 'text-[#4dd9f0]', top: '27%', left: '2%', size: '140px', anim: 'anim-travel-left', delay: '-3s', rotation: '-20deg' },
+                    { type: 'pill', color: 'text-[#FF851B]', top: '50%', left: '5%', size: '160px', anim: 'anim-travel-right', delay: '-6s', rotation: '45deg', lowOpMobile: true },
+
+                    // --- RIGHT EDGE (Always visible, responsive size) ---
+                    { type: 'diamond', color: 'text-[#FF851B]', top: '27%', left: '94%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '-30deg' },
+                    { type: 'morph', color: 'text-[#4dd9f0]', top: '50%', left: '91%', size: '170px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true }
+                ];
+
+                // Scroll observer to trigger pop-in animation
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        this.shown = true;
+                        observer.disconnect(); // Only animate once
+                    }
+                }, { threshold: 0.1 }); // Trigger when 10% of section is visible
+                observer.observe(this.$el);
+            }
+        }">
+            <template x-for="(shape, index) in shapes" :key="index">
+                <!-- Outer wrapper: Handles absolute positioning and the pop-in scroll transition -->
+                <div class="absolute items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-center"
+                     :class="[
+                        shown ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
+                        shape.desktopOnly ? 'hidden md:flex' : 'flex'
+                     ]"
+                     :style="`top: ${shape.top}; left: ${shape.left}; width: clamp(50px, 12vw, ${shape.size}); height: clamp(50px, 12vw, ${shape.size}); transition-delay: ${index * 80}ms;`">
+                    
+                    <!-- Inner wrapper: Handles the continuous travel animation -->
+                    <div class="w-full h-full flex items-center justify-center transition-opacity duration-500"
+                         :class="[shape.anim, shape.color, shape.lowOpMobile ? 'opacity-20 md:opacity-100' : '']"
+                         :style="`animation-delay: ${shape.delay};`">
+                         
+                        <!-- Shape rotation container -->
+                        <div class="w-full h-full flex items-center justify-center" :style="`transform: rotate(${shape.rotation});`">
+                            
+                            <!-- Bauhaus Half Circle -->
+                            <template x-if="shape.type === 'half-circle'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <path d="M 0 50 A 50 50 0 0 1 100 50 Z" />
+                            </svg>
+                        </template>
+                        
+                        <!-- Bauhaus Right Triangle -->
+                        <template x-if="shape.type === 'right-triangle'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <polygon points="0,0 100,100 0,100" />
+                            </svg>
+                        </template>
+
+                        <!-- Morphing Square to Circle -->
+                        <template x-if="shape.type === 'morph'">
+                            <div class="w-full h-full bg-current anim-morph"></div>
+                        </template>
+
+                        <!-- Solid Circle -->
+                        <template x-if="shape.type === 'circle'">
+                            <div class="w-full h-full rounded-full bg-current"></div>
+                        </template>
+
+                        <!-- Quarter Circle -->
+                        <template x-if="shape.type === 'quarter-circle'">
+                            <div class="w-full h-full bg-current rounded-tl-full"></div>
+                        </template>
+
+                        <!-- Solid Pill -->
+                        <template x-if="shape.type === 'pill'">
+                            <div class="w-full h-1/2 rounded-full bg-current"></div>
+                        </template>
+
+                        <!-- Solid Diamond -->
+                        <template x-if="shape.type === 'diamond'">
+                            <div class="w-full h-full bg-current" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></div>
+                        </template>
+
+                        <!-- Stepped Stairs -->
+                        <template x-if="shape.type === 'stairs'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <polygon points="0,100 0,66 33,66 33,33 66,33 66,0 100,0 100,100" />
+                            </svg>
+                        </template>
+
+                        <!-- Dotted Grid Pattern -->
+                        <template x-if="shape.type === 'dots'">
+                            <svg class="w-full h-full" width="100%" height="100%">
+                                <defs>
+                                    <pattern :id="'dotPattern' + index" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+                                        <circle cx="9" cy="9" r="1.5" fill="currentColor" class="anim-dot-1" />
+                                        <circle cx="27" cy="9" r="1.5" fill="currentColor" class="anim-dot-2" />
+                                        <circle cx="9" cy="27" r="1.5" fill="currentColor" class="anim-dot-3" />
+                                        <circle cx="27" cy="27" r="1.5" fill="currentColor" class="anim-dot-4" />
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" :fill="'url(#' + 'dotPattern' + index + ')'" />
+                            </svg>
+                        </template>
+
+                        <!-- Line Animations -->
+                        <template x-if="shape.type === 'zigzag'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M 10,50 L 30,20 L 50,80 L 70,20 L 90,50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'wave'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <path d="M 10,50 Q 30,20 50,50 T 90,50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'straight-line'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <line x1="10" y1="50" x2="90" y2="50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'cross'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <line x1="20" y1="20" x2="80" y2="80" pathLength="100" class="anim-draw-line" />
+                                <line x1="80" y1="20" x2="20" y2="80" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+
+                    </div>
+                </div>
+            </template>
         </div>
-        <hr class="border-white/25 mx-0">
+
+        <!-- Slides Component (Isolated from background shapes to prevent animation restart) -->
+        <div class="relative z-10 flex flex-col flex-1 w-full" x-data="{
+            slide: 0,
+            total: {{ $introSlides->count() }},
+            prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
+            next() { this.slide = (this.slide + 1) % this.total; }
+        }">
+
+            <!-- Section Header -->
+            <div class="text-center pt-5 pb-4 px-6 relative z-10">
+                <h2 class="text-xl font-display uppercase tracking-[0.3em] text-white">Introduction</h2>
+            </div>
+        <hr class="border-white/25 mx-0 relative z-10">
 
         <!-- Slides Wrapper -->
-        <div class="flex-1 w-full max-w-5xl mx-auto px-6 md:px-10 py-6 md:py-0 flex flex-col justify-center">
+        <div class="flex-1 w-full max-w-5xl mx-auto px-6 md:px-10 py-6 md:py-0 flex flex-col justify-center relative z-10">
 
-            <!-- Slides Container: mobile = natural flow stack; desktop = fills flex parent -->
-            <div class="relative w-full flex-1 intro-slides-container">
+            <!-- Slides Container: Uses CSS Grid area trick to stack slides perfectly on top of each other on mobile. 
+                 This prevents the container from doubling in height and stretching the layout when both slides are fading in/out simultaneously. -->
+            <div class="relative w-full flex-1 intro-slides-container grid" style="grid-template-areas: 'slide';">
 
                 @foreach($introSlides as $index => $slideItem)
                 <!-- SLIDE {{ $index + 1 }} -->
@@ -153,17 +373,17 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
-                     class="flex flex-col md:absolute md:inset-0 md:grid md:gap-12 md:items-center gap-6"
-                     style="grid-template-columns: 3fr 2fr;">
+                     class="flex flex-col md:grid md:gap-12 md:items-center gap-6 w-full"
+                     style="grid-area: slide; grid-template-columns: 3fr 2fr;">
 
                     <!-- Top on mobile: Photo -->
                     <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
                         <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2
-                                    {{ $index === 0 ? 'shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)] outline outline-[1.5px] outline-offset-[-1.5px] outline-black' : '' }}"
-                             style="aspect-ratio: 3/4; border-radius: {{ $index === 0 ? '24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%' : '12% / 9%' }};">
+                                    {{ $index === 0 ? 'shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)] outline outline-[1.5px] outline-offset-[-1.5px] outline-black' : 'rounded-2xl' }}"
+                             style="{{ $index === 0 ? 'aspect-ratio: 3/4; border-radius: 24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%;' : '' }}">
                             <img src="{{ $slideItem->image_path ? asset('storage/' . $slideItem->image_path) : ($index === 0 ? asset('images/intro/profile.png') : asset('images/intro/slide'.($index+1).'.jpg')) }}"
                                  alt="{{ $slideItem->title }}"
-                                 class="w-full h-full object-cover object-top"
+                                 class="w-full {{ $index === 0 ? 'h-full object-cover object-top' : 'h-auto object-contain' }}"
                                  onerror="this.src='{{ asset('images/placeholder.jpg') }}';">
                         </div>
                     </div>
@@ -193,8 +413,8 @@
         </div>
 
         <!-- Navigation: divider + dots + arrows -->
-        <hr class="border-white/25 mx-0 mt-2 md:mt-0">
-        <div class="py-4 md:py-5 flex items-center justify-center gap-6">
+        <hr class="border-white/25 mx-0 mt-2 md:mt-0 relative z-10">
+        <div class="py-4 md:py-5 flex items-center justify-center gap-6 relative z-10">
 
             <!-- Prev Arrow -->
             <button @click="prev()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">
@@ -216,6 +436,8 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </button>
 
+        </div>
+        <!-- End Slides Component -->
         </div>
 
     </section>

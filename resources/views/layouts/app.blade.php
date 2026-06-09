@@ -254,6 +254,10 @@
     @endif
 
     <!-- Resume PDF Modal -->
+    @php
+        $profile = \App\Models\Profile::first();
+        $cvUrl = $profile && $profile->cv_path ? asset('storage/' . $profile->cv_path) : asset('resume.pdf');
+    @endphp
     <div x-show="showResumeModal" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background dimming -->
         <div x-show="showResumeModal"
@@ -263,38 +267,51 @@
              x-transition:leave="ease-in duration-200"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
+             class="fixed inset-0 bg-black/85 backdrop-blur-sm transition-opacity"></div>
 
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <!-- Modal panel -->
+            <div class="flex min-h-full items-center justify-center p-3 sm:p-6">
+                <!-- Modal panel: sized to show exactly one A4 page -->
                 <div x-show="showResumeModal"
                      x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
                      x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
                      x-transition:leave="ease-in duration-200"
                      x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
                      @click.away="showResumeModal = false"
-                     class="relative transform overflow-hidden bg-[#FAF7E6] border border-black text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-5xl h-[85vh] flex flex-col">
-                    
-                    <!-- Header with close button -->
-                    <div class="flex justify-between items-center border-b border-black px-6 py-4 bg-white">
-                        <h3 class="text-sm font-bold uppercase tracking-widest font-sans text-black">Resume / CV</h3>
-                        <button @click="showResumeModal = false" class="text-black hover:text-[#ff6b00] transition-colors focus:outline-none">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                     class="relative flex flex-col shadow-[0_32px_80px_rgba(0,0,0,0.7)] transition-all w-full"
+                     style="max-height: 96vh; width: min(640px, calc((96vh - 40px) * (210/297)));">
+
+                    <!-- Slim dark header bar -->
+                    <div class="flex items-center justify-between px-4 flex-shrink-0"
+                         style="height:40px; background:#1e1e1e; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <span style="font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Resume / CV</span>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ $cvUrl }}" download
+                               style="font-family:'Space Mono',monospace;"
+                               class="flex items-center gap-1.5 px-3 py-1 text-white/60 hover:text-white hover:bg-white/10 transition-all rounded text-[10px] font-bold uppercase tracking-wider">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download
+                            </a>
+                            <button @click="showResumeModal = false"
+                                    class="w-7 h-7 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- PDF Viewer -->
-                    <div class="flex-grow w-full h-full relative">
-                        @php
-                            $profile = \App\Models\Profile::first();
-                            $cvUrl = $profile && $profile->cv_path ? asset('storage/' . $profile->cv_path) : asset('resume.pdf');
-                        @endphp
-                        <iframe src="{{ $cvUrl }}" class="w-full h-full border-none" title="Resume PDF"></iframe>
+                    <!-- PDF iframe: exact A4 aspect ratio, #view=Fit fills 1 page -->
+                    <div style="aspect-ratio: 210/297; overflow:hidden; background:#525659; flex-shrink:0;">
+                        <iframe
+                            src="{{ $cvUrl }}#navpanes=0&toolbar=0&view=Fit&page=1"
+                            style="width:100%; height:100%; border:none; display:block;"
+                            title="Resume PDF">
+                        </iframe>
                     </div>
                 </div>
             </div>

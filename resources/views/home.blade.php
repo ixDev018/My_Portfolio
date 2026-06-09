@@ -221,7 +221,7 @@
     </section>
 
     <!-- SKILLS SECTION -->
-    <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-16 relative">
+    <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-4 md:pt-8 relative">
         
         <div class="w-full flex flex-col border-t border-black relative z-10">
             
@@ -550,7 +550,7 @@
             <p class="text-center text-xs font-mono text-[#6829AA] tracking-[0.3em] uppercase mb-12">Handpicked Featured Projects</p>
 
             <!-- Slider Container -->
-            <div class="relative w-full aspect-[4/3] md:aspect-[16/9] max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-black/10 group">
+            <div class="relative w-full aspect-[4/3] md:aspect-[16/9] max-w-6xl mx-auto rounded-2xl overflow-hidden border border-black/10 group">
                 
                 @foreach($featuredProjects as $index => $fp)
                 <div x-show="slide === {{ $index }}"
@@ -1145,18 +1145,13 @@
             <div class="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-24">
                 
                 <!-- Left Content -->
-                <div class="w-full lg:w-[35%] text-center lg:text-left pt-2 lg:pt-4 order-2 lg:order-1">
+                <div class="w-full lg:w-[40%] xl:w-[35%] text-center lg:text-left pt-2 lg:pt-4 order-2 lg:order-1">
                     <!-- Mobile heading: single line, centered -->
-                    <h2 class="text-[1.75rem] lg:text-[3.25rem] font-bold tracking-tight text-black mb-3 lg:mb-6 leading-tight font-poppins">
-                        <span class="lg:hidden">We've got <span x-text="activeTab === 'all' ? 'Great Achievements' : (activeTab === 'award' ? 'Amazing Awards' : 'Official Certificates')"></span></span>
-                        <span class="hidden lg:block">
-                            We've got <br>
-                            <span x-text="activeTab === 'all' ? 'Great' : (activeTab === 'award' ? 'Amazing' : 'Official')"></span> <br>
-                            <span x-text="activeTab === 'all' ? 'Achievements' : (activeTab === 'award' ? 'Awards' : 'Certificates')"></span>
-                        </span>
+                    <h2 class="text-[1.75rem] lg:text-[2.75rem] xl:text-[3.25rem] whitespace-nowrap font-bold tracking-tight text-black mb-3 lg:mb-6 leading-tight font-poppins">
+                        Proof of <span x-text="activeTab === 'all' ? 'Impact' : (activeTab === 'award' ? 'Excellence' : 'Skill')"></span>
                     </h2>
                     <p class="text-gray-500 text-sm lg:text-lg leading-relaxed mb-6 lg:mb-12 font-medium font-poppins max-w-xs mx-auto lg:mx-0 lg:max-w-none">
-                        Being appreciated for the work we do means the world to us. It translates beautifully into our official ratings, continuous learning, and industry recognition.
+                        Being appreciated for the work I do means the world to me. Whether achieved individually or alongside a talented team, these milestones translate beautifully into continuous learning and industry recognition.
                     </p>
                     
                     <!-- Arrow Controls (Left Column, desktop only) -->
@@ -1596,7 +1591,7 @@
                             <div class="flex flex-col items-center mr-6 md:mr-8 w-6 shrink-0">
                                 <!-- Dot -->
                                 <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full transition-all duration-300 shrink-0 flex items-center justify-center relative border border-white/10"
-                                     :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b] shadow-[0_0_12px_rgba(163,255,107,0.5)] scale-110' : 'bg-black/80'">
+                                     :class="activeIndex === {{ $i }} ? 'bg-[#a3ff6b] shadow-[0_0_12px_rgba(163,255,107,0.5)] scale-110' : 'bg-white/10'">
                                     @if($exp->is_active)
                                     <!-- Active indicator -->
                                     <div class="absolute w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300 border-[1.5px] border-dotted border-white"

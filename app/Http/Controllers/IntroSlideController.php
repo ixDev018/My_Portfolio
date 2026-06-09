@@ -35,16 +35,23 @@ class IntroSlideController extends Controller
             'subtitle'      => 'nullable|string|max:255',
             'description'   => 'nullable|string|max:3000',
             'image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'image_data'    => 'nullable|string',
         ]);
 
         $validated['sort_order'] = IntroSlide::max('sort_order') + 1;
         $validated['is_locked'] = false;
 
-        if ($request->hasFile('image')) {
+        if (!empty($validated['image_data'])) {
+            $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
+            $data = base64_decode($data);
+            $filename = 'intro_slides/' . uniqid() . '.png';
+            Storage::disk('public')->put($filename, $data);
+            $validated['image_path'] = $filename;
+        } elseif ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('intro_slides', 'public');
         }
 
-        unset($validated['image']);
+        unset($validated['image'], $validated['image_data']);
         IntroSlide::create($validated);
         return redirect()->route('admin.intro_slides.index')->with('success', 'Slide added!');
     }
@@ -65,16 +72,26 @@ class IntroSlideController extends Controller
             'subtitle'      => 'nullable|string|max:255',
             'description'   => 'nullable|string|max:3000',
             'image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'image_data'    => 'nullable|string',
         ]);
 
-        if ($request->hasFile('image')) {
+        if (!empty($validated['image_data'])) {
+            if ($slide->image_path) {
+                Storage::disk('public')->delete($slide->image_path);
+            }
+            $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
+            $data = base64_decode($data);
+            $filename = 'intro_slides/' . uniqid() . '.png';
+            Storage::disk('public')->put($filename, $data);
+            $validated['image_path'] = $filename;
+        } elseif ($request->hasFile('image')) {
             if ($slide->image_path) {
                 Storage::disk('public')->delete($slide->image_path);
             }
             $validated['image_path'] = $request->file('image')->store('intro_slides', 'public');
         }
 
-        unset($validated['image']);
+        unset($validated['image'], $validated['image_data']);
         $slide->update($validated);
         return redirect()->route('admin.intro_slides.index')->with('success', 'Slide updated!');
     }

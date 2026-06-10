@@ -124,7 +124,7 @@
     }
 </style>
 
-<div x-data="{ tab: 'skills' }" style="display:flex; flex-direction:column; flex:1;">
+<div x-data="{ tab: sessionStorage.getItem('admin_skills_tab') || 'skills' }" x-init="$watch('tab', val => sessionStorage.setItem('admin_skills_tab', val))" style="display:flex; flex-direction:column; flex:1;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem; flex-shrink:0;">
         <div>
             <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Skills &amp; Tools</h1>
@@ -526,7 +526,10 @@
 <script>
     function toolCropperData() {
         return {
-            toolTab: '{{ $rowLabels->first() ?? '' }}',
+            toolTab: sessionStorage.getItem('admin_tool_tab') || '{{ $rowLabels->first() ?? '' }}',
+            init() {
+                this.$watch('toolTab', val => sessionStorage.setItem('admin_tool_tab', val));
+            },
             isModalOpen: false,
             formMode: 'add',
             formData: {

@@ -81,22 +81,66 @@
         <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black/80 to-transparent z-[2] pointer-events-none"></div>
         
         <!-- Center Hero Copy -->
-        <div class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full">
+        <div x-data="{ sectionVisible: false, passedYellow: false }" x-init="setTimeout(() => { sectionVisible = true; setTimeout(() => passedYellow = true, 1200); }, 100)" class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full">
 
             <!-- Hero Typography Container -->
             <div class="inline-flex flex-col items-stretch select-none mx-auto mb-6">
 
                 <!-- Turning Ideas Into (justified) -->
-                <div class="flex justify-between w-full font-display uppercase text-white leading-none select-none relative z-10"
+                <div class="flex justify-between w-full font-display uppercase leading-none select-none relative z-10"
                      style="font-size: clamp(12px, 4vw, 45px);">
                     @php $topText = $profile->hero_top_text ?? 'TURNING IDEAS INTO'; @endphp
-                    @foreach(explode(' ', $topText) as $word)
-                        <span>{{ $word }}</span>
+                    @foreach(explode(' ', $topText) as $index => $word)
+                        @if(strtoupper($word) === 'IDEAS')
+                            <span class="inline-block opacity-0 translate-y-8"
+                                  :class="[sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8', passedYellow ? 'text-white' : 'text-yellow-400']"
+                                  style="transition: transform 700ms ease-out {{ 200 + ($index * 150) }}ms, opacity 700ms ease-out {{ 200 + ($index * 150) }}ms, color 700ms ease-in-out 0ms;">
+                                {{ $word }}
+                            </span>
+                        @else
+                            <span class="inline-block opacity-0 translate-y-8 text-white"
+                                  :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+                                  style="transition: transform 700ms ease-out {{ 200 + ($index * 150) }}ms, opacity 700ms ease-out {{ 200 + ($index * 150) }}ms;">
+                                {{ $word }}
+                            </span>
+                        @endif
                     @endforeach
                 </div>
 
+                <!-- REALITY Custom Mask Animation Styles -->
+                <style>
+                    .hero-reality-effect {
+                        background-image: linear-gradient(to right, #facc15 0%, #facc15 33.33%, white 66.66%, white 100%);
+                        background-size: 300% auto;
+                        background-position: 100% center;
+                        color: transparent;
+                        -webkit-background-clip: text;
+                        background-clip: text;
+                        
+                        -webkit-mask-image: linear-gradient(to right, black 0%, black 33.33%, transparent 66.66%, transparent 100%);
+                        mask-image: linear-gradient(to right, black 0%, black 33.33%, transparent 66.66%, transparent 100%);
+                        -webkit-mask-size: 300% auto;
+                        mask-size: 300% auto;
+                        -webkit-mask-position: 100% center;
+                        mask-position: 100% center;
+                        
+                        transition: transform 1.2s cubic-bezier(0.34,1.56,0.64,1) 1000ms;
+                    }
+                    .hero-reality-effect.active {
+                        background-position: 0% center;
+                        -webkit-mask-position: 0% center;
+                        mask-position: 0% center;
+                        transition: 
+                            -webkit-mask-position 1.5s ease-in-out 1000ms,
+                            mask-position 1.5s ease-in-out 1000ms,
+                            background-position 1.5s ease-in-out 1100ms,
+                            transform 1.2s cubic-bezier(0.34,1.56,0.64,1) 1000ms;
+                    }
+                </style>
+
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
-                <h1 class="text-yellow-400 font-normal leading-none uppercase font-display tracking-tight select-none text-center"
+                <h1 class="font-normal leading-none uppercase font-display tracking-tight select-none text-center origin-center transform scale-90 translate-y-12 hero-reality-effect"
+                    :class="sectionVisible ? 'active scale-100 translate-y-0' : ''"
                     style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em; -webkit-text-stroke: 1px black;">
                     {{ $profile->hero_title ?? 'REALITY' }}
                 </h1>
@@ -104,13 +148,16 @@
             </div>
 
             <!-- One Pixel At A Time -->
-            <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-white/70 mb-10 font-sans">
-                {{ $profile->hero_subtitle ?? 'One Pixel At A Time' }}
+            <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-white/70 mb-10 font-sans text-center">
+                @php $heroSubtitle = $profile->hero_subtitle ?? 'One Pixel At A Time'; @endphp
+                @foreach(explode(' ', $heroSubtitle) as $index => $word)<span class="inline-block opacity-0 translate-y-6" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'" style="transition: transform 700ms ease-out {{ 1800 + ($index * 150) }}ms, opacity 700ms ease-out {{ 1800 + ($index * 150) }}ms;">{{ $word }}</span> @endforeach
             </p>
 
             <!-- Get Started Button -->
             <a href="#projects"
-               class="px-8 py-3 bg-transparent border border-white font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black transition-colors duration-300 relative z-10">
+               class="px-8 py-3 bg-transparent border border-white font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black relative z-10 opacity-0 translate-y-8"
+               :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+               style="transition: transform 1000ms ease-out 2500ms, opacity 1000ms ease-out 2500ms, background-color 300ms, color 300ms;">
                 Get Started
             </a>
 
@@ -120,7 +167,7 @@
     </section>
 
     <!-- SELF INTRO SECTION -->
-    <section id="self-intro" class="bg-[#512b81] text-white relative flex flex-col min-h-[90vh] overflow-hidden -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20 wave-mask">
+    <section id="self-intro" class="text-white relative flex flex-col min-h-[90vh] -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20">
 
         <!-- Floating 2D Visualizers -->
         <style>
@@ -139,6 +186,30 @@
                 .wave-mask {
                     -webkit-mask-size: 100% 60px, 100% calc(100% - 40px);
                     mask-size: 100% 60px, 100% calc(100% - 40px);
+                }
+            }
+            
+            /* Wave Mask for clipping shapes to BOTH top and bottom waves */
+            .wave-mask-both {
+                -webkit-mask-image: 
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), 
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L0,0Z' fill='black'/%3E%3C/svg%3E"), 
+                    linear-gradient(black, black);
+                -webkit-mask-size: 100% 40px, 100% 40px, 100% calc(100% - 40px);
+                -webkit-mask-position: top left, bottom left, center left;
+                -webkit-mask-repeat: no-repeat;
+                mask-image: 
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), 
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L0,0Z' fill='black'/%3E%3C/svg%3E"), 
+                    linear-gradient(black, black);
+                mask-size: 100% 40px, 100% 40px, 100% calc(100% - 40px);
+                mask-position: top left, bottom left, center left;
+                mask-repeat: no-repeat;
+            }
+            @media (min-width: 768px) {
+                .wave-mask-both {
+                    -webkit-mask-size: 100% 60px, 100% 60px, 100% calc(100% - 80px);
+                    mask-size: 100% 60px, 100% 60px, 100% calc(100% - 80px);
                 }
             }
 
@@ -184,7 +255,7 @@
             .anim-draw-line { stroke-dasharray: 100; animation: drawLine 6s ease-in-out infinite; }
         </style>
 
-        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+        <div class="absolute inset-0 pointer-events-none z-0 bg-[#512b81] overflow-hidden wave-mask" x-data="{
             shapes: [],
             shown: false,
             init() {
@@ -199,32 +270,32 @@
                     { type: 'dots', color: 'text-white/25', top: '88%', left: '93%', size: '180px', anim: 'anim-travel-down', delay: '-8s', rotation: '0deg' },
 
                     // --- LINE ANIMATIONS (Dynamic 'drawing' paths to add energetic motion) ---
-                    { type: 'zigzag', color: 'text-[#4dd9f0]', top: '15%', left: '15%', size: '100px', anim: 'anim-travel-up', delay: '-2s', rotation: '20deg' },
-                    { type: 'wave', color: 'text-[#FF851B]', top: '12%', left: '75%', size: '120px', anim: 'anim-travel-down', delay: '-6s', rotation: '-15deg' },
-                    { type: 'straight-line', color: 'text-[#d0f69a]', top: '65%', left: '12%', size: '150px', anim: 'anim-travel-right', delay: '-4s', rotation: '45deg', lowOpMobile: true },
-                    { type: 'cross', color: 'text-[#4dd9f0]', top: '60%', left: '80%', size: '80px', anim: 'anim-travel-left', delay: '-7s', rotation: '10deg', lowOpMobile: true },
+                    { type: 'zigzag', color: 'text-[#4dd9f0]', top: '15%', left: '-2%', size: '100px', anim: 'anim-travel-up', delay: '-2s', rotation: '20deg' },
+                    { type: 'wave', color: 'text-[#FF851B]', top: '12%', left: '95%', size: '120px', anim: 'anim-travel-down', delay: '-6s', rotation: '-15deg' },
+                    { type: 'straight-line', color: 'text-[#d0f69a]', top: '65%', left: '-2%', size: '150px', anim: 'anim-travel-right', delay: '-4s', rotation: '45deg', lowOpMobile: true },
+                    { type: 'cross', color: 'text-[#4dd9f0]', top: '60%', left: '95%', size: '80px', anim: 'anim-travel-left', delay: '-7s', rotation: '10deg', lowOpMobile: true },
 
                     // --- CORNERS (Always visible, responsive size) ---
-                    { type: 'morph', color: 'text-[#4dd9f0]', top: '4%', left: '4%', size: '170px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' }, // Top-Left
-                    { type: 'half-circle', color: 'text-[#d0f69a]', top: '4%', left: '88%', size: '160px', anim: 'anim-travel-down', delay: '-4s', rotation: '80deg' }, // Top-Right
-                    { type: 'right-triangle', color: 'text-[#d0f69a]', top: '73%', left: '4%', size: '150px', anim: 'anim-travel-down', delay: '-8s', rotation: '-15deg', lowOpMobile: true }, // Bottom-Left
-                    { type: 'quarter-circle', color: 'text-[#FF851B]', top: '73%', left: '88%', size: '150px', anim: 'anim-travel-left', delay: '-2s', rotation: '25deg', lowOpMobile: true }, // Bottom-Right
+                    { type: 'morph', color: 'text-[#4dd9f0]', top: '4%', left: '-2%', size: '170px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' }, // Top-Left
+                    { type: 'half-circle', color: 'text-[#d0f69a]', top: '4%', left: '95%', size: '160px', anim: 'anim-travel-down', delay: '-4s', rotation: '80deg' }, // Top-Right
+                    { type: 'right-triangle', color: 'text-[#d0f69a]', top: '73%', left: '-2%', size: '150px', anim: 'anim-travel-down', delay: '-8s', rotation: '-15deg', lowOpMobile: true }, // Bottom-Left
+                    { type: 'quarter-circle', color: 'text-[#FF851B]', top: '73%', left: '95%', size: '150px', anim: 'anim-travel-left', delay: '-2s', rotation: '25deg', lowOpMobile: true }, // Bottom-Right
 
                     // --- TOP EDGE (Hidden on mobile to prevent title clash) ---
-                    { type: 'stairs', desktopOnly: true, color: 'text-[#FF851B]', top: '2%', left: '30%', size: '130px', anim: 'anim-travel-right', delay: '-3s', rotation: '45deg' },
-                    { type: 'pill', desktopOnly: true, color: 'text-[#4dd9f0]', top: '6%', left: '65%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
+                    { type: 'stairs', desktopOnly: true, color: 'text-[#FF851B]', top: '-5%', left: '30%', size: '130px', anim: 'anim-travel-right', delay: '-3s', rotation: '45deg' },
+                    { type: 'pill', desktopOnly: true, color: 'text-[#4dd9f0]', top: '-5%', left: '65%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
 
-                    // --- BOTTOM EDGE (Translucent watermark on mobile) ---
-                    { type: 'circle', color: 'text-[#d0f69a]', top: '75%', left: '35%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
-                    { type: 'diamond', color: 'text-[#4dd9f0]', top: '71%', left: '60%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
+                    // --- BOTTOM EDGE (Fully visible pop shapes, positioned safely on the sides) ---
+                    { type: 'circle', color: 'text-[#d0f69a]', top: '75%', left: '12%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
+                    { type: 'diamond', color: 'text-[#4dd9f0]', top: '75%', left: '82%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
 
                     // --- LEFT EDGE (Always visible, responsive size) ---
-                    { type: 'circle', color: 'text-[#4dd9f0]', top: '27%', left: '2%', size: '140px', anim: 'anim-travel-left', delay: '-3s', rotation: '-20deg' },
-                    { type: 'pill', color: 'text-[#FF851B]', top: '50%', left: '5%', size: '160px', anim: 'anim-travel-right', delay: '-6s', rotation: '45deg', lowOpMobile: true },
+                    { type: 'circle', color: 'text-[#4dd9f0]', top: '27%', left: '-2%', size: '140px', anim: 'anim-travel-left', delay: '-3s', rotation: '-20deg' },
+                    { type: 'pill', color: 'text-[#FF851B]', top: '50%', left: '-5%', size: '160px', anim: 'anim-travel-right', delay: '-6s', rotation: '45deg', lowOpMobile: true },
 
                     // --- RIGHT EDGE (Always visible, responsive size) ---
-                    { type: 'diamond', color: 'text-[#FF851B]', top: '27%', left: '94%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '-30deg' },
-                    { type: 'morph', color: 'text-[#4dd9f0]', top: '50%', left: '91%', size: '170px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true }
+                    { type: 'diamond', color: 'text-[#FF851B]', top: '27%', left: '95%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '-30deg' },
+                    { type: 'morph', color: 'text-[#4dd9f0]', top: '50%', left: '95%', size: '170px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true }
                 ];
 
                 // Scroll observer to trigger pop-in animation
@@ -344,7 +415,8 @@
         </div>
 
         <!-- Slides Component (Isolated from background shapes to prevent animation restart) -->
-        <div class="relative z-10 flex flex-col flex-1 w-full" x-data="{
+        <div class="relative z-10 flex flex-col flex-1 w-full transition-all duration-1000 ease-out opacity-0 translate-y-12" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" x-data="{
+            sectionVisible: false,
             slide: 0,
             total: {{ $introSlides->count() }},
             prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
@@ -445,7 +517,7 @@
     <!-- SKILLS SECTION -->
     <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-4 md:pt-8 relative">
         
-        <div class="w-full flex flex-col border-t border-black relative z-10">
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out w-full flex flex-col border-t border-black relative z-10 opacity-0 translate-y-12">
             
             @php
                 $categoryColors = [
@@ -526,14 +598,16 @@
             <div x-data="{ tooltip: { show: false, name: '', desc: '', x: 0, y: 0 }, toolModal: { show: false, name: '', desc: '', image: '', category: '', proficiency: 5 } }" class="relative">
                 
                 <!-- Custom Cursor Tooltip -->
-                <div x-show="tooltip.show" 
-                     x-transition.opacity.duration.200ms
-                     class="fixed z-50 pointer-events-none bg-[#512b81] text-white p-3 rounded-lg shadow-2xl max-w-xs border border-white/20"
-                     :style="`left: ${tooltip.x + 15}px; top: ${tooltip.y + 15}px; transform: translate(0, 0);`"
-                     style="display: none;">
-                    <div class="font-display font-bold text-sm text-[#d0f69a] mb-1" x-text="tooltip.name"></div>
-                    <div class="font-sans text-xs text-white/80 leading-snug" x-show="tooltip.desc" x-text="tooltip.desc"></div>
-                </div>
+                <template x-teleport="body">
+                    <div x-show="tooltip.show" 
+                         x-transition.opacity.duration.200ms
+                         class="fixed z-[9999] pointer-events-none bg-[#512b81] text-white p-3 rounded-lg shadow-2xl max-w-xs border border-white/20"
+                         :style="`left: ${tooltip.x + 15}px; top: ${tooltip.y + 15}px; transform: translate(0, 0);`"
+                         style="display: none;">
+                        <div class="font-display font-bold text-sm text-[#d0f69a] mb-1" x-text="tooltip.name"></div>
+                        <div class="font-sans text-xs text-white/80 leading-snug" x-show="tooltip.desc" x-text="tooltip.desc"></div>
+                    </div>
+                </template>
 
                 @foreach($toolsByRow as $rowLabel => $tools)
                     <div class="w-full bg-[#FF851B] text-[#783800] flex border-b border-[#783800]/20 overflow-hidden min-h-[14vh] md:min-h-[11vh]">
@@ -586,6 +660,9 @@
                         </div>
                     </div>
                 @endforeach
+
+                <!-- Extra padding for the next section's negative margin overlap -->
+                <div class="w-full bg-[#FF851B] h-[100px] md:h-[120px]"></div>
 
                 <!-- Interactive Tool Modal -->
                 <template x-teleport="body">
@@ -666,11 +743,7 @@
             </div>
         </div>
 
-        <div class="w-full bg-[#FAF7E6] leading-none">
-            <svg viewBox="0 0 1440 75" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-[30px] md:h-[45px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
-                <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#FF851B"></path>
-            </svg>
-        </div>
+
         </div>
 
         <!-- Interactive Skill Modal -->
@@ -759,14 +832,122 @@
     @php
         $featuredProjects = $projects->where('is_best_work', true)->values();
     @endphp
-    @if($featuredProjects->count() > 0)
-    <section id="best-works" class="w-full bg-[#FAF7E6] grid-bg-section text-[#1a1207] pt-16 pb-16 relative overflow-hidden" x-data="{
-        slide: 0,
-        total: {{ $featuredProjects->count() }},
-        prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
-        next() { this.slide = (this.slide + 1) % this.total; }
-    }">
-        <div class="max-w-[1400px] mx-auto px-6 w-full relative z-10">
+    <!-- COMBINED WORKS AREA WRAPPER -->
+    <div class="relative w-full bg-[#FAF7E6] overflow-hidden grid-bg-section wave-mask -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20">
+
+        <!-- Floating 2D Visualizers (Spanning both Best Works and Works) -->
+        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+            shapes: [],
+            shown: false,
+            init() {
+                this.shapes = [
+                    // --- MORPHING SOLID SHAPES ---
+                    { type: 'morph', color: 'text-[#4dd9f0]/30', top: '-2%', left: '-2%', size: '170px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' },
+                    { type: 'circle', color: 'text-[#FF851B]/20', top: '85%', left: '96%', size: '150px', anim: 'anim-travel-left', delay: '-2s', rotation: '25deg', lowOpMobile: true },
+                    { type: 'pill', color: 'text-[#4dd9f0]/30', top: '50%', left: '95%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
+                    
+                    // --- SQUIGGLY PATH ANIMATIONS ---
+                    { type: 'scribble-loop', color: 'text-[#FF851B]/40', top: '10%', left: '96%', size: '150px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' },
+                    { type: 'scribble-bounce', color: 'text-[#4dd9f0]/40', top: '75%', left: '-5%', size: '130px', anim: 'anim-travel-down', delay: '-3s', rotation: '-10deg' },
+                    { type: 'scribble-wave', color: 'text-[#512b81]/20', top: '40%', left: '-5%', size: '160px', anim: 'anim-travel-right', delay: '-5s', rotation: '45deg', lowOpMobile: true },
+                    
+                    // --- DOTS / GRIDS ---
+                    { type: 'dots', color: 'text-[#512b81]/10', top: '-2%', left: '-5%', size: '180px', anim: 'anim-travel-right', delay: '-2s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-[#512b81]/10', top: '88%', left: '95%', size: '180px', anim: 'anim-travel-up', delay: '-6s', rotation: '0deg' },
+                ];
+
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        this.shown = true;
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.1 });
+                observer.observe(this.$el);
+            }
+        }">
+            <template x-for="(shape, index) in shapes" :key="index">
+                <div class="absolute items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-center"
+                     :class="[
+                        shown ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
+                        shape.desktopOnly ? 'hidden md:flex' : 'flex'
+                     ]"
+                     :style="`top: ${shape.top}; left: ${shape.left}; width: clamp(50px, 12vw, ${shape.size}); height: clamp(50px, 12vw, ${shape.size}); transition-delay: ${index * 80}ms;`">
+                    
+                    <div class="w-full h-full flex items-center justify-center transition-opacity duration-500"
+                         :class="[shape.anim, shape.color, shape.lowOpMobile ? 'opacity-20 md:opacity-100' : '']"
+                         :style="`animation-delay: ${shape.delay};`">
+                         
+                        <div class="w-full h-full flex items-center justify-center" :style="`transform: rotate(${shape.rotation});`">
+                            
+                            <!-- Morphing Square to Circle -->
+                            <template x-if="shape.type === 'morph'">
+                                <div class="w-full h-full bg-current anim-morph"></div>
+                            </template>
+
+                            <!-- Solid Circle -->
+                            <template x-if="shape.type === 'circle'">
+                                <div class="w-full h-full rounded-full bg-current"></div>
+                            </template>
+
+                            <!-- Solid Pill -->
+                            <template x-if="shape.type === 'pill'">
+                                <div class="w-full h-1/2 rounded-full bg-current"></div>
+                            </template>
+
+                            <!-- Squiggles -->
+                            <template x-if="shape.type === 'scribble-loop'">
+                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M 20,80 C -10,30 60,-10 50,50 C 40,110 110,70 80,20" pathLength="100" class="anim-draw-line" />
+                                </svg>
+                            </template>
+
+                            <template x-if="shape.type === 'scribble-bounce'">
+                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M 10,60 Q 25,10 40,60 T 70,60 T 100,60" pathLength="100" class="anim-draw-line" />
+                                </svg>
+                            </template>
+
+                            <template x-if="shape.type === 'scribble-wave'">
+                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M 10,50 Q 25,20 40,50 T 70,50 T 100,50" pathLength="100" class="anim-draw-line" />
+                                </svg>
+                            </template>
+
+                            <template x-if="shape.type === 'zigzag'">
+                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M 10,50 L 30,20 L 50,80 L 70,20 L 90,50" pathLength="100" class="anim-draw-line" />
+                                </svg>
+                            </template>
+
+                            <template x-if="shape.type === 'dots'">
+                                <svg class="w-full h-full" width="100%" height="100%">
+                                    <defs>
+                                        <pattern :id="'dotPatternCombined' + index" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+                                            <circle cx="9" cy="9" r="2" fill="currentColor" class="anim-dot-1" />
+                                            <circle cx="27" cy="9" r="2" fill="currentColor" class="anim-dot-2" />
+                                            <circle cx="9" cy="27" r="2" fill="currentColor" class="anim-dot-3" />
+                                            <circle cx="27" cy="27" r="2" fill="currentColor" class="anim-dot-4" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="100%" height="100%" :fill="'url(#' + 'dotPatternCombined' + index + ')'" />
+                                </svg>
+                            </template>
+
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        @if($featuredProjects->count() > 0)
+        <section id="best-works" class="w-full text-[#1a1207] pt-16 pb-16 relative" x-data="{
+            slide: 0,
+            total: {{ $featuredProjects->count() }},
+            prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
+            next() { this.slide = (this.slide + 1) % this.total; }
+        }">
+
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-[1400px] mx-auto px-6 w-full relative z-10 opacity-0 translate-y-12">
             <!-- Section Title -->
             <h2 class="text-center font-display text-4xl md:text-5xl uppercase tracking-[0.2em] text-[#1a1207] mb-2" style="text-shadow: 0 4px 20px rgba(0,0,0,0.05);">The Best Works</h2>
             <p class="text-center text-xs font-mono text-[#6829AA] tracking-[0.3em] uppercase mb-12">Handpicked Featured Projects</p>
@@ -842,8 +1023,8 @@
     @endif
 
     <!-- WORKS AND OUTPUTS SECTION -->
-    <section id="works" class="w-full bg-[#FAF7E6] grid-bg-section text-black pt-16 pb-0 relative">
-        <div class="max-w-[1400px] mx-auto px-6 w-full">
+    <section id="works" class="w-full text-black pt-16 pb-0 relative">
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-[1400px] mx-auto px-6 w-full relative z-10 pb-32 opacity-0 translate-y-12">
 
             <!-- Section Title -->
             <h2 class="text-center font-display text-2xl uppercase tracking-widest text-black mb-2">Works & Outputs</h2>
@@ -1326,18 +1507,171 @@
         </div>
 
     </section>
-
-    <!-- Wave Spacer connecting to the white section below -->
-    <div class="w-full bg-white leading-none">
-        <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">
-            <path d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" fill="#FAF7E6"></path>
-        </svg>
+    <!-- END COMBINED WORKS AREA WRAPPER -->
     </div>
 
     <!-- ACHIEVEMENTS SECTION (Modern Two-Column Layout) -->
-    <section id="achievements" class="pt-14 pb-12 lg:py-24 bg-white text-black font-sans border-b border-gray-100" 
+    <section id="achievements" class="pb-[88px] lg:pb-[156px] bg-white text-black font-sans border-b border-gray-100 relative overflow-hidden -mt-[40px] md:-mt-[60px] pt-[96px] md:pt-[156px] -mb-[40px] md:-mb-[60px] z-20 wave-mask-both" 
              x-data="{ activeTab: 'all', selectedItem: null }">
-        <div class="max-w-[1400px] mx-auto px-4 lg:px-6">
+
+        <!-- Floating 2D Visualizers for Achievements -->
+        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+            shapes: [],
+            shown: false,
+            init() {
+                // Pre-defined perfectly balanced aesthetic composition (no randomness to prevent clashing)
+                this.shapes = [
+                    // --- DOTTED GRIDS (Anchored to the absolute hard corners) ---
+                    { type: 'dots', color: 'text-blue-500/20', top: '-2%', left: '-5%', size: '180px', anim: 'anim-travel-right', delay: '-1s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-blue-500/20', top: '-2%', left: '95%', size: '180px', anim: 'anim-travel-left', delay: '-5s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-blue-500/20', top: '88%', left: '-5%', size: '180px', anim: 'anim-travel-up', delay: '-3s', rotation: '0deg' },
+                    { type: 'dots', color: 'text-blue-500/20', top: '88%', left: '95%', size: '180px', anim: 'anim-travel-down', delay: '-8s', rotation: '0deg' },
+
+                    // --- LINE ANIMATIONS (Dynamic 'drawing' paths to add energetic motion) ---
+                    { type: 'zigzag', color: 'text-[#4dd9f0]/40', top: '10%', left: '-5%', size: '100px', anim: 'anim-travel-up', delay: '-2s', rotation: '20deg' },
+                    { type: 'wave', color: 'text-[#FF851B]/30', top: '15%', left: '95%', size: '120px', anim: 'anim-travel-down', delay: '-6s', rotation: '-15deg' },
+                    { type: 'straight-line', color: 'text-[#d0f69a]/80', top: '75%', left: '-5%', size: '150px', anim: 'anim-travel-right', delay: '-4s', rotation: '45deg', lowOpMobile: true },
+                    { type: 'cross', color: 'text-[#4dd9f0]/40', top: '80%', left: '95%', size: '80px', anim: 'anim-travel-left', delay: '-7s', rotation: '10deg', lowOpMobile: true },
+
+                    // --- CORNERS (Always visible, responsive size) ---
+                    { type: 'morph', color: 'text-[#4dd9f0]/30', top: '-5%', left: '-5%', size: '170px', anim: 'anim-travel-up', delay: '0s', rotation: '15deg' }, // Top-Left
+                    { type: 'half-circle', color: 'text-[#d0f69a]/60', top: '-5%', left: '95%', size: '160px', anim: 'anim-travel-down', delay: '-4s', rotation: '80deg' }, // Top-Right
+                    { type: 'right-triangle', color: 'text-[#d0f69a]/60', top: '95%', left: '-5%', size: '150px', anim: 'anim-travel-down', delay: '-8s', rotation: '-15deg', lowOpMobile: true }, // Bottom-Left
+                    { type: 'quarter-circle', color: 'text-[#FF851B]/20', top: '95%', left: '95%', size: '150px', anim: 'anim-travel-left', delay: '-2s', rotation: '25deg', lowOpMobile: true }, // Bottom-Right
+
+                    // --- TOP EDGE (Hidden on mobile to prevent title clash) ---
+                    { type: 'stairs', desktopOnly: true, color: 'text-[#FF851B]/20', top: '-5%', left: '20%', size: '130px', anim: 'anim-travel-right', delay: '-3s', rotation: '45deg' },
+                    { type: 'pill', desktopOnly: true, color: 'text-[#4dd9f0]/30', top: '-5%', left: '80%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
+
+                    // --- BOTTOM EDGE (Translucent watermark on mobile) ---
+                    { type: 'circle', color: 'text-[#d0f69a]/60', top: '95%', left: '25%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
+                    { type: 'diamond', color: 'text-[#4dd9f0]/30', top: '95%', left: '75%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
+
+                    // --- LEFT EDGE (Always visible, responsive size) ---
+                    { type: 'circle', color: 'text-[#4dd9f0]/30', top: '35%', left: '-5%', size: '140px', anim: 'anim-travel-left', delay: '-3s', rotation: '-20deg' },
+                    { type: 'pill', color: 'text-[#FF851B]/20', top: '65%', left: '-5%', size: '160px', anim: 'anim-travel-right', delay: '-6s', rotation: '45deg', lowOpMobile: true },
+
+                    // --- RIGHT EDGE (Always visible, responsive size) ---
+                    { type: 'diamond', color: 'text-[#FF851B]/20', top: '35%', left: '95%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '-30deg' },
+                    { type: 'morph', color: 'text-[#4dd9f0]/30', top: '65%', left: '95%', size: '170px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true }
+                ];
+
+                // Scroll observer to trigger pop-in animation
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        this.shown = true;
+                        observer.disconnect(); // Only animate once
+                    }
+                }, { threshold: 0.1 }); // Trigger when 10% of section is visible
+                observer.observe(this.$el);
+            }
+        }">
+            <template x-for="(shape, index) in shapes" :key="index">
+                <!-- Outer wrapper: Handles absolute positioning and the pop-in scroll transition -->
+                <div class="absolute items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-center"
+                     :class="[
+                        shown ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
+                        shape.desktopOnly ? 'hidden md:flex' : 'flex'
+                     ]"
+                     :style="`top: ${shape.top}; left: ${shape.left}; width: clamp(50px, 12vw, ${shape.size}); height: clamp(50px, 12vw, ${shape.size}); transition-delay: ${index * 80}ms;`">
+                    
+                    <!-- Inner wrapper: Handles the continuous travel animation -->
+                    <div class="w-full h-full flex items-center justify-center transition-opacity duration-500"
+                         :class="[shape.anim, shape.color, shape.lowOpMobile ? 'opacity-20 md:opacity-100' : '']"
+                         :style="`animation-delay: ${shape.delay};`">
+                         
+                        <!-- Shape rotation container -->
+                        <div class="w-full h-full flex items-center justify-center" :style="`transform: rotate(${shape.rotation});`">
+                            
+                            <!-- Bauhaus Half Circle -->
+                            <template x-if="shape.type === 'half-circle'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <path d="M 0 50 A 50 50 0 0 1 100 50 Z" />
+                            </svg>
+                        </template>
+                        
+                        <!-- Bauhaus Right Triangle -->
+                        <template x-if="shape.type === 'right-triangle'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <polygon points="0,0 100,100 0,100" />
+                            </svg>
+                        </template>
+
+                        <!-- Morphing Square to Circle -->
+                        <template x-if="shape.type === 'morph'">
+                            <div class="w-full h-full bg-current anim-morph"></div>
+                        </template>
+
+                        <!-- Solid Circle -->
+                        <template x-if="shape.type === 'circle'">
+                            <div class="w-full h-full rounded-full bg-current"></div>
+                        </template>
+
+                        <!-- Quarter Circle -->
+                        <template x-if="shape.type === 'quarter-circle'">
+                            <div class="w-full h-full bg-current rounded-tl-full"></div>
+                        </template>
+
+                        <!-- Solid Pill -->
+                        <template x-if="shape.type === 'pill'">
+                            <div class="w-full h-1/2 rounded-full bg-current"></div>
+                        </template>
+
+                        <!-- Solid Diamond -->
+                        <template x-if="shape.type === 'diamond'">
+                            <div class="w-full h-full bg-current" style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></div>
+                        </template>
+
+                        <!-- Stepped Stairs -->
+                        <template x-if="shape.type === 'stairs'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="currentColor">
+                                <polygon points="0,100 0,66 33,66 33,33 66,33 66,0 100,0 100,100" />
+                            </svg>
+                        </template>
+
+                        <!-- Dotted Grid Pattern -->
+                        <template x-if="shape.type === 'dots'">
+                            <svg class="w-full h-full" width="100%" height="100%">
+                                <defs>
+                                    <pattern :id="'dotPatternAch' + index" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+                                        <circle cx="9" cy="9" r="1.5" fill="currentColor" class="anim-dot-1" />
+                                        <circle cx="27" cy="9" r="1.5" fill="currentColor" class="anim-dot-2" />
+                                        <circle cx="9" cy="27" r="1.5" fill="currentColor" class="anim-dot-3" />
+                                        <circle cx="27" cy="27" r="1.5" fill="currentColor" class="anim-dot-4" />
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" :fill="'url(#' + 'dotPatternAch' + index + ')'" />
+                            </svg>
+                        </template>
+
+                        <!-- Line Animations -->
+                        <template x-if="shape.type === 'zigzag'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M 10,50 L 30,20 L 50,80 L 70,20 L 90,50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'wave'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <path d="M 10,50 Q 30,20 50,50 T 90,50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'straight-line'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <line x1="10" y1="50" x2="90" y2="50" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+                        <template x-if="shape.type === 'cross'">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                <line x1="20" y1="20" x2="80" y2="80" pathLength="100" class="anim-draw-line" />
+                                <line x1="80" y1="20" x2="20" y2="80" pathLength="100" class="anim-draw-line" />
+                            </svg>
+                        </template>
+
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-[1400px] mx-auto px-4 lg:px-6 relative z-10 opacity-0 translate-y-12">
             
             <!-- Top Header & Pills -->
             <div class="text-center mb-8 lg:mb-24">
@@ -1668,14 +2002,8 @@
             </div>
         @endif
 
-        <!-- Wavy top divider (from white achievements) -->
-        <div class="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10 scale-x-[1.01] -translate-y-px">
-            <svg class="relative block w-[calc(100%+2px)] h-[40px] sm:h-[60px] md:h-[80px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                <path fill="#ffffff" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,133.3C1120,117,1280,107,1360,101.3L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
-            </svg>
-        </div>
 
-        <div class="relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24"
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24 opacity-0 translate-y-12"
              style="flex: 1;">
 
             <!-- Section header -->
@@ -1878,7 +2206,7 @@
     <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
 
 
-        <div class="max-w-7xl mx-auto px-6 pt-20 relative z-10">
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-7xl mx-auto px-6 pt-20 relative z-10 opacity-0 translate-y-12">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 
                 <!-- Contact info cards -->

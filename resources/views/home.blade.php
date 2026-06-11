@@ -1921,7 +1921,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, select(i) { this.activeIndex = this.activeIndex === i ? null : i; } }">
+    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }">
         <style>
             #experience ::-webkit-scrollbar { width: 4px; }
             #experience ::-webkit-scrollbar-track { background: transparent; }
@@ -2023,7 +2023,7 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100 translate-x-0 translate-y-0"
                      x-transition:leave-end="opacity-0 md:-translate-x-8 translate-y-8 md:translate-y-0"
-                     class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-20 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28 overflow-hidden"
+                     class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-20 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28"
                      style="display: none;">
                      
                     <!-- Back to Timeline Button -->
@@ -2031,16 +2031,50 @@
                         <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         Back to Timeline
                     </button>
+                    
+                    <div class="relative w-full mt-4 md:mt-0" style="flex: 1; min-height: 0;">
+                        <!-- Skeleton Loader -->
+                        <div x-show="isLoading"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="transition ease-in duration-300"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             class="absolute inset-0 flex flex-col z-[110]" style="min-height: 0;">
+                            
+                             <div class="flex-shrink-0 pt-4 pb-2">
+                                 <div class="block w-full border border-white/5 rounded-xl px-5 py-4 bg-white/5 animate-pulse">
+                                     <div class="h-8 bg-white/10 rounded w-2/3 mb-3"></div>
+                                     <div class="flex gap-2 mt-2">
+                                         <div class="h-3 bg-white/10 rounded w-1/4"></div>
+                                         <div class="h-3 bg-white/10 rounded w-1/6"></div>
+                                     </div>
+                                 </div>
+                             </div>
+
+                             <div class="flex-1 overflow-hidden pr-2 pb-5 space-y-6 mt-4">
+                                 <div class="space-y-4 animate-pulse">
+                                     <div class="h-4 bg-white/10 rounded w-full"></div>
+                                     <div class="h-4 bg-white/10 rounded w-5/6"></div>
+                                     <div class="h-4 bg-white/10 rounded w-4/6"></div>
+                                 </div>
+                                 <div class="space-y-4 animate-pulse pt-4">
+                                     <div class="h-4 bg-white/10 rounded w-full"></div>
+                                     <div class="h-4 bg-white/10 rounded w-3/4"></div>
+                                 </div>
+                             </div>
+                        </div>
 
                     @foreach($experiences as $i => $exp)
-                        <div x-show="activeIndex === {{ $i }}"
+                        <div x-show="activeIndex === {{ $i }} && !isLoading"
                              x-transition:enter="transition ease-out duration-400"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100"
                              x-transition:leave="transition ease-in duration-200"
                              x-transition:leave-start="opacity-100"
                              x-transition:leave-end="opacity-0"
-                             class="flex flex-col h-full" style="min-height: 0;">
+                             class="absolute inset-0 flex flex-col" style="min-height: 0;">
 
                             <!-- STICKY: Year Banner -->
                             <div class="flex-shrink-0 pt-4 pb-2">
@@ -2125,8 +2159,9 @@
                         </div>
                     @endforeach
                 </div>
+            </div>
 
-                <!-- RIGHT / CENTER: Timeline — centered when nothing active, right-aligned when active -->
+            <!-- RIGHT / CENTER: Timeline — centered when nothing active, right-aligned when active -->
                 <div class="flex flex-col relative transition-all duration-500 ease-in-out pb-20"
                      :class="activeIndex !== null
                         ? 'w-full md:w-[320px] lg:w-[380px] shrink-0 pl-4 md:pl-8 py-4'

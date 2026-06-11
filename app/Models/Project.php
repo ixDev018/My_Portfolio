@@ -40,11 +40,15 @@ class Project extends Model
         'is_best_work',
         'featured_thumbnail',
         'gallery_images',
+        'is_archived',
+        'is_top',
     ];
 
     protected $casts = [
         'featured'        => 'boolean',
         'is_best_work'    => 'boolean',
+        'is_archived'     => 'boolean',
+        'is_top'          => 'boolean',
         'use_custom_thumbnail' => 'boolean',
         'gallery_images'  => 'array',
         'thumbnail_images'=> 'array',

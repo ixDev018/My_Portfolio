@@ -36,7 +36,7 @@ class ExperienceController extends Controller
         ]);
 
         $validated['sort_order'] = Experience::max('sort_order') + 1;
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
         $validated['bg_media_type'] = $validated['bg_media_type'] ?? 'image';
 
         if (!empty($validated['body_content'])) {
@@ -132,7 +132,7 @@ class ExperienceController extends Controller
             'delete_bg_gallery' => 'nullable|array',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
         $validated['bg_media_type'] = $validated['bg_media_type'] ?? 'image';
 
         if (!empty($validated['body_content'])) {

@@ -511,7 +511,7 @@
             document.getElementById('bulk-delete-ids').value = this.selectedIds.join(',');
             document.getElementById('bulk-delete-form').submit();
         } else if (action === 'archive') {
-            if (!confirm('Archive selected projects?')) return;
+            if (!confirm('Restore selected projects?')) return;
             document.getElementById('bulk-archive-ids').value = this.selectedIds.join(',');
             document.getElementById('bulk-archive-form').submit();
         }
@@ -526,25 +526,19 @@
     {{-- ════ PAGE HEADER ════ --}}
     <div class="op-page-header">
         <div>
-            <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Outputs</h1>
-            <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Manage your projects</p>
+            <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Archived Outputs</h1>
+            <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Manage archived portfolio projects</p>
         </div>
 
         <div style="display:flex;align-items:center;gap:0.75rem;">
-            {{-- Archives --}}
-            <a href="{{ route('admin.projects.archived') }}"
-               style="display:inline-flex;align-items:center;justify-content:center;width:2.4rem;height:2.4rem;background:#F3ECFF;color:#6829AA;border-radius:0.6rem;text-decoration:none;transition:all 0.15s;"
-               title="View Archived Outputs"
-               onmouseover="this.style.background='#E9D9FF'" onmouseout="this.style.background='#F3ECFF'">
-                <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-            </a>
 
-            {{-- Add new --}}
-            <a href="{{ route('admin.projects.create') }}"
-               style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.55rem 1.1rem;background:#6829AA;color:#fff;border-radius:0.6rem;font-size:0.8rem;font-weight:700;font-family:'Outfit',sans-serif;text-decoration:none;box-shadow:0 3px 12px rgba(104,41,170,0.28);transition:all .15s;"
-               onmouseover="this.style.background='#5720A0'" onmouseout="this.style.background='#6829AA'">
-                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                New Output
+
+            {{-- Back to active --}}
+            <a href="{{ route('admin.projects.index') }}"
+               style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.55rem 1.1rem;background:#fff;color:#5A5248;border:1px solid #D8D4C8;border-radius:0.6rem;font-size:0.8rem;font-weight:700;font-family:'Outfit',sans-serif;text-decoration:none;transition:all .15s;"
+               onmouseover="this.style.background='#F7F5EE';this.style.color='#1a1207';" onmouseout="this.style.background='#fff';this.style.color='#5A5248';">
+                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back to Active Outputs
             </a>
         </div>
     </div>
@@ -622,7 +616,7 @@
                     <div x-show="selectedIds.length > 0" class="flex gap-2 items-center" x-cloak>
                         <span class="text-[0.65rem] font-mono text-gray-500 mr-2" x-text="selectedIds.length + ' selected'"></span>
                         <button type="button" @click="bulkAction('archive')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50">
-                            Archive
+                            Restore
                         </button>
                         <button type="button" @click="bulkAction('delete')" class="px-3 py-1 bg-red-50 border border-red-200 rounded text-xs font-semibold text-red-600 hover:bg-red-100">
                             Delete
@@ -740,43 +734,46 @@
                                     <span class="op-date-cell" x-text="formatDate(p.updated_at)"></span>
                                 </td>
 
-                                {{-- Row Actions --}}
+                                {{-- ··· 3-dot menu --}}
                                 <td style="padding-right:0.75rem;" @click.stop>
-                                    <div style="display:flex; gap:0.35rem; align-items:center; justify-content:flex-end;">
-                                        <a :href="p.view_url" target="_blank" title="View Live"
-                                           style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:0.4rem; color:#7A7267; background:transparent; transition:all 0.15s; text-decoration:none;"
-                                           onmouseover="this.style.background='#F7F5EE'; this.style.color='#2c2826';" onmouseout="this.style.background='transparent'; this.style.color='#7A7267';">
-                                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                        </a>
-                                        
-                                        <a :href="p.edit_url" title="Edit Project"
-                                           style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:0.4rem; color:#6829AA; background:transparent; transition:all 0.15s; text-decoration:none;"
-                                           onmouseover="this.style.background='#F3ECFF';" onmouseout="this.style.background='transparent';">
-                                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                        </a>
+                                    <div class="op-dots-wrap">
+                                        <button class="op-dots-btn"
+                                                :class="openMenuId === p.id ? 'open' : ''"
+                                                @click="toggleMenu(p.id, $event)"
+                                                title="Actions">
+                                            <svg style="width:15px;height:15px;" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+                                            </svg>
+                                        </button>
 
-                                        {{-- Archive Button --}}
-                                        <template x-if="p.archive_url">
-                                            <form :action="p.archive_url" method="POST" style="margin:0;"
-                                                  @submit.prevent="if(confirm('Archive \'' + p.title + '\'?')) $el.submit()">
+                                        <div class="op-dropdown"
+                                             x-show="openMenuId === p.id"
+                                             x-cloak
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             @click.stop>
+                                            <a :href="p.view_url" target="_blank">
+                                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                View Live
+                                            </a>
+                                            <a :href="p.edit_url">
+                                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                Edit
+                                            </a>
+                                            <div class="op-dd-divider"></div>
+                                            <form :action="p.delete_url" method="POST"
+                                                  @submit.prevent="if(confirm('Delete \'' + p.title + '\'?')) $el.submit()">
                                                 @csrf
-                                                <button type="submit" title="Archive Project"
-                                                        style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:0.4rem; color:#b45309; background:transparent; border:none; cursor:pointer; transition:all 0.15s;"
-                                                        onmouseover="this.style.background='#fef3c7';" onmouseout="this.style.background='transparent';">
-                                                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                                                <button type="submit">
+                                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    Delete
                                                 </button>
                                             </form>
-                                        </template>
-
-                                        <form :action="p.delete_url" method="POST" style="margin:0;"
-                                              @submit.prevent="if(confirm('Delete \'' + p.title + '\'?')) $el.submit()">
-                                            @csrf
-                                            <button type="submit" title="Delete Project"
-                                                    style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:0.4rem; color:#dc2626; background:transparent; border:none; cursor:pointer; transition:all 0.15s;"
-                                                    onmouseover="this.style.background='#FFF1F1';" onmouseout="this.style.background='transparent';">
-                                                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -811,7 +808,133 @@
             </div>
         </div>
 
+        {{-- ── RIGHT: Preview ── --}}
+        <div class="op-right">
+            <div class="op-right-header">
+                <span class="op-right-header-label">Preview</span>
+                <template x-if="selectedProject">
+                    <span style="font-family:'Space Mono',monospace;font-size:0.56rem;color:#6829AA;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Selected</span>
+                </template>
+            </div>
 
+            {{-- Empty state --}}
+            <template x-if="!selectedProject">
+                <div class="op-empty-preview">
+                    <svg style="width:3rem;height:3rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"
+                              d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                    </svg>
+                    <p>Click a row to preview</p>
+                </div>
+            </template>
+
+            {{-- Project preview --}}
+            <template x-if="selectedProject">
+                <div class="op-preview-body">
+
+                    {{-- Fixed-height thumbnail container — handles all ratios --}}
+                    <div class="op-thumb-container">
+                        <template x-if="selectedProject.thumbnail_path">
+                            <img :src="selectedProject.thumbnail_path" :alt="selectedProject.title">
+                        </template>
+                        <template x-if="!selectedProject.thumbnail_path && selectedProject.thumbnail_video_path">
+                            <video :src="selectedProject.thumbnail_video_path + '#t=0.1'" style="width:100%;height:100%;object-fit:cover;" muted playsinline preload="metadata"></video>
+                        </template>
+                        <template x-if="!selectedProject.thumbnail_path && !selectedProject.thumbnail_video_path">
+                            <svg class="op-thumb-placeholder-icon" style="width:3rem;height:3rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </template>
+                    </div>
+
+                    {{-- Meta --}}
+                    <div class="op-meta">
+                        <div>
+                            <p class="op-meta-title" x-text="selectedProject.title"></p>
+                            <p class="op-meta-slug" x-text="'/' + selectedProject.slug"></p>
+                        </div>
+
+                        <div class="op-meta-grid">
+                            <div class="op-meta-item">
+                                <label>Type</label>
+                                <span class="val" x-text="selectedProject.medium || '—'"></span>
+                            </div>
+                            <div class="op-meta-item">
+                                <label>Year</label>
+                                <span class="val" x-text="selectedProject.year || '—'"></span>
+                            </div>
+                            <div class="op-meta-item">
+                                <label>Status</label>
+                                <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.2rem;">
+                                    <template x-if="selectedProject.featured">
+                                        <span class="op-featured-yes" style="font-size:0.58rem;">
+                                            <svg style="width:8px;height:8px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                            Featured
+                                        </span>
+                                    </template>
+                                    <template x-if="selectedProject.is_top">
+                                        <span class="op-featured-yes" style="font-size:0.58rem; background:#E6FAF5; color:#0A8C5E; border-color:#A3E6CF;">
+                                            Top
+                                        </span>
+                                    </template>
+                                    <template x-if="selectedProject.is_archived">
+                                        <span class="op-featured-yes" style="font-size:0.58rem; background:#FFF1F1; color:#dc2626; border-color:#FECACA;">
+                                            Archived
+                                        </span>
+                                    </template>
+                                    <template x-if="!selectedProject.featured && !selectedProject.is_top && !selectedProject.is_archived">
+                                        <span class="op-featured-no" style="font-size:0.58rem;">Normal</span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Tags --}}
+                        <div>
+                            <p style="font-family:'Space Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;color:#9B9589;margin-bottom:0.35rem;">Tags</p>
+                            <div class="op-tags-wrap">
+                                <template x-if="selectedProject.tags && selectedProject.tags.trim() !== ''">
+                                    <template x-for="tag in selectedProject.tags.split(',').map(t=>t.trim()).filter(t=>t)" :key="tag">
+                                        <span class="op-tag" x-text="tag"></span>
+                                    </template>
+                                </template>
+                                <template x-if="!selectedProject.tags || selectedProject.tags.trim() === ''">
+                                    <span style="font-size:0.72rem;color:#C8C3BA;font-style:italic;">No tags</span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="op-preview-actions">
+                        <a :href="selectedProject.edit_url" class="op-btn-edit">
+                            <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit
+                        </a>
+                        <a :href="selectedProject.view_url" target="_blank" class="op-btn-view">
+                            <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            Live
+                        </a>
+                        <form action="/admin/projects/restore-single" method="POST"
+                              @submit.prevent="if(confirm('Restore \'' + selectedProject.title + '\'?')) { $el.querySelector('input[name=project_id]').value = selectedProject.id; $el.submit(); }">
+                            @csrf
+                            <input type="hidden" name="project_id" value="">
+                            <button type="submit" class="op-btn-edit" style="background:#fff; border-color:#D8D4C8; color:#2c2826;" title="Restore">
+                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                            </button>
+                        </form>
+                        <form :action="selectedProject.delete_url" method="POST"
+                              @submit.prevent="if(confirm('Delete \'' + selectedProject.title + '\'?')) $el.submit()">
+                            @csrf
+                            <button type="submit" class="op-btn-del">
+                                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </template>
+        </div>
 
     </div>{{-- /op-shell --}}
 
@@ -820,7 +943,7 @@
         @csrf
         <input type="hidden" name="ids" id="bulk-delete-ids" value="[]">
     </form>
-    <form id="bulk-archive-form" action="{{ route('admin.projects.bulk-archive') }}" method="POST" style="display:none;">
+    <form id="bulk-archive-form" action="{{ route('admin.projects.bulk-restore') }}" method="POST" style="display:none;">
         @csrf
         <input type="hidden" name="ids" id="bulk-archive-ids" value="[]">
     </form>

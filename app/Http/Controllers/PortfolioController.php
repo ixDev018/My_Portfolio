@@ -32,8 +32,8 @@ class PortfolioController extends Controller
             ]);
         }
 
-        // Fetch projects (featured first, then newest)
-        $projects = Project::orderBy('featured', 'desc')
+        $projects = Project::where('is_archived', false)
+                            ->orderBy('featured', 'desc')
                             ->orderBy('created_at', 'desc')
                             ->get();
 
@@ -71,6 +71,8 @@ class PortfolioController extends Controller
     public function outputs()
     {
         $visualProjects = Project::where('category', 'visual')
+                                 ->where('is_archived', false)
+                                 ->orderBy('is_top', 'desc')
                                  ->inRandomOrder()
                                  ->get();
 

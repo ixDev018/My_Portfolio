@@ -599,9 +599,10 @@
                     </a>
 
                     <a href="{{ route('admin.projects.index') }}"
-                       class="cms-nav-link {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
+                       class="cms-nav-link {{ request()->routeIs('admin.projects.index', 'admin.projects.create', 'admin.projects.edit') ? 'active' : '' }}">
                         Outputs
                     </a>
+
 
                     <a href="{{ route('admin.achievements.index') }}"
                        class="cms-nav-link {{ request()->routeIs('admin.achievements.*') ? 'active' : '' }}">

@@ -630,7 +630,7 @@
         </div>
 
         {{-- ═══ RIGHT: Sidebar ═══ --}}
-        <div class="pe-sidebar" x-data="{ tab: 'media', featured: {{ old('featured') ? 'true' : 'false' }}, is_best_work: {{ old('is_best_work') ? 'true' : 'false' }} }">
+        <div class="pe-sidebar" x-data="{ tab: 'media', featured: {{ old('featured') ? 'true' : 'false' }}, is_best_work: {{ old('is_best_work') ? 'true' : 'false' }}, is_top: {{ old('is_top') ? 'true' : 'false' }}, is_archived: {{ old('is_archived') ? 'true' : 'false' }} }">
             <div class="pe-sidebar-header">
                 <span style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.08em; color:#9B9589;">Project Details</span>
                 <span style="font-family:'Space Mono',monospace; font-size:0.58rem; color:#0A8C5E; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">New</span>
@@ -644,11 +644,11 @@
                     <div class="pe-featured-row">
                         <input type="hidden" name="featured" :value="featured ? '1' : '0'">
                         <button type="button" @click="featured = !featured" 
-                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-200"
-                                :class="featured ? 'bg-[#FFF9E6] border-[#FF851B] text-[#783800]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'">
-                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" x-show="featured" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!featured"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            <span class="font-sans text-[10px] font-bold uppercase tracking-widest" x-text="featured ? 'Featured' : 'Feature'"></span>
+                                class="flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-200"
+                                :class="featured ? 'bg-[#FFF9E6] border-[#FF851B] text-[#783800]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'"
+                                title="Toggle Featured">
+                            <svg style="width:14px;height:14px;" fill="currentColor" viewBox="0 0 24 24" x-show="featured" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!featured"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         </button>
                     </div>
                     
@@ -656,11 +656,35 @@
                     <div class="pe-featured-row">
                         <input type="hidden" name="is_best_work" :value="is_best_work ? '1' : '0'">
                         <button type="button" @click="is_best_work = !is_best_work" 
-                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-200"
-                                :class="is_best_work ? 'bg-[#F3ECFF] border-[#6829AA] text-[#6829AA]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'">
-                            <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" x-show="is_best_work" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!is_best_work"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            <span class="font-sans text-[10px] font-bold uppercase tracking-widest">Best Work</span>
+                                class="flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-200"
+                                :class="is_best_work ? 'bg-[#F3ECFF] border-[#6829AA] text-[#6829AA]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'"
+                                title="Toggle Best Work">
+                            <svg style="width:14px;height:14px;" fill="currentColor" viewBox="0 0 24 24" x-show="is_best_work" x-cloak><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!is_best_work"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Top Toggle -->
+                    <div class="pe-featured-row">
+                        <input type="hidden" name="is_top" :value="is_top ? '1' : '0'">
+                        <button type="button" @click="is_top = !is_top" 
+                                class="flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-200"
+                                :class="is_top ? 'bg-[#E6FAF5] border-[#0A8C5E] text-[#0A8C5E]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'"
+                                title="Toggle Top">
+                            <svg style="width:14px;height:14px;" fill="currentColor" viewBox="0 0 24 24" x-show="is_top" x-cloak><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!is_top"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Archived Toggle -->
+                    <div class="pe-featured-row">
+                        <input type="hidden" name="is_archived" :value="is_archived ? '1' : '0'">
+                        <button type="button" @click="is_archived = !is_archived" 
+                                class="flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-200"
+                                :class="is_archived ? 'bg-[#FFF1F1] border-[#FECACA] text-[#dc2626]' : 'bg-[#E2DDD3] border-transparent text-[#9B9589] hover:bg-[#D5D0C6]'"
+                                title="Toggle Archive">
+                            <svg style="width:14px;height:14px;" fill="currentColor" viewBox="0 0 24 24" x-show="is_archived" x-cloak><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12.14l.84 1H5.12z"/></svg>
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-show="!is_archived"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                         </button>
                     </div>
                 </div>

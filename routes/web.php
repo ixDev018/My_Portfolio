@@ -46,6 +46,14 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::post('/projects/update/{id}', [AdminController::class, 'projectsUpdate'])->name('admin.projects.update');
     Route::post('/projects/delete/{id}', [AdminController::class, 'projectsDestroy'])->name('admin.projects.delete');
     Route::post('/projects/bulk-delete', [AdminController::class, 'projectsBulkDelete'])->name('admin.projects.bulk-delete');
+    
+    // Archive routes
+    Route::get('/projects/archived', [AdminController::class, 'projectsArchiveIndex'])->name('admin.projects.archived');
+    Route::post('/projects/archive-single', [AdminController::class, 'projectsArchiveSingle'])->name('admin.projects.archive-single');
+    Route::post('/projects/restore-single', [AdminController::class, 'projectsRestoreSingle'])->name('admin.projects.restore-single');
+    Route::post('/projects/bulk-archive', [AdminController::class, 'projectsBulkArchive'])->name('admin.projects.bulk-archive');
+    Route::post('/projects/bulk-restore', [AdminController::class, 'projectsBulkRestore'])->name('admin.projects.bulk-restore');
+    
     Route::post('/projects/upload-body-media', [AdminController::class, 'uploadBodyMedia'])->name('admin.projects.upload_body_media');
 
     // Skills CMS CRUD

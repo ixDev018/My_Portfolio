@@ -193,14 +193,19 @@
                                 </div>
                             @endif
 
-                            {{-- Year badge top-left --}}
-                            @if($proj->year)
-                                <div class="absolute top-3 left-3 z-20">
+                            {{-- Year & Top badges top-left --}}
+                            <div class="absolute top-3 left-3 z-20 flex gap-1.5">
+                                @if($proj->is_top)
+                                    <span class="px-2 py-0.5 rounded-full bg-[#0A8C5E] font-mono text-[8px] font-bold uppercase tracking-widest text-white shadow-sm">
+                                        Top
+                                    </span>
+                                @endif
+                                @if($proj->year)
                                     <span class="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm font-mono text-[8px] text-white/80">
                                         {{ $proj->year }}
                                     </span>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     </a>
                 @empty

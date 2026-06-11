@@ -209,7 +209,7 @@ class AdminController extends Controller
     */
     public function projectsIndex()
     {
-        $projects = Project::orderBy('created_at', 'desc')->get();
+        $projects = Project::where('is_archived', false)->orderBy('created_at', 'desc')->get();
         return view('admin.projects.index', compact('projects'));
     }
 
@@ -238,6 +238,8 @@ class AdminController extends Controller
             'full_video_url'      => 'nullable|url',
             'featured'            => 'nullable|boolean',
             'is_best_work'        => 'nullable|boolean',
+            'is_archived'         => 'nullable|boolean',
+            'is_top'              => 'nullable|boolean',
             'main_media_type'     => 'nullable|string|in:image,video',
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
@@ -253,6 +255,8 @@ class AdminController extends Controller
         }
         $validated['featured'] = $request->input('featured') == '1';
         $validated['is_best_work'] = $request->input('is_best_work') == '1';
+        $validated['is_archived'] = $request->input('is_archived') == '1';
+        $validated['is_top'] = $request->input('is_top') == '1';
         $validated['main_media_type'] = $request->input('main_media_type', 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
         
@@ -347,6 +351,8 @@ class AdminController extends Controller
             'full_video_url'      => 'nullable|url',
             'featured'            => 'nullable|boolean',
             'is_best_work'        => 'nullable|boolean',
+            'is_archived'         => 'nullable|boolean',
+            'is_top'              => 'nullable|boolean',
             'main_media_type'     => 'nullable|string|in:image,video',
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
@@ -361,6 +367,8 @@ class AdminController extends Controller
         $validated['slug']           = Str::slug($validated['title']);
         $validated['featured']       = $request->input('featured') == '1';
         $validated['is_best_work']   = $request->input('is_best_work') == '1';
+        $validated['is_archived']    = $request->input('is_archived') == '1';
+        $validated['is_top']         = $request->input('is_top') == '1';
         
         $validated['main_media_type'] = $request->input('main_media_type', $project->main_media_type ?? 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
@@ -526,6 +534,46 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin.projects.index')->with('success', 'Selected projects deleted successfully.');
+    }
+
+    public function projectsArchiveIndex()
+    {
+        $projects = Project::where('is_archived', true)->orderBy('created_at', 'desc')->get();
+        return view('admin.projects.archive', compact('projects'));
+    }
+
+    public function projectsArchiveSingle(Request $request)
+    {
+        $request->validate(['project_id' => 'required|exists:projects,id']);
+        $project = Project::findOrFail($request->project_id);
+        $project->is_archived = true;
+        $project->save();
+        return redirect()->back()->with('success', 'Project archived successfully.');
+    }
+
+    public function projectsRestoreSingle(Request $request)
+    {
+        $request->validate(['project_id' => 'required|exists:projects,id']);
+        $project = Project::findOrFail($request->project_id);
+        $project->is_archived = false;
+        $project->save();
+        return redirect()->back()->with('success', 'Project restored successfully.');
+    }
+
+    public function projectsBulkArchive(Request $request)
+    {
+        $request->validate(['ids' => 'required|string']);
+        $ids = explode(',', $request->ids);
+        Project::whereIn('id', $ids)->update(['is_archived' => true]);
+        return redirect()->back()->with('success', 'Selected projects archived successfully.');
+    }
+
+    public function projectsBulkRestore(Request $request)
+    {
+        $request->validate(['ids' => 'required|string']);
+        $ids = explode(',', $request->ids);
+        Project::whereIn('id', $ids)->update(['is_archived' => false]);
+        return redirect()->back()->with('success', 'Selected projects restored successfully.');
     }
 
     /**

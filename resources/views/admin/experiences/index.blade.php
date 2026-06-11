@@ -104,7 +104,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-<div x-data="globalSettingsData()">
+<div x-data="globalSettingsData()" style="display: flex; flex-direction: column; min-height: calc(100vh - 4rem);">
 
 {{-- Page header --}}
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;">
@@ -470,8 +470,8 @@ function globalSettingsData() {
 
 
 {{-- Experience list --}}
-<div class="lt-card">
-    <div class="lt-card-header">
+<div class="lt-card" style="flex: 1; display: flex; flex-direction: column;">
+    <div class="lt-card-header" style="flex-shrink: 0;">
         <h2 class="lt-card-title">Timeline Entries</h2>
         <span class="lt-count-badge">{{ $experiences->count() }}</span>
         <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#9B9589;margin-left:auto;">↕ Drag to reorder</span>
@@ -485,7 +485,7 @@ function globalSettingsData() {
             <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No experience entries yet.</p>
         </div>
     @else
-        <ul id="experience-list" style="list-style:none;padding:0;margin:0;">
+        <ul id="experience-list" style="list-style:none;padding:0;margin:0; overflow-y:auto; flex:1;">
             @foreach($experiences as $exp)
                 <li data-id="{{ $exp->id }}" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
                     <div class="exp-row">

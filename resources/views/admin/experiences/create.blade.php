@@ -795,28 +795,32 @@
                         <div id="slideshow-sortable" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem;" x-show="slides.length > 0">
                             <template x-for="(slide, index) in slides" :key="slide.id">
                                 <div class="slide-item" style="display:flex; align-items:center; gap:0.75rem; background:#fff; padding:0.4rem; border-radius:0.4rem; border:1px solid #D8D4C8; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                                    
                                     <div class="slide-drag-handle" style="cursor:grab; padding:0.2rem; color:#C4BDB2;" title="Drag to reorder">
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 3h2v2H9V3zm4 0h2v2h-2V3zM9 7h2v2H9V7zm4 0h2v2h-2V7zM9 11h2v2H9v-2zm4 0h2v2h-2v-2zM9 15h2v2H9v-2zm4 0h2v2h-2v-2zM9 19h2v2H9v-2zm4 0h2v2h-2v-2z"/></svg>
                                     </div>
+                                    
                                     <div style="font-family:'Space Mono', monospace; font-size:0.65rem; font-weight:bold; color:#9B9589; width:1.2rem; text-align:center;">
                                         <span x-text="'#' + (index + 1)"></span>
-                        <div id="slideshow-sortable" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:0.5rem; margin-bottom:1rem;" x-show="slides.length > 0">
-                            <template x-for="(slide, index) in slides" :key="index">
-                                <div style="position:relative; border-radius:0.5rem; border:1px solid #E2DDD3; overflow:hidden; background:#F7F5EE; display:flex; flex-direction:column;" class="media-preview-container">
-                                    <div style="height:100px; display:flex; align-items:center; justify-content:center; background:#000;">
-                                        <img :src="slide.croppedBase64 || slide.url" style="max-width:100%; max-height:100px; object-fit:contain;">
                                     </div>
-                                    <div style="padding:0.5rem; background:#fff; display:flex; justify-content:space-between; align-items:center; flex:1;">
-                                        <div style="flex:1; overflow:hidden;">
-                                            <p style="font-size:0.6rem; font-family:'Space Mono', monospace; color:#6829AA; margin:0; font-weight:600;" x-text="slide.type === 'new' ? 'New Upload' : 'Saved Image'"></p>
+                                    
+                                    <div style="width:4.8rem; height:2.7rem; border-radius:0.25rem; overflow:hidden; background:#eee; flex-shrink:0; border:1px solid rgba(0,0,0,0.1); position:relative;" class="media-preview-container">
+                                        <img :src="slide.url" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                        <div class="media-overlay-actions" style="top:0; right:0; bottom:0; left:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); gap:0.25rem;">
+                                            <button type="button" class="media-action-btn" style="padding:0.2rem; transform:scale(0.85);" @click="openCrop('slide', index)" title="Crop Image">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="media-overlay-actions">
-                                        <button type="button" class="media-action-btn" @click="openCrop('slide', index)" title="Crop Image">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
-                                        </button>
-                                        <button type="button" class="media-action-btn delete" @click="removeSlide(index)" title="Delete Image">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    
+                                    <div style="flex:1; min-width:0;">
+                                        <p style="font-size:0.75rem; font-weight:600; color:#333; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" x-text="slide.name"></p>
+                                        <p style="font-size:0.6rem; font-family:'Space Mono', monospace; color:#6829AA; margin:0; font-weight:600;" x-text="slide.type === 'new' ? 'New Upload' : 'Saved Image'"></p>
+                                    </div>
+
+                                    <div class="slide-actions" style="display:flex; gap:0.25rem;">
+                                        <button type="button" @click="removeSlide(index)" title="Delete Image" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.35rem; border-radius:0.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;" onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEE2E2'">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                         </button>
                                     </div>
                                 </div>

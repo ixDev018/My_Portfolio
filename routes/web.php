@@ -20,13 +20,15 @@ Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 
+$adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');
+
 // Admin Auth Routes
-Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.login');
-Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
-Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+Route::get("/{$adminPrefix}/login", [AdminController::class, 'showLogin'])->name('admin.login');
+Route::post("/{$adminPrefix}/login", [AdminController::class, 'login'])->name('admin.login.submit');
+Route::post("/{$adminPrefix}/logout", [AdminController::class, 'logout'])->name('admin.logout');
 
 // Secure Admin CMS Routes (Protected by Session Auth Middleware)
-Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function () {
+Route::middleware([AdminAuthMiddleware::class])->prefix($adminPrefix)->group(function () {
     // Dashboard Stats
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -46,6 +48,7 @@ Route::middleware([AdminAuthMiddleware::class])->prefix('admin')->group(function
     Route::post('/projects/update/{id}', [AdminController::class, 'projectsUpdate'])->name('admin.projects.update');
     Route::post('/projects/delete/{id}', [AdminController::class, 'projectsDestroy'])->name('admin.projects.delete');
     Route::post('/projects/bulk-delete', [AdminController::class, 'projectsBulkDelete'])->name('admin.projects.bulk-delete');
+    Route::post('/projects/reorder', [AdminController::class, 'projectsReorder'])->name('admin.projects.reorder');
     
     // Archive routes
     Route::get('/projects/archived', [AdminController::class, 'projectsArchiveIndex'])->name('admin.projects.archived');

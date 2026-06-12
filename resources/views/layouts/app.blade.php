@@ -14,10 +14,10 @@
     <meta property="og:description" content="@yield('meta_description', 'Full-Stack Developer & UI/UX Specialist crafting ultra-premium digital solutions.')">
     <meta property="og:type" content="website">
     
-    <!-- Google Fonts: Jaro (Titles/Logo) & Bitcount Single (Body/Menu) -->
+    <!-- Google Fonts: Space Grotesk (Titles), Jaro (Logo) & Bitcount Single (Body/Menu) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&family=Space+Grotesk:wght@700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS and Vite asset compilation -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -30,10 +30,18 @@
         /* Default body text → Bitcount Single (subtitles, nav, labels, buttons) */
         body, .font-sans, .font-mono, button, a, span, label, input, textarea, li, td, th {
             font-family: 'Bitcount Single', monospace !important;
+            font-weight: 400 !important;
         }
-        /* Display headings → Jaro */
-        h1, h2, h3, h4, h5, h6, .font-display {
+        /* Logo → Jaro */
+        .font-logo {
             font-family: 'Jaro', sans-serif !important;
+            font-weight: 400 !important;
+            letter-spacing: normal !important;
+        }
+        /* Display headings → Grotesk Display */
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: 'Space Grotesk', 'Grotesk Display', sans-serif !important;
+            font-weight: 700 !important;
         }
         /* Content/description paragraphs → Poppins */
         .font-poppins, .font-poppins p, .font-poppins * {
@@ -175,29 +183,25 @@
             <div class="success-modal-card relative z-10 flex flex-col items-center text-center"
                  :class="hiding ? 'hiding' : ''"
                  style="
-                    background: #1e293b; /* slate-800 */
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 24px;
+                    background: #111111;
+                    border: 2px solid #ffffff;
+                    border-radius: 0;
                     padding: 3rem 3.5rem 2.5rem;
                     min-width: 320px;
                     max-width: 400px;
-                    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
                  "
             >
                 {{-- Animated Check / Error Icon --}}
-                <div class="relative mb-6" style="width:88px; height:88px;">
-                    {{-- Ripple ring --}}
-                    <div class="success-ripple absolute inset-0 rounded-full" style="background: {{ $isSuccess ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.18)' }};"></div>
-
-                    {{-- Circle --}}
-                    <div class="success-check-circle absolute inset-0 rounded-full flex items-center justify-center"
-                         style="background: {{ $isSuccess ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }}; box-shadow: 0 8px 24px {{ $isSuccess ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)' }};">
+                <div class="relative mb-6" style="width:80px; height:80px;">
+                    {{-- Flat Square Icon Container --}}
+                    <div class="absolute inset-0 flex items-center justify-center"
+                         style="background: {{ $isSuccess ? '#10b981' : '#ef4444' }}; border: 2px solid #ffffff;">
                         @if($isSuccess)
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                                 <path class="success-check-path" d="M5 13l4 4L19 7"/>
                             </svg>
                         @else
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                                 <path class="success-check-path" d="M18 6L6 18M6 6l12 12"/>
                             </svg>
                         @endif
@@ -205,12 +209,12 @@
                 </div>
 
                 {{-- Title --}}
-                <h2 style="font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:800; color:#f8fafc; margin-bottom:0.5rem; letter-spacing:-0.02em;">
+                <h2 style="font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; color:#ffffff; margin-bottom:0.5rem; text-transform:uppercase;">
                     {{ $isSuccess ? 'Success!' : 'Error!' }}
                 </h2>
 
                 {{-- Message --}}
-                <p style="font-family:'Poppins',sans-serif; font-size:0.9rem; color:#94a3b8; line-height:1.6; margin-bottom:2rem;">
+                <p style="font-family:'Bitcount Single',monospace; font-size:0.85rem; color:#a1a1aa; line-height:1.6; margin-bottom:2rem; text-transform:uppercase; letter-spacing:0.05em;">
                     {{ $msg }}
                 </p>
 
@@ -218,37 +222,28 @@
                 <button
                     @click="dismiss()"
                     style="
-                        font-family:'Outfit',sans-serif;
+                        font-family:'Bitcount Single',monospace;
                         font-weight:700;
                         font-size:0.8rem;
-                        letter-spacing:0.06em;
+                        letter-spacing:0.1em;
                         text-transform:uppercase;
-                        padding:0.65rem 2.5rem;
-                        border-radius:100px;
-                        border:none;
+                        padding:0.75rem 2.5rem;
+                        border-radius:0;
+                        border:2px solid #ffffff;
                         cursor:pointer;
                         transition: all 0.2s ease;
-                        background: {{ $isSuccess ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }};
+                        background: {{ $isSuccess ? '#10b981' : '#ef4444' }};
                         color: white;
-                        box-shadow: 0 4px 14px {{ $isSuccess ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)' }};
                     "
-                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px {{ $isSuccess ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)' }}'"
-                    onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 14px {{ $isSuccess ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)' }}'"
+                    onmouseover="this.style.background='#ffffff'; this.style.color='#000000';"
+                    onmouseout="this.style.background='{{ $isSuccess ? '#10b981' : '#ef4444' }}'; this.style.color='white';"
                 >
                     Got it
                 </button>
 
                 {{-- Auto-dismiss progress bar --}}
-                <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:rgba(255,255,255,0.05); border-radius:0 0 24px 24px; overflow:hidden;">
-                    <div
-                        class="success-progress-bar"
-                        style="
-                            height:100%;
-                            background: {{ $isSuccess ? 'linear-gradient(90deg,#10b981,#34d399)' : 'linear-gradient(90deg,#ef4444,#f87171)' }};
-                            animation-duration: 3.5s;
-                            border-radius:0 0 24px 24px;
-                        "
-                    ></div>
+                <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:#333333; overflow:hidden;">
+                    <div class="success-progress-bar h-full" style="background: {{ $isSuccess ? '#10b981' : '#ef4444' }}; width: 100%; animation-duration: 3.5s;"></div>
                 </div>
             </div>
         </div>

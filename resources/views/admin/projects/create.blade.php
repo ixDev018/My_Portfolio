@@ -1334,6 +1334,14 @@ function notionEditorCreate() {
         async handleVideoFile(event) {
             let file = event.target.files[0];
             if (!file || !this._pendingVideoBlockId) return;
+
+            if (file.size > 250 * 1024 * 1024) {
+                alert('This video is too large! The maximum allowed file size is 250MB.');
+                event.target.value = '';
+                this._pendingVideoBlockId = null;
+                return;
+            }
+
             let block = this.blocks.find(b => b.id === this._pendingVideoBlockId);
             if (!block) return;
 

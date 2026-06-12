@@ -209,7 +209,7 @@ class AdminController extends Controller
     */
     public function projectsIndex()
     {
-        $projects = Project::where('is_archived', false)->orderBy('created_at', 'desc')->get();
+        $projects = Project::where('is_archived', false)->orderBy('sort_order', 'asc')->orderBy('created_at', 'desc')->get();
         return view('admin.projects.index', compact('projects'));
     }
 
@@ -236,6 +236,7 @@ class AdminController extends Controller
             'github_url'          => 'nullable|url',
             'video_url'           => 'nullable|url',
             'full_video_url'      => 'nullable|url',
+            'embed_url'           => 'nullable|string|max:500',
             'featured'            => 'nullable|boolean',
             'is_best_work'        => 'nullable|boolean',
             'is_archived'         => 'nullable|boolean',
@@ -244,6 +245,7 @@ class AdminController extends Controller
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
             'video_loop_end'      => 'nullable|numeric|min:0',
+            'main_media_base64'   => 'nullable|string',
             'use_custom_thumbnail'=> 'nullable|boolean',
             'custom_thumbnail_base64' => 'nullable|string',
             'featured_thumbnail_base64' => 'nullable|string',
@@ -264,7 +266,18 @@ class AdminController extends Controller
         $validated['description']  = $validated['subtitle'] ?? '';
 
         // Main Media Processing
-        if ($request->hasFile('main_media_upload')) {
+        if ($validated['main_media_type'] === 'image' && $request->input('main_media_base64')) {
+            $base64 = $request->input('main_media_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $data = substr($base64, strpos($base64, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                $filename = 'projects/main_images/' . uniqid() . '.' . $type;
+                Storage::disk('public')->put($filename, $data);
+                $validated['main_image_path'] = $filename;
+                $validated['main_images'] = null;
+            }
+        } elseif ($request->hasFile('main_media_upload')) {
             $files = $request->file('main_media_upload');
             if ($validated['main_media_type'] === 'video') {
                 $validated['main_video_path'] = $files[0]->store('projects/main_videos', 'public');
@@ -349,6 +362,7 @@ class AdminController extends Controller
             'github_url'          => 'nullable|url',
             'video_url'           => 'nullable|url',
             'full_video_url'      => 'nullable|url',
+            'embed_url'           => 'nullable|string|max:500',
             'featured'            => 'nullable|boolean',
             'is_best_work'        => 'nullable|boolean',
             'is_archived'         => 'nullable|boolean',
@@ -357,6 +371,7 @@ class AdminController extends Controller
             'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
             'video_loop_start'    => 'nullable|numeric|min:0',
             'video_loop_end'      => 'nullable|numeric|min:0',
+            'main_media_base64'   => 'nullable|string',
             'use_custom_thumbnail'=> 'nullable|boolean',
             'custom_thumbnail_base64' => 'nullable|string',
             'featured_thumbnail_base64' => 'nullable|string',
@@ -401,7 +416,24 @@ class AdminController extends Controller
         }
 
         // Main Media Processing
-        if ($request->hasFile('main_media_upload')) {
+        if ($validated['main_media_type'] === 'image' && $request->input('main_media_base64')) {
+            $base64 = $request->input('main_media_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                if ($project->main_image_path) Storage::disk('public')->delete($project->main_image_path);
+                if ($project->main_images) {
+                    foreach ($project->main_images as $oldImg) {
+                        Storage::disk('public')->delete($oldImg);
+                    }
+                }
+                $data = substr($base64, strpos($base64, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                $filename = 'projects/main_images/' . uniqid() . '.' . $type;
+                Storage::disk('public')->put($filename, $data);
+                $validated['main_image_path'] = $filename;
+                $validated['main_images'] = null;
+            }
+        } elseif ($request->hasFile('main_media_upload')) {
             $files = $request->file('main_media_upload');
             if ($validated['main_media_type'] === 'video') {
                 if ($project->main_video_path) {
@@ -574,6 +606,20 @@ class AdminController extends Controller
         $ids = explode(',', $request->ids);
         Project::whereIn('id', $ids)->update(['is_archived' => false]);
         return redirect()->back()->with('success', 'Selected projects restored successfully.');
+    }
+
+    public function projectsReorder(Request $request)
+    {
+        $request->validate([
+            'ordered_ids' => 'required|array',
+            'ordered_ids.*' => 'integer|exists:projects,id'
+        ]);
+
+        foreach ($request->ordered_ids as $index => $id) {
+            Project::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**

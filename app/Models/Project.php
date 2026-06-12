@@ -25,6 +25,7 @@ class Project extends Model
         'video_loop_start',
         'video_loop_end',
         'full_video_url',
+        'embed_url',
         'media_type',
         'video_url',
         'tags',

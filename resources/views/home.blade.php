@@ -139,7 +139,7 @@
                 </style>
 
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
-                <h1 class="font-normal leading-none uppercase font-display tracking-tight select-none text-center origin-center transform scale-90 translate-y-12 hero-reality-effect"
+                <h1 class="font-normal leading-none uppercase font-logo tracking-tight select-none text-center origin-center transform scale-90 translate-y-12 hero-reality-effect"
                     :class="sectionVisible ? 'active scale-100 translate-y-0' : ''"
                     style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em; -webkit-text-stroke: 1px black;">
                     {{ $profile->hero_title ?? 'REALITY' }}
@@ -425,7 +425,7 @@
 
             <!-- Section Header -->
             <div class="text-center pt-5 pb-4 px-6 relative z-10">
-                <h2 class="text-xl font-display uppercase tracking-[0.3em] text-white">Introduction</h2>
+                <h2 class="text-3xl md:text-5xl font-display uppercase tracking-tighter leading-none text-white">Introduction</h2>
             </div>
         <hr class="border-white/25 mx-0 relative z-10">
 
@@ -939,96 +939,18 @@
             </template>
         </div>
 
-        @if($featuredProjects->count() > 0)
-        <section id="best-works" class="w-full text-[#1a1207] pt-16 pb-16 relative" x-data="{
-            slide: 0,
-            total: {{ $featuredProjects->count() }},
-            prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
-            next() { this.slide = (this.slide + 1) % this.total; }
-        }">
 
-        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-[1400px] mx-auto px-6 w-full relative z-10 opacity-0 translate-y-12">
-            <!-- Section Title -->
-            <h2 class="text-center font-display text-4xl md:text-5xl uppercase tracking-[0.2em] text-[#1a1207] mb-2" style="text-shadow: 0 4px 20px rgba(0,0,0,0.05);">The Best Works</h2>
-            <p class="text-center text-xs font-mono text-[#6829AA] tracking-[0.3em] uppercase mb-12">Handpicked Featured Projects</p>
-
-            <!-- Slider Container -->
-            <div class="relative w-full aspect-[4/3] md:aspect-[16/9] max-w-6xl mx-auto rounded-2xl overflow-hidden border border-black/10 group">
-                
-                @foreach($featuredProjects as $index => $fp)
-                <div x-show="slide === {{ $index }}"
-                     x-transition:enter="transition ease-out duration-700"
-                     x-transition:enter-start="opacity-0 scale-105"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-500"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
-                     class="absolute inset-0 w-full h-full">
-                    
-                    <!-- Background Image -->
-                    <img src="{{ $fp->featured_thumbnail ? asset('storage/' . $fp->featured_thumbnail) : ($fp->thumbnail_path ? asset('storage/' . $fp->thumbnail_path) : asset('images/placeholder.jpg')) }}" 
-                         alt="{{ $fp->title }}" class="w-full h-full object-cover">
-                    
-                    <!-- Gradient Overlay -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                    
-                    <!-- Content -->
-                    <div class="absolute bottom-0 left-0 w-full p-5 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
-                        <div class="max-w-2xl">
-                            <div class="flex items-center gap-3 mb-2 md:mb-3">
-                                <span class="px-2 md:px-3 py-1 bg-[#FF851B] text-[#783800] text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-sm">{{ $fp->category ?? 'Featured' }}</span>
-                                <span class="text-white/60 font-mono text-[10px] md:text-xs uppercase tracking-widest">{{ $fp->year ?? '2025' }}</span>
-                            </div>
-                            <h3 class="font-display text-3xl md:text-6xl text-white uppercase leading-none mb-2 md:mb-4">{{ $fp->title }}</h3>
-                            <p class="font-poppins text-xs md:text-base text-white/80 line-clamp-2 md:line-clamp-3 max-w-xl">
-                                {{ $fp->description ?? $fp->subtitle }}
-                            </p>
-                        </div>
-                        
-                        <a href="{{ route('portfolio.project.show', $fp->slug) }}" class="shrink-0 group/btn relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 bg-white text-black font-sans text-[10px] md:text-xs font-bold uppercase tracking-widest overflow-hidden">
-                            <span class="relative z-10 flex items-center gap-2 transition-transform duration-300 group-hover/btn:-translate-y-10">
-                                View Case Study
-                            </span>
-                            <span class="absolute inset-0 z-10 flex items-center justify-center gap-2 translate-y-full transition-transform duration-300 group-hover/btn:translate-y-0 text-white bg-[#6829AA]">
-                                Explore Now <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-                @endforeach
-
-                <!-- Navigation Controls -->
-                <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button @click="prev()" class="pointer-events-auto w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-[#FF851B] text-white border border-white/20 hover:border-transparent rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button @click="next()" class="pointer-events-auto w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-[#FF851B] text-white border border-white/20 hover:border-transparent rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
-                
-                <!-- Pagination Indicators -->
-                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
-                    <template x-for="i in total" :key="i">
-                        <button @click="slide = i - 1" 
-                                class="h-1.5 transition-all duration-300 rounded-full"
-                                :class="slide === i - 1 ? 'w-8 bg-[#FF851B]' : 'w-2 bg-white/30 hover:bg-white/50'">
-                        </button>
-                    </template>
-                </div>
-
-            </div>
-        </div>
-    </section>
-    @endif
 
     <!-- WORKS AND OUTPUTS SECTION -->
-    <section id="works" class="w-full text-black pt-16 pb-0 relative">
-        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-[1400px] mx-auto px-6 w-full relative z-10 pb-32 opacity-0 translate-y-12">
+    <section id="works" class="w-full text-black pt-0 pb-0 relative">
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out w-full relative z-10 pb-0 opacity-0 translate-y-12">
 
-            <!-- Section Title -->
-            <h2 class="text-center font-display text-2xl uppercase tracking-widest text-black mb-2">Works & Outputs</h2>
-            <p class="text-center text-xs font-mono text-black/40 tracking-widest uppercase mb-14">A curated showcase of craft & execution</p>
+            {{-- ══════════════════════════════════════════════════
+                 WORKS & OUTPUTS GENERAL INDICATOR
+            ══════════════════════════════════════════════════ --}}
+            <div class="text-center pt-0 md:pt-2 pb-12 md:pb-16 px-6 relative z-10">
+                <h2 class="text-5xl md:text-7xl lg:text-[6rem] font-display uppercase tracking-tighter leading-none text-black">Works and outputs</h2>
+            </div>
 
             {{-- ══════════════════════════════════════════════════
                  PART 1 — PRODUCT & UI DESIGN
@@ -1047,65 +969,56 @@
                 ])->values()->toJson();
             @endphp
 
-            <div class="mb-20" x-data="{
+            <div class="w-full relative" x-data="{
                 current: 0,
                 allItems: {{ $carouselItems }},
+                dimming: false,
+                hoverTimer: null,
                 get total() { return this.allItems.length; },
                 prev() { this.current = (this.current - 1 + this.total) % this.total; },
                 next() { this.current = (this.current + 1) % this.total; },
                 get maxOffset() {
-                    const gap = 20;
+                    const gap = 0;
                     const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
                     const cw = this.$refs.viewport ? this.$refs.viewport.clientWidth : this.$el.clientWidth;
                     const max = ((this.total + 1) * (cardPx + gap) - gap) - cw;
                     return max > 0 ? max : 0;
                 },
                 get offset() {
-                    const gap = 20;
+                    const gap = 0;
                     const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
                     let target = this.current * (cardPx + gap);
                     return target > this.maxOffset ? this.maxOffset : target;
                 }
-            }" @resize.window="current = current">
+            }" @resize.window="current = current"
+               @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
+               @mouseleave="clearTimeout(hoverTimer); dimming = false;">
 
-                <!-- Sub-header row -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                    <div>
-                        <h3 class="font-display text-base tracking-widest uppercase text-black">Product &amp; UI Design</h3>
-                        <p class="text-xs font-mono text-black/40 mt-0.5">Interfaces built with purpose and precision</p>
+                <!-- Brutalist Edge-to-Edge Header & Filters for UI/UX -->
+                @php
+                    $uiMediums = $uiProjects->pluck('medium')->filter()->unique()->values();
+                @endphp
+                <div class="w-full bg-[#D4D4D4] border-t border-black flex flex-col border-b sticky top-[72px] z-40">
+                    <!-- Large Header Row -->
+                    <div class="relative w-full py-8 md:py-12 text-center flex items-center justify-center overflow-hidden">
+                        <h3 class="font-display text-2xl md:text-4xl lg:text-5xl uppercase text-black tracking-tighter leading-none relative z-10 mt-2">UI/UX PRODUCTS</h3>
                     </div>
-                    <!-- Project count pill -->
-                    <span class="font-mono text-[10px] text-black/40 uppercase tracking-widest">
-                        {{ $uiProjects->count() }} {{ Str::plural('project', $uiProjects->count()) }}
-                    </span>
+
+                    <!-- Tabs Row -->
+                    <div class="flex w-full border-t border-black overflow-x-auto hide-scrollbar">
+                        <button class="bg-white text-black min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black shrink-0">
+                            ALL
+                        </button>
+                        @foreach($uiMediums as $med)
+                            <button class="text-black hover:bg-white/50 min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black last:border-r-0 shrink-0 truncate transition-colors duration-200">
+                                {{ $med }}
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- Carousel Viewport -->
-                <div class="relative" x-ref="viewport">
-
-                    <!-- Left gradient fade -->
-                    <div class="absolute left-0 top-0 bottom-0 w-16 md:w-28 pointer-events-none z-10"
-                         style="background: linear-gradient(to right, #FAF7E6 15%, transparent 100%);"
-                         x-show="offset > 0"
-                         x-transition:enter="transition-opacity duration-200"
-                         x-transition:enter-start="opacity-0"
-                         x-transition:enter-end="opacity-100"
-                         x-transition:leave="transition-opacity duration-200"
-                         x-transition:leave-start="opacity-100"
-                         x-transition:leave-end="opacity-0">
-                    </div>
-
-                    <!-- Right gradient fade -->
-                    <div class="absolute right-0 top-0 bottom-0 w-24 md:w-40 pointer-events-none z-10"
-                         style="background: linear-gradient(to left, #FAF7E6 15%, transparent 100%);"
-                         x-show="offset < maxOffset"
-                         x-transition:enter="transition-opacity duration-200"
-                         x-transition:enter-start="opacity-0"
-                         x-transition:enter-end="opacity-100"
-                         x-transition:leave="transition-opacity duration-200"
-                         x-transition:leave-start="opacity-100"
-                         x-transition:leave-end="opacity-0">
-                    </div>
+                <div class="relative w-full bg-black" x-ref="viewport">
 
                     <!-- Left Arrow -->
                     <button @click="prev()"
@@ -1141,22 +1054,19 @@
 
                     <!-- Track wrapper -->
                     <div style="overflow-x: clip; overflow-y: visible;">
-                        <div x-ref="track" class="flex gap-5 py-3 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] w-max"
+                        <div x-ref="track" class="flex gap-0 py-0 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] w-max"
                              :style="'transform: translateX(-' + offset + 'px)'">
 
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
                                 <a href="{{ route('portfolio.project.show', $proj->slug) }}"
                                    x-data="{ isDimmed: false }"
-                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-2xl relative group bg-white"
-                                   :class="{{ $index }} === current ? 'ring-2 ring-black/12' : 'opacity-75'"
-                                   style="transition: opacity 0.4s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);"
-                                   @mouseenter="if(!isDimmed) { $el.style.transform='translateY(-6px)'; $el.style.opacity='1'; }"
-                                   @mouseleave="$el.style.transform=''; $el.style.opacity=''">
+                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100"
+                                   :class="(dimming ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')">
 
                                     <!-- Image / placeholder -->
-                                    <div class="relative w-full rounded-2xl overflow-hidden border border-black/10
-                                                @if(($proj->use_custom_thumbnail && $proj->thumbnail_path) || $proj->main_video_path) bg-slate-900 @else bg-gradient-to-br from-slate-100 to-slate-200 @endif
+                                    <div class="relative w-full rounded-none overflow-hidden
+                                                @if(($proj->use_custom_thumbnail && $proj->thumbnail_path) || $proj->main_video_path) bg-black @else bg-black @endif
                                                 flex items-center justify-center">
                                         @if($proj->use_custom_thumbnail && $proj->thumbnail_path)
                                             <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
@@ -1218,7 +1128,7 @@
                                     </div>
 
                                     <!-- Hover overlay -->
-                                    <div class="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex flex-col justify-end p-5 pointer-events-none z-10">
+                                    <div class="absolute inset-0 rounded-none bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex flex-col justify-end p-5 pointer-events-none z-10">
                                         <div class="translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                                             <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-white font-mono text-[9px] uppercase tracking-widest mb-2">
                                                 {{ $proj->medium ?? 'Project' }}
@@ -1232,12 +1142,12 @@
                                     </div>
 
                                     <!-- Medium badge -->
-                                    <div class="absolute top-3.5 left-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] uppercase tracking-widest text-black/60">
+                                    <div class="absolute top-3.5 left-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] uppercase tracking-widest text-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         {{ $proj->medium ?? 'Project' }}
                                     </div>
 
                                     @if($proj->year)
-                                        <div class="absolute top-3.5 right-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] text-black/50">
+                                        <div class="absolute top-3.5 right-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] text-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             {{ $proj->year }}
                                         </div>
                                     @endif
@@ -1249,15 +1159,14 @@
                             @endforelse
 
                             <!-- Coming Soon Card -->
-                            <div class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-2xl relative group bg-white/40 border-2 border-dashed border-black/10 flex flex-col items-center justify-center"
-                                 :class="{{ $uiProjects->count() }} === current ? 'ring-2 ring-black/12' : 'opacity-75'"
-                                 style="transition: opacity 0.4s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);">
+                            <div class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-none relative group bg-[#1A1A1A] border-r border-black flex flex-col items-center justify-center transition-opacity duration-500 hover:!opacity-100"
+                                 :class="(dimming ? 'opacity-25 ' : 'opacity-100 ') + ({{ $uiProjects->count() }} === current ? '' : '')">
                                 <div class="text-center opacity-50 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div class="w-12 h-12 rounded-full bg-white border-2 border-black/10 flex items-center justify-center mx-auto mb-4">
-                                        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    <div class="w-12 h-12 rounded-full bg-black border border-white/20 flex items-center justify-center mx-auto mb-4 transition-colors group-hover:border-white/50">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                     </div>
-                                    <h4 class="font-display text-lg uppercase text-black tracking-wider">More in the works</h4>
-                                    <p class="font-mono text-[10px] text-black/60 uppercase tracking-widest mt-1">Coming Soon</p>
+                                    <h4 class="font-display text-lg uppercase text-white tracking-wider">More in the works</h4>
+                                    <p class="font-mono text-[10px] text-white/60 uppercase tracking-widest mt-1">Coming Soon</p>
                                 </div>
                             </div>
 
@@ -1266,7 +1175,7 @@
                 </div>
 
                 <!-- Dot indicators + progress bar -->
-                <div class="mt-5 flex items-center gap-5">
+                <div class="py-6 flex items-center justify-center gap-5 bg-[#D4D4D4] border-y border-black px-6 w-full">
                     <div class="flex items-center gap-2">
                         @foreach($uiProjects as $index => $proj)
                             <button @click="current = {{ $index }}"
@@ -1301,7 +1210,9 @@
              Native image height for true Pinterest aspect ratios
         ══════════════════════════════════════════════════ --}}
         @php
-            $visualProjects = $projects->where('category', 'visual')->shuffle()->values();
+            $bestWorks = $projects->where('category', 'visual')->where('is_best_work', true)->shuffle();
+            $otherWorks = $projects->where('category', 'visual')->where('is_best_work', false)->shuffle();
+            $visualProjects = $bestWorks->concat($otherWorks)->values();
 
             // Collect distinct mediums for filter pills
             $mediums = $visualProjects->pluck('medium')->filter()->unique()->values();
@@ -1310,44 +1221,43 @@
             $playTypes = ['Motion', 'Video', 'Video Edit', 'Animation', 'Motion Design'];
         @endphp
 
-        <div class="w-full pt-6 pb-20"
+        <div class="w-full pt-0 pb-20"
              x-data="{ activeFilter: 'all' }">
 
-            <div class="max-w-[1400px] mx-auto px-6 w-full">
-
-                <!-- Sub-header + filter pills -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-                    <div>
-                        <h3 class="font-display text-base tracking-widest uppercase text-black">Visual &amp; Motion Design</h3>
-                        <p class="text-xs font-mono text-black/40 mt-0.5">Graphic arts, motion animations &amp; video edits</p>
-                    </div>
-
-                    <!-- Filter pills — driven by real mediums in DB -->
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <button @click="activeFilter = 'all'"
-                                :class="activeFilter === 'all' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
-                                class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
-                            All
-                        </button>
-                        @foreach($mediums as $med)
-                            <button @click="activeFilter = '{{ $med }}'"
-                                    :class="activeFilter === '{{ $med }}' ? 'bg-black text-[#FAF7E6]' : 'bg-white text-black/60 hover:text-black hover:border-black/60'"
-                                    class="px-4 py-1.5 rounded-full border border-black/20 font-mono text-[10px] uppercase tracking-widest transition-all duration-200">
-                                {{ $med }}
-                            </button>
-                        @endforeach
-                    </div>
+            <!-- Brutalist Edge-to-Edge Header & Filters -->
+            <div class="w-full bg-[#D4D4D4] border-t border-black flex flex-col border-b sticky top-[72px] z-40">
+                <!-- Large Header Row -->
+                <div class="relative w-full py-8 md:py-12 text-center flex items-center justify-center overflow-hidden">
+                    <h3 class="font-display text-2xl md:text-4xl lg:text-5xl uppercase text-black tracking-tighter leading-none relative z-10 mt-2">Visual &amp; Motion Design</h3>
                 </div>
 
+                <!-- Tabs Row -->
+                <div class="flex w-full border-t border-black overflow-x-auto hide-scrollbar">
+                    <button @click="activeFilter = 'all'"
+                            :class="activeFilter === 'all' ? 'bg-white text-black' : 'text-black hover:bg-white/50'"
+                            class="min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black transition-colors duration-200 shrink-0">
+                        All
+                    </button>
+                    @foreach($mediums as $med)
+                        <button @click="activeFilter = '{{ $med }}'"
+                                :class="activeFilter === '{{ $med }}' ? 'bg-white text-black' : 'text-black hover:bg-white/50'"
+                                class="min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black last:border-r-0 transition-colors duration-200 shrink-0 truncate">
+                            {{ $med }}
+                        </button>
+                    @endforeach
+                </div>
             </div>
 
-            {{-- Pinterest masonry — columns layout, natively sized by images --}}
-            <div class="max-w-[1400px] mx-auto px-6 relative">
+            {{-- Pinterest masonry — seamless edge-to-edge layout --}}
+            <div class="w-full relative bg-black">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
                 <div class="relative overflow-hidden" style="max-height: 150vh;">
                     
-                    <div class="columns-2 md:columns-3 lg:columns-4 gap-4">
+                    <div class="columns-2 md:columns-3 lg:columns-4 gap-0"
+                         x-data="{ dimming: false, hoverTimer: null }"
+                         @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
+                         @mouseleave="clearTimeout(hoverTimer); dimming = false;">
 
                         @forelse($visualProjects as $proj)
                             {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
@@ -1360,12 +1270,10 @@
                                x-transition:leave="transition-opacity duration-200"
                                x-transition:leave-start="opacity-100"
                                x-transition:leave-end="opacity-0"
-                               class="block w-full break-inside-avoid mb-4 rounded-2xl overflow-hidden relative group bg-white border border-black/8 cursor-pointer"
-                               style="transition: transform 0.22s ease;"
-                               @mouseenter="if(!isDimmed) $el.style.transform='scale(1.018)'"
-                               @mouseleave="$el.style.transform='scale(1)'">
+                               :class="dimming ? 'opacity-25' : 'opacity-100'"
+                               class="block w-full break-inside-avoid mb-0 rounded-none overflow-hidden relative group bg-black cursor-pointer transition-opacity duration-500 hover:!opacity-100">
 
-                                <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
+                                <div class="relative w-full overflow-hidden flex items-center justify-center bg-black">
                                     @if(($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) || ($proj->main_media_type === 'video' && ($proj->main_video_path || $proj->video_url)))
                                         @php
                                             $vidSrc = '';
@@ -1464,21 +1372,26 @@
 
                                     {{-- Type pill —always visible top-right --}}
                                     @if($proj->medium)
-                                        <div class="absolute top-3 right-3 z-20">
+                                        <div class="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <span class="px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[8px] uppercase tracking-wider text-black/55 shadow-sm">
                                                 {{ $proj->medium }}
                                             </span>
                                         </div>
                                     @endif
 
-                                    {{-- Year badge top-left --}}
-                                    @if($proj->year)
-                                        <div class="absolute top-3 left-3 z-20">
+                                    {{-- Year & Best Work badge top-left --}}
+                                    <div class="absolute top-3 left-3 z-20 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        @if($proj->is_best_work)
+                                            <span class="px-2 py-0.5 rounded-full bg-black text-white font-mono text-[8px] uppercase tracking-wider shadow-sm">
+                                                Best Work
+                                            </span>
+                                        @endif
+                                        @if($proj->year)
                                             <span class="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm font-mono text-[8px] text-white/80">
                                                 {{ $proj->year }}
                                             </span>
-                                        </div>
-                                    @endif
+                                        @endif
+                                    </div>
                                 </div>
                             </a>
                         @empty
@@ -1675,7 +1588,7 @@
             
             <!-- Top Header & Pills -->
             <div class="text-center mb-8 lg:mb-24">
-                <h3 class="text-[2rem] lg:text-[3rem] font-bold tracking-tight text-black mb-5 lg:mb-8 font-display uppercase">Achievements</h3>
+                <h3 class="text-[3rem] lg:text-[5rem] font-bold tracking-tighter text-black mb-5 lg:mb-8 font-display uppercase leading-none">Achievements</h3>
 
                 <!-- Switchable tabs (Purple Accent) -->
                 <div class="inline-flex items-center gap-3">
@@ -1704,7 +1617,7 @@
                 <div class="w-full lg:w-[40%] xl:w-[35%] text-center lg:text-left pt-2 lg:pt-4 order-2 lg:order-1">
                     <!-- Mobile heading: single line, centered -->
                     <h2 class="text-[1.75rem] lg:text-[2.75rem] xl:text-[3.25rem] whitespace-nowrap font-bold tracking-tight text-black mb-3 lg:mb-6 leading-tight font-poppins">
-                        Proof of <span x-text="activeTab === 'all' ? 'Impact' : (activeTab === 'award' ? 'Excellence' : 'Skill')"></span>
+                        Proof of <span class="font-normal" x-text="activeTab === 'all' ? 'Impact' : (activeTab === 'award' ? 'Excellence' : 'Skill')"></span>
                     </h2>
                     <p class="text-gray-500 text-sm lg:text-lg leading-relaxed mb-6 lg:mb-12 font-medium font-poppins max-w-xs mx-auto lg:mx-0 lg:max-w-none">
                         Being appreciated for the work I do means the world to me. Whether achieved individually or alongside a talented team, these milestones translate beautifully into continuous learning and industry recognition.
@@ -2009,7 +1922,7 @@
             <!-- Section header -->
             <div class="text-center mb-16">
                 <p class="font-mono text-[11px] uppercase tracking-[0.35em] text-[#FF851B] mb-3">Career Path</p>
-                <h2 class="font-display text-[2rem] sm:text-[3rem] uppercase tracking-[0.15em] text-white leading-none" style="text-shadow: 0 0 40px rgba(255,133,27,0.3);">Work Experience</h2>
+                <h2 class="font-display text-[3rem] sm:text-[5rem] uppercase tracking-tighter text-white leading-none" style="text-shadow: 0 0 40px rgba(255,133,27,0.3);">Work Experience</h2>
             </div>
 
             <!-- Layout wrapper: transitions between centered (default) and split (active) -->
@@ -2044,11 +1957,12 @@
                              class="absolute inset-0 flex flex-col z-[110]" style="min-height: 0;">
                             
                              <div class="flex-shrink-0 pt-4 pb-2">
-                                 <div class="block w-full border border-white/5 rounded-xl px-5 py-4 bg-white/5 animate-pulse">
-                                     <div class="h-8 bg-white/10 rounded w-2/3 mb-3"></div>
-                                     <div class="flex gap-2 mt-2">
-                                         <div class="h-3 bg-white/10 rounded w-1/4"></div>
-                                         <div class="h-3 bg-white/10 rounded w-1/6"></div>
+                                 <div class="block w-full border border-white/10 rounded-xl px-5 py-4 backdrop-blur-md animate-pulse" style="background: rgba(255,255,255,0.05);">
+                                     <div class="h-[1.4rem] sm:h-[1.8rem] bg-white/10 rounded w-2/3 mb-3"></div>
+                                     <div class="flex items-center gap-2 mt-2">
+                                         <div class="h-[10px] bg-white/10 rounded w-1/4"></div>
+                                         <div class="w-1 h-1 bg-white/10 rounded-full"></div>
+                                         <div class="h-[10px] bg-white/10 rounded w-1/6"></div>
                                      </div>
                                  </div>
                              </div>
@@ -2056,12 +1970,16 @@
                              <div class="flex-1 overflow-hidden pr-2 pb-5 space-y-6 mt-4">
                                  <div class="space-y-4 animate-pulse">
                                      <div class="h-4 bg-white/10 rounded w-full"></div>
-                                     <div class="h-4 bg-white/10 rounded w-5/6"></div>
-                                     <div class="h-4 bg-white/10 rounded w-4/6"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[95%]"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[90%]"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[85%]"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[60%]"></div>
                                  </div>
                                  <div class="space-y-4 animate-pulse pt-4">
                                      <div class="h-4 bg-white/10 rounded w-full"></div>
-                                     <div class="h-4 bg-white/10 rounded w-3/4"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[92%]"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[88%]"></div>
+                                     <div class="h-4 bg-white/10 rounded w-[75%]"></div>
                                  </div>
                              </div>
                         </div>
@@ -2238,7 +2156,7 @@
 
 
     <!-- COLLABORATE (CONTACT) SECTION -->
-    <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-10">
+    <section id="contact" class="bg-[#161616] text-white relative pt-0 pb-24 md:pb-32">
 
 
         <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-7xl mx-auto px-6 pt-20 relative z-10 opacity-0 translate-y-12">
@@ -2247,7 +2165,7 @@
                 <!-- Contact info cards -->
                 <div class="lg:col-span-5">
                     <h2 class="text-xs font-mono font-bold uppercase tracking-widest text-[#ff6b00] mb-3">Collaborate</h2>
-                    <h3 class="text-3xl sm:text-4xl font-black tracking-tight leading-none mb-6 text-white">Let's craft something premium together</h3>
+                    <h3 class="font-display text-[3rem] sm:text-[4.5rem] font-bold tracking-tighter leading-none mb-6 text-white uppercase">Let's craft something premium together</h3>
                     <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-8">
                         Whether you want to discuss a new full-time role, a freelance project, or just want to connect over software craftsmanship—my inbox is always open.
                     </p>

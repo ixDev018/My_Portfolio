@@ -30,7 +30,13 @@
         {{-- STICKY BACK NAVIGATION --}}
         <div class="w-full bg-[#FAF7E6]/95 backdrop-blur-md border-b border-black/5 py-2.5 px-6 transition-all">
             <div class="max-w-[1400px] mx-auto flex items-center">
-                <a href="{{ route('portfolio.outputs') }}"
+                @php
+                    $backUrl = url()->previous();
+                    if ($backUrl === url()->current()) {
+                        $backUrl = route('portfolio.index');
+                    }
+                @endphp
+                <a href="{{ $backUrl }}"
                    class="inline-flex items-center gap-2.5 font-sans text-[12px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
                     <div class="w-7 h-7 rounded-full border border-current flex items-center justify-center bg-[#FAF7E6]">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -89,22 +95,61 @@
 
     {{-- ── PLAYBACK DISPLAY CARD ── --}}
             <div class="relative z-10 w-full max-w-4xl px-6">
-                <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
+                @php
+                    // ── EMBED URL: Primary player priority ──
+                    $embedUrl   = $project->embed_url ?? null;
+                    $iframeUrl  = null;
+
+                    if ($embedUrl) {
+                        // YouTube: youtu.be/ID or youtube.com/watch?v=ID or /embed/ID
+                        if (preg_match('/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_\-]{11})/', $embedUrl, $ytM)) {
+                            $iframeUrl = 'https://www.youtube.com/embed/' . $ytM[1] . '?autoplay=0&rel=0';
+                        }
+                        // Vimeo
+                        elseif (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $embedUrl, $vmM)) {
+                            $iframeUrl = 'https://player.vimeo.com/video/' . $vmM[1];
+                        }
+                        // Otherwise treat as direct video or iframe src as-is
+                    }
+                @endphp
+
+                @if($embedUrl)
+                    {{-- ── EMBEDDED PLAYER (primary) ── --}}
+                    <div class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative">
+                        @if($iframeUrl)
+                            <iframe src="{{ $iframeUrl }}"
+                                    class="absolute inset-0 w-full h-full border-none"
+                                    allowfullscreen
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    title="{{ $project->title }}">
+                            </iframe>
+                        @else
+                            {{-- Direct video/mp4 URL --}}
+                            <video src="{{ $embedUrl }}"
+                                   autoplay loop muted playsinline controls preload="auto"
+                                   class="absolute inset-0 w-full h-full object-contain">
+                            </video>
+                        @endif
+                    </div>
+                @else
+                    {{-- ── FALLBACK: Existing local media display ── --}}
+                    <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
                     @if($project->main_media_type === 'video' && $project->main_video_path)
                         <video src="{{ asset('storage/' . $project->main_video_path) }}"
-                               autoplay loop muted playsinline controls
+                               autoplay loop muted playsinline controls preload="auto"
                                class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
                     @elseif($project->thumbnail_video_path)
                         <video src="{{ asset('storage/' . $project->thumbnail_video_path) }}"
-                               autoplay loop muted playsinline controls
+                               autoplay loop muted playsinline controls preload="auto"
                                class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
                     @elseif($project->video_url)
                         <video src="{{ $project->video_url }}"
-                               autoplay loop muted playsinline controls
+                               autoplay loop muted playsinline controls preload="auto"
                                class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
@@ -164,7 +209,8 @@
                             </a>
                         </div>
                     @endif
-                </div>
+                    </div>
+                @endif
 
                 {{-- ── META ROW — source, date, tags ── --}}
                 <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-1">
@@ -307,7 +353,7 @@
                                                 @endphp
                                                 <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen></iframe>
                                             @else
-                                                <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline></video>
+                                                <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
                                             @endif
                                         </div>
                                         @if(!empty($block['caption']))

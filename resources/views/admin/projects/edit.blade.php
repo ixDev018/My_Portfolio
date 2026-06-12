@@ -413,6 +413,47 @@
     .pe-block.drag-over { border-top:2px solid #6829AA; }
 
     [x-cloak] { display:none !important; }
+
+    /* ─── Link Popover ─── */
+    .pe-link-popover {
+        position: fixed;
+        z-index: 110;
+        background: #1a1207;
+        border-radius: 0.55rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+        padding: 0.45rem 0.55rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-width: 280px;
+    }
+    .pe-link-popover input {
+        flex: 1;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 0.35rem;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.75rem;
+        color: #fff;
+        outline: none;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.15s;
+    }
+    .pe-link-popover input::placeholder { color: rgba(255,255,255,0.35); }
+    .pe-link-popover input:focus { border-color: rgba(255,255,255,0.4); }
+    .pe-link-popover-btn {
+        display: flex; align-items: center; justify-content: center;
+        width: 26px; height: 26px; border-radius: 0.3rem;
+        background: transparent; border: none; cursor: pointer;
+        color: rgba(255,255,255,0.55); transition: all 0.12s;
+        flex-shrink: 0;
+    }
+    .pe-link-popover-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .pe-link-popover-btn.apply { background: #6829AA; color: #fff; width: auto; padding: 0 0.6rem; font-size: 0.7rem; font-weight: 700; font-family: 'Space Mono', monospace; }
+    .pe-link-popover-btn.apply:hover { background: #5720A0; }
+    .pe-link-popover-btn.unlink { color: #f87171; }
+    .pe-link-popover-btn.unlink:hover { background: rgba(248,113,113,0.15); color: #f87171; }
+    .pe-link-popover-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
 </style>
 
 {{-- Back link --}}
@@ -876,8 +917,24 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4H9a3 3 0 000 6h6a3 3 0 010 6H8m8-12V4M8 18v2m-4-8h16"/></svg>
     </button>
     <div class="pe-fmt-divider"></div>
-    <button type="button" class="pe-fmt-btn" data-fmt="link" title="Add Link">
+    <button type="button" class="pe-fmt-btn" id="fmt-link-btn" data-fmt="link" title="Add / Edit Link (Ctrl+K)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+    </button>
+</div>
+
+{{-- Link Popover --}}
+<div class="pe-link-popover" id="link-popover" style="display:none;">
+    <input type="text" id="link-popover-input" placeholder="Paste or type a URL…" autocomplete="off" spellcheck="false">
+    <button type="button" class="pe-link-popover-btn apply" id="link-popover-apply" title="Apply link">Apply</button>
+    <div class="pe-link-popover-divider" id="link-popover-unlink-divider"></div>
+    <button type="button" class="pe-link-popover-btn unlink" id="link-popover-unlink" title="Remove link" style="display:none;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    </button>
+    <button type="button" class="pe-link-popover-btn" id="link-popover-open" title="Open link in new tab" style="display:none;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </button>
+    <button type="button" class="pe-link-popover-btn" id="link-popover-close" title="Close">
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 </div>
 
@@ -1405,6 +1462,14 @@ function notionEditor() {
         async handleVideoFile(event) {
             let file = event.target.files[0];
             if (!file || !this._pendingVideoBlockId) return;
+
+            if (file.size > 250 * 1024 * 1024) {
+                alert('This video is too large! The maximum allowed file size is 250MB.');
+                event.target.value = '';
+                this._pendingVideoBlockId = null;
+                return;
+            }
+
             let block = this.blocks.find(b => b.id === this._pendingVideoBlockId);
             if (!block) return;
 
@@ -1450,8 +1515,74 @@ function notionEditor() {
         },
 
         // ── Formatting toolbar ──
+        _linkSavedRange: null,
+        _linkAnchorEl: null,
+
         setupFmtToolbar() {
+            const toolbar   = document.getElementById('fmt-toolbar');
+            const popover   = document.getElementById('link-popover');
+            const popInput  = document.getElementById('link-popover-input');
+            const popApply  = document.getElementById('link-popover-apply');
+            const popUnlink = document.getElementById('link-popover-unlink');
+            const popOpen   = document.getElementById('link-popover-open');
+            const popClose  = document.getElementById('link-popover-close');
+            const popUnlinkDivider = document.getElementById('link-popover-unlink-divider');
+            const linkBtn   = document.getElementById('fmt-link-btn');
+
+            // Position helper
+            const positionPopover = (referenceRect) => {
+                popover.style.display = 'flex';
+                let left = referenceRect.left + referenceRect.width / 2 - popover.offsetWidth / 2;
+                let top  = referenceRect.bottom + 8;
+                // Clamp to viewport
+                left = Math.max(8, Math.min(left, window.innerWidth - popover.offsetWidth - 8));
+                popover.style.left = left + 'px';
+                popover.style.top  = top + 'px';
+            };
+
+            const closeLinkPopover = () => {
+                popover.style.display = 'none';
+                popInput.value = '';
+                this._linkSavedRange = null;
+                this._linkAnchorEl   = null;
+            };
+
+            const applyLink = () => {
+                let url = popInput.value.trim();
+                if (!url) return;
+                if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:') && !url.startsWith('#')) {
+                    url = 'https://' + url;
+                }
+                // Restore saved selection
+                if (this._linkSavedRange) {
+                    let sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(this._linkSavedRange);
+                }
+                if (this._linkAnchorEl) {
+                    // Editing existing anchor
+                    this._linkAnchorEl.href = url;
+                    this._linkAnchorEl.setAttribute('target', '_blank');
+                    this._linkAnchorEl.setAttribute('rel', 'noopener noreferrer');
+                } else {
+                    document.execCommand('createLink', false, url);
+                    // Set target=_blank on the newly created link
+                    let sel2 = window.getSelection();
+                    if (sel2 && sel2.anchorNode) {
+                        let a = sel2.anchorNode.parentElement;
+                        if (!a || a.tagName !== 'A') a = sel2.anchorNode.closest ? sel2.anchorNode.closest('a') : null;
+                        if (a && a.tagName === 'A') {
+                            a.setAttribute('target', '_blank');
+                            a.setAttribute('rel', 'noopener noreferrer');
+                        }
+                    }
+                }
+                closeLinkPopover();
+            };
+
+            // ── Selection change — show/hide toolbar ──
             document.addEventListener('selectionchange', () => {
+                if (popover.style.display === 'flex') return; // keep popover open
                 let sel = window.getSelection();
                 if (!sel || sel.isCollapsed || !sel.rangeCount) {
                     this.hideFmtToolbar();
@@ -1465,20 +1596,137 @@ function notionEditor() {
                     return;
                 }
                 this.showFmtToolbar(range);
+
+                // Highlight link btn if selection is inside an <a>
+                let node = sel.anchorNode;
+                let anchorEl = node && node.nodeType === 3 ? node.parentElement : node;
+                let insideLink = anchorEl && anchorEl.closest('a');
+                linkBtn && linkBtn.classList.toggle('active', !!insideLink);
             });
 
-            document.querySelectorAll('.pe-fmt-btn').forEach(btn => {
+            // ── Ctrl+K shortcut ──
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    let sel = window.getSelection();
+                    if (sel && !sel.isCollapsed && sel.rangeCount) {
+                        let container = sel.getRangeAt(0).commonAncestorContainer;
+                        if (container.nodeType === 3) container = container.parentNode;
+                        if (container.closest && container.closest('.pe-block-content')) {
+                            e.preventDefault();
+                            linkBtn && linkBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                        }
+                    }
+                }
+            });
+
+            // ── Bold / Italic / Strikethrough buttons ──
+            document.querySelectorAll('.pe-fmt-btn:not(#fmt-link-btn)').forEach(btn => {
                 btn.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     let fmt = btn.dataset.fmt;
-                    if (fmt === 'bold') document.execCommand('bold');
-                    else if (fmt === 'italic') document.execCommand('italic');
+                    if (fmt === 'bold')          document.execCommand('bold');
+                    else if (fmt === 'italic')   document.execCommand('italic');
                     else if (fmt === 'strikethrough') document.execCommand('strikeThrough');
-                    else if (fmt === 'link') {
-                        let url = prompt('Enter URL:');
-                        if (url) document.execCommand('createLink', false, url);
-                    }
                 });
+            });
+
+            // ── Link button ──
+            linkBtn && linkBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // If popover already open, close it
+                if (popover.style.display === 'flex') { closeLinkPopover(); return; }
+
+                let sel = window.getSelection();
+                let editingExisting = false;
+                let existingHref   = '';
+
+                // Check if cursor / selection is inside an existing <a>
+                if (sel && sel.rangeCount) {
+                    let node = sel.anchorNode;
+                    let el = node && node.nodeType === 3 ? node.parentElement : node;
+                    let anchor = el && el.closest ? el.closest('a') : null;
+                    if (anchor) {
+                        editingExisting = true;
+                        existingHref    = anchor.getAttribute('href') || '';
+                        this._linkAnchorEl = anchor;
+                        // Save the range anyway for restoring selection on apply
+                        this._linkSavedRange = sel.getRangeAt(0).cloneRange();
+                    }
+                }
+
+                if (!editingExisting) {
+                    if (!sel || sel.isCollapsed) return;
+                    this._linkSavedRange = sel.getRangeAt(0).cloneRange();
+                    this._linkAnchorEl   = null;
+                }
+
+                // Populate input
+                popInput.value = existingHref;
+
+                // Show/hide unlink & open buttons
+                popUnlink.style.display        = editingExisting ? 'flex'  : 'none';
+                popOpen.style.display          = editingExisting ? 'flex'  : 'none';
+                popUnlinkDivider.style.display = editingExisting ? 'block' : 'none';
+
+                // Position relative to the toolbar
+                const toolbarRect = toolbar.getBoundingClientRect();
+                popover.style.display = 'flex';
+                // Let browser calculate popover size, then position
+                requestAnimationFrame(() => {
+                    positionPopover(toolbarRect);
+                    popInput.focus();
+                    popInput.select();
+                });
+            });
+
+            // ── Apply on Enter key in input ──
+            popInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); applyLink(); }
+                if (e.key === 'Escape') { closeLinkPopover(); }
+            });
+
+            // ── Apply button ──
+            popApply.addEventListener('mousedown', (e) => { e.preventDefault(); applyLink(); });
+
+            // ── Unlink button ──
+            popUnlink.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (this._linkAnchorEl) {
+                    // Unwrap anchor node
+                    let parent = this._linkAnchorEl.parentNode;
+                    while (this._linkAnchorEl.firstChild) {
+                        parent.insertBefore(this._linkAnchorEl.firstChild, this._linkAnchorEl);
+                    }
+                    parent.removeChild(this._linkAnchorEl);
+                } else if (this._linkSavedRange) {
+                    let sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(this._linkSavedRange);
+                    document.execCommand('unlink');
+                }
+                closeLinkPopover();
+            });
+
+            // ── Open link in new tab ──
+            popOpen.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                let href = this._linkAnchorEl ? this._linkAnchorEl.href : popInput.value;
+                if (href) window.open(href, '_blank', 'noopener');
+            });
+
+            // ── Close button ──
+            popClose.addEventListener('mousedown', (e) => { e.preventDefault(); closeLinkPopover(); });
+
+            // ── Close popover on outside click ──
+            document.addEventListener('mousedown', (e) => {
+                if (popover.style.display === 'flex'
+                    && !popover.contains(e.target)
+                    && e.target !== linkBtn
+                    && !linkBtn.contains(e.target)) {
+                    closeLinkPopover();
+                }
             });
         },
 

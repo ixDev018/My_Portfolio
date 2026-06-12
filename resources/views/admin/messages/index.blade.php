@@ -3,7 +3,8 @@
 @section('admin_content')
 
 <style>
-    .cms-main { background: #EDEAE0; }
+    body, .cms-main { background: #EDEAE0 !important; }
+    .cms-main { min-height: 100vh; }
 
     /* table */
     .inbox-table { width:100%; border-collapse:collapse; }

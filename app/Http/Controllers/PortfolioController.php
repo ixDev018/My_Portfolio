@@ -34,6 +34,7 @@ class PortfolioController extends Controller
 
         $projects = Project::where('is_archived', false)
                             ->orderBy('featured', 'desc')
+                            ->orderBy('sort_order', 'asc')
                             ->orderBy('created_at', 'desc')
                             ->get();
 
@@ -73,7 +74,8 @@ class PortfolioController extends Controller
         $visualProjects = Project::where('category', 'visual')
                                  ->where('is_archived', false)
                                  ->orderBy('is_top', 'desc')
-                                 ->inRandomOrder()
+                                 ->orderBy('sort_order', 'asc')
+                                 ->orderBy('created_at', 'desc')
                                  ->get();
 
         return view('outputs', compact('visualProjects'));
@@ -92,6 +94,12 @@ class PortfolioController extends Controller
         ]);
 
         ContactMessage::create($validated);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to('brixcura3@gmail.com')->send(new \App\Mail\NewContactMessage($validated));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail sending failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('portfolio.index')
                          ->with('success', 'Thank you! Your message has been received successfully.');

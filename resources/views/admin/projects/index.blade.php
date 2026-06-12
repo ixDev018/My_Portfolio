@@ -427,6 +427,17 @@
     [x-cloak] { display: none !important; }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<style>
+    .op-drag-handle {
+        cursor: grab;
+        color: #B0A99F;
+        transition: color 0.15s;
+    }
+    .op-drag-handle:hover { color: #6829AA; }
+    .op-drag-handle:active { cursor: grabbing; }
+</style>
+
 <div x-data="{
     selectedProject: null,
     selectedIds: [],
@@ -434,11 +445,12 @@
     search: '',
     activeFilter: 'all',
     openMenuId: null,
-    sortBy: 'updated',
+    sortBy: 'custom',
     sortOpen: false,
     filters: {{ collect($projects->pluck('medium')->filter()->unique()->values())->prepend('all')->toJson() }},
     allProjects: {{ $projects->map(fn($p) => [
         'id'             => $p->id,
+        'sort_order'     => $p->sort_order,
         'title'          => $p->title,
         'slug'           => $p->slug,
         'medium'         => $p->medium,
@@ -465,6 +477,7 @@
                 || (p.medium && p.medium.toLowerCase().includes(q));
             return matchMedium && matchSearch;
         });
+        if (this.sortBy === 'custom')  list = [...list].sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
         if (this.sortBy === 'updated') list = [...list].sort((a,b) => new Date(b.updated_at||0) - new Date(a.updated_at||0));
         if (this.sortBy === 'oldest')  list = [...list].sort((a,b) => new Date(a.updated_at||0) - new Date(b.updated_at||0));
         if (this.sortBy === 'az')      list = [...list].sort((a,b) => a.title.localeCompare(b.title));
@@ -520,7 +533,44 @@
         e.stopPropagation();
         this.openMenuId = this.openMenuId === id ? null : id;
     },
-    closeMenu() { this.openMenuId = null; this.sortOpen = false; }
+    closeMenu() { this.openMenuId = null; this.sortOpen = false; },
+    init() {
+        this.$nextTick(() => {
+            const tbody = document.getElementById('projects-table-body');
+            if (tbody && typeof Sortable !== 'undefined') {
+                Sortable.create(tbody, {
+                    handle: '.op-drag-handle',
+                    animation: 150,
+                    onEnd: (evt) => {
+                        if (this.sortBy !== 'custom' || this.activeFilter !== 'all' || this.search !== '') {
+                            alert('Reordering is only available when sorted manually and no filters are active.');
+                            return;
+                        }
+                        let items = tbody.querySelectorAll('tr[data-id]');
+                        let orderedIds = Array.from(items).map(i => parseInt(i.getAttribute('data-id')));
+                        
+                        fetch('{{ route('admin.projects.reorder') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ ordered_ids: orderedIds })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                orderedIds.forEach((id, index) => {
+                                    let proj = this.allProjects.find(p => p.id === id);
+                                    if (proj) proj.sort_order = index;
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
 }" @click="closeMenu" @keydown.escape="closeMenu">
 
     {{-- ════ PAGE HEADER ════ --}}
@@ -579,8 +629,9 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95">
-                            <span class="op-sort-label">Sort by</span>
-                            <button class="op-sort-option" :class="sortBy==='updated' ? 'active':''" @click="sortBy='updated'; sortOpen=false">
+                            <span class="op-sort-label">Sort By</span>
+                            <button class="op-sort-option" :class="sortBy === 'custom' ? 'active' : ''" @click="sortBy = 'custom'; sortOpen = false;">Manual Order</button>
+                            <button class="op-sort-option" :class="sortBy === 'updated' ? 'active' : ''" @click="sortBy = 'updated'; sortOpen = false;">
                                 <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 Recently Updated
                             </button>
@@ -616,9 +667,7 @@
                     </div>
                 </div>
 
-                {{-- Bottom row: Filters or Bulk Actions --}}
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%; min-height: 28px;">
-                    {{-- Bulk Actions --}}
                     <div x-show="selectedIds.length > 0" class="flex gap-2 items-center" x-cloak>
                         <span class="text-[0.65rem] font-mono text-gray-500 mr-2" x-text="selectedIds.length + ' selected'"></span>
                         <button type="button" @click="bulkAction('archive')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50">
@@ -629,7 +678,6 @@
                         </button>
                     </div>
 
-                    {{-- Filters --}}
                     <div style="display:flex;gap:0.75rem;flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:0.25rem;" class="op-hide-scroll" x-show="selectedIds.length === 0">
                         <template x-for="f in filters" :key="f">
                             <button @click="activeFilter = f"
@@ -642,7 +690,6 @@
                 </div>
             </div>
 
-            {{-- Table --}}
             <div class="op-table-scroll">
                 <table class="op-table">
                     <thead>
@@ -658,19 +705,20 @@
                             <th style="width:2.5rem;"></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="projects-table-body">
                         <template x-for="p in filtered" :key="p.id">
-                            <tr @click="selectProject(p)"
+                            <tr :data-id="p.id" @click="selectProject(p)"
                                 :class="selectedProject && selectedProject.id === p.id ? 'selected' : ''">
 
-                                {{-- Checkbox --}}
                                 <td style="text-align:center;" @click.stop>
                                     <input type="checkbox" :value="p.id" :checked="selectedIds.includes(p.id)" @change="toggleSelect(p.id)" style="cursor:pointer;">
                                 </td>
 
-                                {{-- Thumbnail + title --}}
                                 <td>
                                     <div style="display:flex;align-items:center;gap:0.65rem;min-width:0;">
+                                        <div class="op-drag-handle" title="Drag to reorder" style="display:flex;align-items:center;padding:0.25rem;">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 15h8"></path></svg>
+                                        </div>
                                         <template x-if="p.thumbnail_path">
                                             <img :src="p.thumbnail_path" class="op-row-thumb" style="object-fit:cover;">
                                         </template>
@@ -689,7 +737,6 @@
                                     </div>
                                 </td>
 
-                                {{-- Medium --}}
                                 <td>
                                     <template x-if="p.medium">
                                         <span class="op-medium-badge" x-text="p.medium"></span>
@@ -699,7 +746,6 @@
                                     </template>
                                 </td>
 
-                                {{-- Tags --}}
                                 <td>
                                     <div style="display:flex;flex-wrap:wrap;gap:0.2rem;max-width:160px;">
                                         <template x-if="p.tags">
@@ -710,7 +756,6 @@
                                     </div>
                                 </td>
 
-                                {{-- Status (Featured/Top/Archived) --}}
                                 <td style="text-align:center;">
                                     <div style="display:flex;flex-direction:column;gap:0.3rem;align-items:center;">
                                         <template x-if="p.featured">

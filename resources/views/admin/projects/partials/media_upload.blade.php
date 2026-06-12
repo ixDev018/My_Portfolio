@@ -32,6 +32,7 @@
     // Featured Thumbnail
     isDraggingFeaturedThumb: false,
     featuredThumbPreview: null,
+    featuredVideoPreview: null,
     removeFeaturedThumbnail: false,
     featuredCropper: null,
     
@@ -451,11 +452,31 @@
         makeOverlayDraggable(overlay);
     },
 
+    getFileCategory(file) {
+        if (!file) return 'unknown';
+        if (file.type.startsWith('video/')) return 'video';
+        if (file.type.startsWith('image/')) return 'image';
+        if (file.name) {
+            let ext = file.name.split('.').pop().toLowerCase();
+            if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'ogg', 'wmv', 'm4v'].includes(ext)) return 'video';
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) return 'image';
+        }
+        return 'unknown';
+    },
+
     processMainFiles(files) {
         if (!files || files.length === 0) return;
         let firstFile = files[0];
         
-        if (firstFile.type.startsWith('video/')) {
+        if (firstFile.size > 250 * 1024 * 1024) {
+            alert('This file is too large! The maximum allowed file size is 250MB. Please choose a smaller file.');
+            document.getElementById('main_media_upload').value = '';
+            return;
+        }
+
+        let category = this.getFileCategory(firstFile);
+
+        if (category === 'video') {
             this.mainMediaType = 'video';
             this.hasMainVideo = true;
             this.previewMainImages = [];
@@ -474,6 +495,12 @@
             vid.onloadedmetadata = null;
             
             let that = this;
+            vid.onerror = () => {
+                alert('Your browser cannot play this specific video. It may be using an unsupported codec (like HEVC/H.265 from a phone camera). Please convert it to a standard H.264 MP4 before uploading.');
+                that.hasMainVideo = false;
+                that.mainMediaType = 'image';
+                document.getElementById('main_media_upload').value = '';
+            };
             vid.onloadedmetadata = () => {
                 vid.onloadedmetadata = null; // prevent re-fire
                 that.setupVideo(vid);
@@ -484,20 +511,42 @@
             vid.style.display = 'block';
             let ph = document.getElementById('main-video-placeholder');
             if(ph) ph.classList.add('hidden');
-        } else if (firstFile.type.startsWith('image/')) {
+        } else if (category === 'image') {
             this.mainMediaType = 'image';
             this.hasMainVideo = false;
             this.previewMainImages = [];
-            for (let i = 0; i < files.length; i++) {
-                if(files[i].type.startsWith('image/')) {
-                    this.previewMainImages.push(window.URL.createObjectURL(files[i]));
+            
+            if (files.length === 1) {
+                let url = window.URL.createObjectURL(files[0]);
+                this.previewMainImages.push(url);
+                this.$nextTick(() => {
+                    let img = document.getElementById('main-crop-image');
+                    if (img) {
+                        img.src = url;
+                        if(this.mainCropper) { this.mainCropper.destroy(); }
+                        this.mainCropper = new Cropper(img, {
+                            viewMode: 1,
+                            crop: (event) => {
+                                let canvas = this.mainCropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
+                                document.getElementById('main_media_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+                            }
+                        });
+                    }
+                });
+            } else {
+                if(this.mainCropper) { this.mainCropper.destroy(); this.mainCropper = null; }
+                document.getElementById('main_media_base64').value = '';
+                for (let i = 0; i < files.length; i++) {
+                    if(files[i].type.startsWith('image/')) {
+                        this.previewMainImages.push(window.URL.createObjectURL(files[i]));
+                    }
                 }
             }
         }
     },
     
     processThumbFile(file) {
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file || this.getFileCategory(file) !== 'image') return;
         this.removeThumbnail = false;
         let url = window.URL.createObjectURL(file);
         this.thumbPreview = url;
@@ -507,10 +556,9 @@
             img.src = url;
             if(this.cropper) { this.cropper.destroy(); }
             this.cropper = new Cropper(img, {
-                aspectRatio: 16 / 9,
                 viewMode: 1,
                 crop: (event) => {
-                    let canvas = this.cropper.getCroppedCanvas({ width: 1280, height: 720 });
+                    let canvas = this.cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
                     document.getElementById('custom_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
                 }
             });
@@ -526,14 +574,69 @@
     },
 
     processFeaturedThumbFile(file) {
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file) return;
+
+        if (file.size > 250 * 1024 * 1024) {
+            alert('This file is too large! The maximum allowed file size is 250MB. Please choose a smaller file.');
+            document.getElementById('featured_thumbnail_upload').value = '';
+            return;
+        }
+
         this.removeFeaturedThumbnail = false;
         let url = window.URL.createObjectURL(file);
-        this.featuredThumbPreview = url;
+        let category = this.getFileCategory(file);
+        
+        if (category === 'video') {
+            this.featuredVideoPreview = url;
+            this.featuredThumbPreview = null;
+            if(this.featuredCropper) { this.featuredCropper.destroy(); this.featuredCropper = null; }
+            this.$nextTick(() => {
+                let vid = document.getElementById('featured-video-player');
+                if (vid) {
+                    vid.onerror = () => {
+                        alert('Your browser cannot play this specific video. It may be using an unsupported codec (like HEVC/H.265 from a phone camera). Please convert it to a standard H.264 MP4 before uploading.');
+                        this.featuredVideoPreview = null;
+                        document.getElementById('featured_thumbnail_upload').value = '';
+                    };
+                }
+            });
+        } else if (category === 'image') {
+            this.featuredVideoPreview = null;
+            this.featuredThumbPreview = url;
+            
+            this.$nextTick(() => {
+                let img = document.getElementById('featured-thumb-crop-image');
+                img.src = url;
+                if(this.featuredCropper) { this.featuredCropper.destroy(); }
+                this.featuredCropper = new Cropper(img, {
+                    aspectRatio: 16 / 9,
+                    viewMode: 1,
+                    crop: (event) => {
+                        let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                        document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+                    }
+                });
+            });
+        }
+    },
+
+    captureFeaturedFrame() {
+        let video = document.getElementById('featured-video-player');
+        if (!video) return;
+        
+        let canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        
+        this.featuredVideoPreview = null;
+        this.featuredThumbPreview = dataURL;
         
         this.$nextTick(() => {
             let img = document.getElementById('featured-thumb-crop-image');
-            img.src = url;
+            img.src = dataURL;
             if(this.featuredCropper) { this.featuredCropper.destroy(); }
             this.featuredCropper = new Cropper(img, {
                 aspectRatio: 16 / 9,
@@ -543,6 +646,42 @@
                     document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
                 }
             });
+        });
+    },
+
+    captureFromMainVideo() {
+        let video = document.getElementById('main-video-player');
+        if (!video) return;
+        
+        let canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        
+        this.removeFeaturedThumbnail = false;
+        this.featuredVideoPreview = null;
+        this.featuredThumbPreview = dataURL;
+        
+        // Ensure the featured thumbnail section is visible
+        if (typeof this.is_best_work !== 'undefined') {
+            this.is_best_work = true;
+        }
+        
+        this.$nextTick(() => {
+            let img = document.getElementById('featured-thumb-crop-image');
+            img.src = dataURL;
+            if(this.featuredCropper) { this.featuredCropper.destroy(); }
+            this.featuredCropper = new Cropper(img, {
+                aspectRatio: 16 / 9,
+                viewMode: 1,
+                crop: (event) => {
+                    let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                    document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+                }
+            });
+            document.getElementById('featured_thumbnail_upload').scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     },
 
@@ -705,16 +844,32 @@
     <input type="hidden" name="video_loop_start" id="video_loop_start_input" :value="loopStart">
     <input type="hidden" name="video_loop_end" id="video_loop_end_input" :value="loopEnd">
 
+    <!-- ═══ MAIN PLAYER URL (Embed) ═══ -->
+    <div style="background:#F3ECFF; border:1.5px solid #C4A8F0; border-radius:0.65rem; padding:0.85rem 1rem; margin-bottom:0.25rem;">
+        <label style="display:block; font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.1em; color:#6829AA; font-weight:700; margin-bottom:0.4rem;">
+            🎬 Main Player URL
+        </label>
+        <input type="text" name="embed_url"
+               class="pe-field-input"
+               value="{{ old('embed_url', isset($project) ? $project->embed_url : '') }}"
+               placeholder="https://youtu.be/... or https://vimeo.com/..."
+               style="background:#fff; border-color:#C4A8F0; font-size:0.78rem;">
+        <p style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#9B9589; margin-top:0.35rem; line-height:1.5;">
+            YouTube, Vimeo, or direct video link. This becomes the <strong style="color:#6829AA;">embedded player</strong> on the project page.
+            The media below is used only as the <strong>thumbnail</strong> on the home &amp; outputs pages.
+        </p>
+    </div>
+
     <!-- MAIN MEDIA UPLOAD & PREVIEW -->
     <div class="mu-preview-card" style="margin-top:0.5rem; position: relative;"
          :style="isDraggingMain ? 'border: 2px dashed #6829AA; background: #F3ECFF;' : ''"
          @dragover.prevent="isDraggingMain = true" @dragleave.prevent="isDraggingMain = false"
          @drop.prevent="isDraggingMain = false; if($event.dataTransfer.files.length) { document.getElementById('main_media_upload').files = $event.dataTransfer.files; processMainFiles($event.dataTransfer.files); }">
-         
+        <input type="hidden" name="main_media_base64" id="main_media_base64" value="{{ old('main_media_base64') }}"> 
         <input type="file" name="main_media_upload[]" id="main_media_upload" multiple accept="image/*,video/*" class="hidden" style="display:none;" @change="if($event.target.files.length) processMainFiles($event.target.files)">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:0.6rem;">
-            <span class="mu-preview-label" style="margin: 0; color:#B0A99F;">Media Display/Player</span>
+            <span class="mu-preview-label" style="margin: 0; color:#B0A99F;">Thumbnail Source <span style="font-size:0.5rem;">(Home &amp; Outputs)</span></span>
             <button type="button" @click="document.getElementById('main_media_upload').click()" style="font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.06em; color:#6829AA; background:transparent; border:none; cursor:pointer; font-weight:700;" x-show="mainMediaType === 'video' || mainMediaType === 'image' || hasMainVideo">
                 <svg style="width:11px; height:11px; display:inline; margin-bottom:1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> CHANGE MEDIA
             </button>
@@ -756,7 +911,12 @@
                     @endif
                 </div>
             </template>
-            <template x-if="previewMainImages.length > 0">
+            <template x-if="previewMainImages.length === 1">
+                <div style="width:100%; border-radius:0.5rem; overflow:hidden; border:1px solid #E2DDD3;">
+                    <img id="main-crop-image" style="width:100%; display:block;">
+                </div>
+            </template>
+            <template x-if="previewMainImages.length > 1">
                 <div class="mu-img-grid">
                     <template x-for="(imgSrc, index) in previewMainImages" :key="index">
                         <img :src="imgSrc">
@@ -866,23 +1026,44 @@
     </div>
     
     <div x-show="is_best_work" x-cloak style="margin-top:0.5rem;">
+        <!-- Empty State Dropzone -->
         <div class="mu-dropzone" :class="isDraggingFeaturedThumb ? 'dragging' : ''"
+             x-show="!featuredVideoPreview && !featuredThumbPreview && !(!removeFeaturedThumbnail && {{ isset($project->featured_thumbnail) && $project->featured_thumbnail ? 'true' : 'false' }})"
              @dragover.prevent="isDraggingFeaturedThumb = true" @dragleave.prevent="isDraggingFeaturedThumb = false"
              @drop.prevent="isDraggingFeaturedThumb = false; if($event.dataTransfer.files.length) { document.getElementById('featured_thumbnail_upload').files = $event.dataTransfer.files; processFeaturedThumbFile($event.dataTransfer.files[0]); }"
              @click="document.getElementById('featured_thumbnail_upload').click()">
-            <input type="file" id="featured_thumbnail_upload" accept="image/*" class="hidden" style="display:none;" @change="if($event.target.files.length) processFeaturedThumbFile($event.target.files[0])">
+            <input type="file" id="featured_thumbnail_upload" accept="image/*,video/*" class="hidden" style="display:none;" @change="if($event.target.files.length) processFeaturedThumbFile($event.target.files[0])">
             <div style="pointer-events:none;">
                 <div class="mu-dropzone-icon"><svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-                <p class="mu-dropzone-title">Drop Best Work Thumbnail</p>
-                <p class="mu-dropzone-tip">Required for the homepage "Best Works" slider.</p>
+                <p class="mu-dropzone-title">Drop Best Work Thumbnail (or Video)</p>
+                <p class="mu-dropzone-tip">Required for the homepage "Best Works" slider. Upload an image or a video to extract a frame from.</p>
+            </div>
+            <div x-show="hasMainVideo" style="margin-top:1rem;" @click.stop>
+                <button type="button" @click="captureFromMainVideo()" style="font-size:0.8rem; font-weight:700; padding:0.5rem 1rem; border-radius:0.5rem; background:#EEE6FF; color:#6829AA; border:1px solid #C4A8F0; cursor:pointer; transition:all 0.15s;">
+                    Or Capture from Main Video
+                </button>
             </div>
         </div>
 
-        <!-- Featured Thumbnail Cropper Preview -->
-        <div class="mu-preview-card" style="margin-top:0.5rem;" x-show="featuredThumbPreview || {{ isset($project->featured_thumbnail) && $project->featured_thumbnail ? 'true' : 'false' }}">
-            <div class="flex items-center justify-between mb-3">
-                <span class="mu-preview-label" style="margin-bottom:0;">Featured Thumbnail Preview</span>
-                <button type="button" @click="removeFeaturedThumb()" class="text-xs text-red-500 hover:text-red-700 font-bold">Remove</button>
+        <!-- Video Player State -->
+        <div class="mu-dropzone" style="cursor:default; padding:1rem;" x-show="featuredVideoPreview" x-cloak>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="mu-preview-label" style="margin-bottom:0; font-weight:700; color:#1a1207;">Choose Frame from Video</span>
+                <button type="button" @click="removeFeaturedThumb()" style="font-size:0.75rem; color:#dc2626; background:transparent; border:none; font-weight:700; cursor:pointer;">Cancel</button>
+            </div>
+            <video id="featured-video-player" :src="featuredVideoPreview" controls style="width:100%; border-radius:0.5rem; background:#000; border:1px solid #E2DDD3; max-height:400px;"></video>
+            <div style="margin-top:0.75rem; text-align:center;">
+                <button type="button" @click="captureFeaturedFrame()" style="font-size:0.85rem; font-weight:700; padding:0.6rem 1.2rem; border-radius:0.5rem; background:#10b981; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 8px rgba(16,185,129,0.3);">
+                    Capture Current Frame
+                </button>
+            </div>
+        </div>
+
+        <!-- Cropper / Existing Image State -->
+        <div class="mu-dropzone" style="cursor:default; padding:1rem;" x-show="featuredThumbPreview || (!removeFeaturedThumbnail && {{ isset($project->featured_thumbnail) && $project->featured_thumbnail ? 'true' : 'false' }})" x-cloak>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="mu-preview-label" style="margin-bottom:0; font-weight:700; color:#1a1207;">Featured Thumbnail</span>
+                <button type="button" @click="removeFeaturedThumb()" style="font-size:0.75rem; color:#dc2626; background:transparent; border:none; font-weight:700; cursor:pointer;">Remove / Change</button>
             </div>
             
             <!-- Cropper Container -->

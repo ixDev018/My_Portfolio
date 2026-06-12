@@ -9,7 +9,7 @@
     <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <!-- Logo -->
         <a href="{{ route('portfolio.index') }}" class="group flex items-center transition-all duration-700 delay-[100ms] ease-out opacity-0 -translate-y-4" :class="mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'">
-            <span class="text-2xl font-black tracking-tight text-[#ff6b00] hover:text-white transition-colors duration-300 font-display uppercase">
+            <span class="text-3xl text-[#ff6b00] hover:text-white transition-colors duration-300 font-logo uppercase leading-none">
                 IX-MEDIA
             </span>
         </a>
@@ -17,16 +17,16 @@
         <!-- Desktop Navigation Links (Hidden on Project Show) -->
         @if(!request()->routeIs('portfolio.project.show'))
         <nav class="hidden md:flex items-center gap-10">
-            <a href="{{ route('portfolio.index') }}#self-intro" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[200ms] ease-out opacity-0 -translate-y-4">Services</a>
-            <a href="{{ route('portfolio.outputs') }}" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[300ms] ease-out opacity-0 -translate-y-4">Outputs</a>
-            <a href="{{ route('portfolio.index') }}#contact" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm font-bold uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[400ms] ease-out opacity-0 -translate-y-4">Collaborate</a>
+            <a href="{{ route('portfolio.index') }}#self-intro" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[200ms] ease-out opacity-0 -translate-y-4">Services</a>
+            <a href="{{ route('portfolio.outputs') }}" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[300ms] ease-out opacity-0 -translate-y-4">Outputs</a>
+            <a href="{{ route('portfolio.index') }}#contact" :class="[scrolled ? 'text-white' : 'text-white', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4']" class="text-sm uppercase tracking-wider hover:text-[#ff6b00] transition-all duration-700 delay-[400ms] ease-out opacity-0 -translate-y-4">Collaborate</a>
         </nav>
 
         <!-- CTA / Resume link -->
         <div class="hidden md:flex items-center gap-4 transition-all duration-700 delay-[500ms] ease-out opacity-0 -translate-y-4" :class="mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'">
             <a href="#" @click.prevent="showResumeModal = true"
                :class="scrolled ? 'text-white border-white hover:bg-white hover:text-black' : 'text-white border-white hover:bg-white hover:text-black'"
-               class="text-xs font-bold uppercase tracking-wider px-6 py-2 bg-transparent border rounded-none transition-colors duration-300">
+               class="text-xs uppercase tracking-wider px-6 py-2 bg-transparent border rounded-none transition-colors duration-300">
                 See Resume
             </a>
         </div>
@@ -58,12 +58,12 @@
          x-transition:leave-end="opacity-0 -translate-y-4"
          @click.away="mobileMenuOpen = false"
          class="md:hidden absolute top-full left-0 w-full bg-[#FAF7E6] border-b border-black/10 px-6 py-8 flex flex-col gap-6 shadow-xl z-[100]">
-        <a href="{{ route('portfolio.index') }}#self-intro" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Services</a>
-        <a href="{{ route('portfolio.outputs') }}" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
-        <a href="{{ route('portfolio.index') }}#contact" @click="mobileMenuOpen = false" class="text-base font-extrabold uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
+        <a href="{{ route('portfolio.index') }}#self-intro" @click="mobileMenuOpen = false" class="text-base uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Services</a>
+        <a href="{{ route('portfolio.outputs') }}" @click="mobileMenuOpen = false" class="text-base uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Outputs</a>
+        <a href="{{ route('portfolio.index') }}#contact" @click="mobileMenuOpen = false" class="text-base uppercase tracking-wider text-black hover:text-[#ff6b00] transition-colors duration-300">Collaborate</a>
         
         <div class="pt-4 mt-2 border-t border-black/10">
-            <a href="#" @click.prevent="showResumeModal = true; mobileMenuOpen = false" class="inline-block text-sm font-bold uppercase tracking-wider px-6 py-3 bg-black text-[#FAF7E6] rounded-none">
+            <a href="#" @click.prevent="showResumeModal = true; mobileMenuOpen = false" class="inline-block text-sm uppercase tracking-wider px-6 py-3 bg-black text-[#FAF7E6] rounded-none">
                 See Resume
             </a>
         </div>

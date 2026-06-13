@@ -57,4 +57,38 @@ class Project extends Model
         'video_loop_start'=> 'float',
         'video_loop_end'  => 'float',
     ];
+
+    /**
+     * Determine if the project has meaningful body content.
+     */
+    public function hasBodyContent(): bool
+    {
+        if (empty($this->body_content)) {
+            return false;
+        }
+
+        $blocks = json_decode($this->body_content, true);
+        if (!is_array($blocks)) {
+            return false;
+        }
+
+        return collect($blocks)->reject(function ($block) {
+            $type = $block['type'] ?? '';
+            
+            // Text-based blocks
+            if (in_array($type, ['paragraph', 'heading2', 'heading3', 'quote'])) {
+                // Remove HTML tags and check if anything is left (trim whitespace & non-breaking spaces)
+                $text = trim(str_replace('&nbsp;', '', strip_tags($block['content'] ?? '')));
+                return empty($text);
+            }
+            
+            // Media-based blocks
+            if (in_array($type, ['image', 'video'])) {
+                return empty($block['src'] ?? '');
+            }
+            
+            // Unknown or other blocks: assume empty if they have no text content and no src
+            return empty($block['content'] ?? '') && empty($block['src'] ?? '');
+        })->isNotEmpty();
+    }
 }

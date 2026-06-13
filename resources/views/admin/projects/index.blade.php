@@ -466,6 +466,7 @@
         'edit_url'       => route('admin.projects.edit', $p->id),
         'delete_url'     => route('admin.projects.delete', $p->id),
         'view_url'       => route('portfolio.project.show', $p->slug),
+        'has_content'    => $p->hasBodyContent()
     ])->toJson() }},
     get filtered() {
         let list = this.allProjects.filter(p => {
@@ -486,6 +487,8 @@
         if (this.sortBy === 'featured')list = [...list].sort((a,b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
         if (this.sortBy === 'top')     list = [...list].sort((a,b) => (b.is_top ? 1 : 0) - (a.is_top ? 1 : 0));
         if (this.sortBy === 'archived')list = [...list].sort((a,b) => (b.is_archived ? 1 : 0) - (a.is_archived ? 1 : 0));
+        if (this.sortBy === 'needs_content') list = [...list].sort((a,b) => (a.has_content ? 1 : 0) - (b.has_content ? 1 : 0));
+        if (this.sortBy === 'has_content') list = [...list].sort((a,b) => (b.has_content ? 1 : 0) - (a.has_content ? 1 : 0));
         return list;
     },
     formatDate(iso) {
@@ -663,6 +666,14 @@
                                 <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                                 Archived First
                             </button>
+                            <button class="op-sort-option" :class="sortBy==='needs_content' ? 'active':''" @click="sortBy='needs_content'; sortOpen=false">
+                                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                Needs Content First
+                            </button>
+                            <button class="op-sort-option" :class="sortBy==='has_content' ? 'active':''" @click="sortBy='has_content'; sortOpen=false">
+                                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Has Content First
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -731,7 +742,14 @@
                                             </div>
                                         </template>
                                         <div style="min-width:0;">
-                                            <p style="font-size:0.8rem;font-weight:600;color:#1a1207;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;" x-text="p.title"></p>
+                                            <div style="font-size:0.8rem;font-weight:600;color:#1a1207;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:flex;align-items:center;gap:0.4rem;">
+                                                <span x-text="p.title"></span>
+                                                <template x-if="p.has_content">
+                                                    <svg title="Contains detailed body content" style="width:14px;height:14px;color:#0A8C5E;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                </template>
+                                            </div>
                                             <p style="font-family:'Space Mono',monospace;font-size:0.57rem;color:#B0A99F;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;" x-text="p.slug"></p>
                                         </div>
                                     </div>

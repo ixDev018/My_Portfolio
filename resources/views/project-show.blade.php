@@ -103,7 +103,7 @@
                     if ($embedUrl) {
                         // YouTube: youtu.be/ID or youtube.com/watch?v=ID or /embed/ID
                         if (preg_match('/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_\-]{11})/', $embedUrl, $ytM)) {
-                            $iframeUrl = 'https://www.youtube.com/embed/' . $ytM[1] . '?autoplay=0&rel=0';
+                            $iframeUrl = 'https://www.youtube-nocookie.com/embed/' . $ytM[1] . '?autoplay=0&rel=0';
                         }
                         // Vimeo
                         elseif (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $embedUrl, $vmM)) {
@@ -348,10 +348,10 @@
                                             @if($isEmbed)
                                                 @php
                                                     $embedUrl = $isYouTube
-                                                        ? 'https://www.youtube.com/embed/' . $ytMatch[1]
+                                                        ? 'https://www.youtube-nocookie.com/embed/' . $ytMatch[1] . '?autoplay=0&rel=0'
                                                         : 'https://player.vimeo.com/video/' . $vmMatch[1];
                                                 @endphp
-                                                <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen></iframe>
+                                                <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                                             @else
                                                 <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
                                             @endif

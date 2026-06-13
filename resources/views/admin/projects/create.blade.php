@@ -506,9 +506,11 @@
                             <div class="pe-block-image-wrap">
                                 <template x-if="!block.src">
                                     <div class="pe-block-image-upload"
-                                         @click="triggerImageUpload(block.id)">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        <span>Click to upload image</span>
+                                         @click="!block.isUploading && triggerImageUpload(block.id)"
+                                         :style="block.isUploading ? 'opacity:0.7; pointer-events:none;' : ''">
+                                        <svg x-show="!block.isUploading" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        <svg x-show="block.isUploading" class="animate-spin" style="width:1.5rem; height:1.5rem; color:#6829AA;" fill="none" viewBox="0 0 24 24" x-cloak><circle style="opacity:0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <span x-text="block.isUploading ? 'Uploading Image...' : 'Click to upload image'"></span>
                                     </div>
                                 </template>
                                 <template x-if="block.src">
@@ -574,9 +576,11 @@
                                 <template x-if="!block.src">
                                     <div style="display:flex; flex-direction:column; gap:0.35rem;">
                                         <div class="pe-block-image-upload"
-                                             @click="triggerVideoUpload(block.id)">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                            <span>Upload your own video file</span>
+                                             @click="!block.isUploading && triggerVideoUpload(block.id)"
+                                             :style="block.isUploading ? 'opacity:0.7; pointer-events:none;' : ''">
+                                            <svg x-show="!block.isUploading" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            <svg x-show="block.isUploading" class="animate-spin" style="width:1.5rem; height:1.5rem; color:#6829AA;" fill="none" viewBox="0 0 24 24" x-cloak><circle style="opacity:0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            <span x-text="block.isUploading ? 'Uploading Video... Please wait.' : 'Upload your own video file'"></span>
                                         </div>
                                         <div class="pe-block-image-upload" style="min-height:60px;"
                                              @click="promptVideoUrl(block.id)">
@@ -1310,6 +1314,8 @@ function notionEditorCreate() {
             formData.append('file', file);
             formData.append('_token', '{{ csrf_token() }}');
 
+            block.isUploading = true;
+
             try {
                 let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
                     method: 'POST', body: formData
@@ -1320,6 +1326,8 @@ function notionEditorCreate() {
                 }
             } catch(err) {
                 alert('Image upload failed.');
+            } finally {
+                block.isUploading = false;
             }
             event.target.value = '';
             this._pendingImageBlockId = null;
@@ -1349,6 +1357,8 @@ function notionEditorCreate() {
             formData.append('file', file);
             formData.append('_token', '{{ csrf_token() }}');
 
+            block.isUploading = true;
+
             try {
                 let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
                     method: 'POST', body: formData
@@ -1359,6 +1369,8 @@ function notionEditorCreate() {
                 }
             } catch(err) {
                 alert('Video upload failed.');
+            } finally {
+                block.isUploading = false;
             }
             event.target.value = '';
             this._pendingVideoBlockId = null;

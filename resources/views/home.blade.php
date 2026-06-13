@@ -833,10 +833,10 @@
         $featuredProjects = $projects->where('is_best_work', true)->values();
     @endphp
     <!-- COMBINED WORKS AREA WRAPPER -->
-    <div class="relative w-full bg-[#FAF7E6] overflow-hidden grid-bg-section wave-mask -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20">
+    <div class="relative w-full bg-[#FAF7E6] grid-bg-section wave-mask -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20">
 
         <!-- Floating 2D Visualizers (Spanning both Best Works and Works) -->
-        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+        <div class="absolute inset-0 pointer-events-none z-0" x-data="{
             shapes: [],
             shown: false,
             init() {
@@ -1424,11 +1424,11 @@
     </div>
 
     <!-- ACHIEVEMENTS SECTION (Modern Two-Column Layout) -->
-    <section id="achievements" class="pb-[88px] lg:pb-[156px] bg-white text-black font-sans border-b border-gray-100 relative overflow-hidden -mt-[40px] md:-mt-[60px] pt-[96px] md:pt-[156px] -mb-[40px] md:-mb-[60px] z-20 wave-mask-both" 
+    <section id="achievements" class="pb-[88px] lg:pb-[156px] bg-white text-black font-sans border-b border-gray-100 relative -mt-[40px] md:-mt-[60px] pt-[96px] md:pt-[156px] -mb-[40px] md:-mb-[60px] z-20 wave-mask-both" 
              x-data="{ activeTab: 'all', selectedItem: null }">
 
         <!-- Floating 2D Visualizers for Achievements -->
-        <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" x-data="{
+        <div class="absolute inset-0 pointer-events-none z-0" x-data="{
             shapes: [],
             shown: false,
             init() {

@@ -406,7 +406,11 @@
             },
 
             getFormAction() {
-                return this.formMode === 'edit' ? `/admin/achievements/update/${this.formData.id}` : `/admin/achievements/store`;
+                if (this.formMode === 'edit') {
+                    let baseRoute = '{{ route("admin.achievements.update", ["id" => "ITEM_ID"]) }}';
+                    return baseRoute.replace('ITEM_ID', this.formData.id);
+                }
+                return '{{ route("admin.achievements.store") }}';
             },
 
             fileSelected(e) {
@@ -454,8 +458,10 @@
                     // Maximum reasonable size for 9:16
                     const canvas = this.cropper.getCroppedCanvas({ maxHeight: 1920, maxWidth: 1080 });
                     this.croppedData = canvas.toDataURL('image/jpeg', 0.9);
+                    document.getElementById('image_data').value = this.croppedData;
                 } else {
                     this.croppedData = ''; 
+                    document.getElementById('image_data').value = '';
                 }
             }
         }

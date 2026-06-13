@@ -15,7 +15,18 @@
     </style>
 
     <!-- HERO SECTION -->
-    <section id="hero" class="relative min-h-[calc(100vh+40px)] md:min-h-[calc(100vh+60px)] pb-[40px] md:pb-[60px] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
+    <section id="hero" x-data="{ 
+        sectionVisible: false, 
+        passedYellow: false, 
+        initAnim() { 
+            if(this.sectionVisible) return; 
+            this.sectionVisible = true; 
+            setTimeout(() => this.passedYellow = true, 1985); 
+        } 
+    }" x-init="
+        if ($refs.bgVideo && $refs.bgVideo.readyState >= 3) { initAnim(); }
+        setTimeout(() => initAnim(), 2500);
+    " class="relative min-h-[calc(100vh+40px)] md:min-h-[calc(100vh+60px)] pb-[40px] md:pb-[60px] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
         
         <!-- Blurred Video Background -->
         @php
@@ -64,7 +75,7 @@
                 }
             }
         @endphp
-        <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"
+        <video x-ref="bgVideo" @playing="initAnim()" preload="auto" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"
                style="filter: blur({{ $blurPx }}px); opacity: {{ number_format($opacityVal, 2) }}">
             @if($profile && $profile->hero_video_path)
                 <source src="{{ asset('storage/' . $profile->hero_video_path) }}" type="video/mp4">
@@ -81,26 +92,26 @@
         <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black/80 to-transparent z-[2] pointer-events-none"></div>
         
         <!-- Center Hero Copy -->
-        <div x-data="{ sectionVisible: false, passedYellow: false }" x-init="setTimeout(() => { sectionVisible = true; setTimeout(() => passedYellow = true, 1200); }, 100)" class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full">
+        <div class="max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center relative z-10 w-full -mt-[20vh] sm:-mt-[15vh] md:-mt-12">
 
             <!-- Hero Typography Container -->
-            <div class="inline-flex flex-col items-stretch select-none mx-auto mb-6">
+            <div class="flex flex-col items-center select-none mx-auto mb-6 w-full">
 
-                <!-- Turning Ideas Into (justified) -->
-                <div class="flex justify-between w-full font-display uppercase leading-none select-none relative z-10"
-                     style="font-size: clamp(12px, 4vw, 45px);">
+                <!-- Turning Ideas Into (centered) -->
+                <div class="flex justify-center gap-x-3 sm:gap-x-4 md:gap-x-10 w-full font-display uppercase leading-none select-none relative z-10"
+                     style="font-size: clamp(18px, 5vw, 45px);">
                     @php $topText = $profile->hero_top_text ?? 'TURNING IDEAS INTO'; @endphp
                     @foreach(explode(' ', $topText) as $index => $word)
                         @if(strtoupper($word) === 'IDEAS')
                             <span class="inline-block opacity-0 translate-y-8"
                                   :class="[sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8', passedYellow ? 'text-white' : 'text-yellow-400']"
-                                  style="transition: transform 700ms ease-out {{ 200 + ($index * 150) }}ms, opacity 700ms ease-out {{ 200 + ($index * 150) }}ms, color 700ms ease-in-out 0ms;">
+                                  style="transition: transform 1323ms ease-out {{ 551 + ($index * 331) }}ms, opacity 1323ms ease-out {{ 551 + ($index * 331) }}ms, color 1323ms ease-in-out 0ms;">
                                 {{ $word }}
                             </span>
                         @else
                             <span class="inline-block opacity-0 translate-y-8 text-white"
                                   :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                                  style="transition: transform 700ms ease-out {{ 200 + ($index * 150) }}ms, opacity 700ms ease-out {{ 200 + ($index * 150) }}ms;">
+                                  style="transition: transform 1323ms ease-out {{ 551 + ($index * 331) }}ms, opacity 1323ms ease-out {{ 551 + ($index * 331) }}ms;">
                                 {{ $word }}
                             </span>
                         @endif
@@ -124,40 +135,40 @@
                         -webkit-mask-position: 100% center;
                         mask-position: 100% center;
                         
-                        transition: transform 1.2s cubic-bezier(0.34,1.56,0.64,1) 1000ms;
+                        transition: transform 1.98s cubic-bezier(0.34,1.56,0.64,1) 1654ms;
                     }
                     .hero-reality-effect.active {
                         background-position: 0% center;
                         -webkit-mask-position: 0% center;
                         mask-position: 0% center;
                         transition: 
-                            -webkit-mask-position 1.5s ease-in-out 1000ms,
-                            mask-position 1.5s ease-in-out 1000ms,
-                            background-position 1.5s ease-in-out 1100ms,
-                            transform 1.2s cubic-bezier(0.34,1.56,0.64,1) 1000ms;
+                            -webkit-mask-position 2.75s ease-in-out 1654ms,
+                            mask-position 2.75s ease-in-out 1654ms,
+                            background-position 2.75s ease-in-out 1764ms,
+                            transform 1.98s cubic-bezier(0.34,1.56,0.64,1) 1654ms;
                     }
                 </style>
 
                 <!-- REALITY (thin border, yellow fill, no shadows) -->
                 <h1 class="font-normal leading-none uppercase font-logo tracking-tight select-none text-center origin-center transform scale-90 translate-y-12 hero-reality-effect"
                     :class="sectionVisible ? 'active scale-100 translate-y-0' : ''"
-                    style="font-size: clamp(50px, 18vw, 205.84px); margin-top: -0.12em; -webkit-text-stroke: 1px black;">
+                    style="font-size: clamp(75px, 22vw, 205.84px); margin-top: -0.24em; -webkit-text-stroke: 1px black;">
                     {{ $profile->hero_title ?? 'REALITY' }}
                 </h1>
 
             </div>
 
             <!-- One Pixel At A Time -->
-            <p class="text-xs sm:text-sm tracking-[0.4em] uppercase text-white/70 mb-10 font-sans text-center">
+            <p class="text-sm sm:text-base tracking-[0.3em] sm:tracking-[0.4em] uppercase text-white/70 mb-10 font-sans text-center">
                 @php $heroSubtitle = $profile->hero_subtitle ?? 'One Pixel At A Time'; @endphp
-                @foreach(explode(' ', $heroSubtitle) as $index => $word)<span class="inline-block opacity-0 translate-y-6" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'" style="transition: transform 700ms ease-out {{ 1800 + ($index * 150) }}ms, opacity 700ms ease-out {{ 1800 + ($index * 150) }}ms;">{{ $word }}</span> @endforeach
+                @foreach(explode(' ', $heroSubtitle) as $index => $word)<span class="inline-block opacity-0 translate-y-6" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'" style="transition: transform 1103ms ease-out {{ 2867 + ($index * 221) }}ms, opacity 1103ms ease-out {{ 2867 + ($index * 221) }}ms;">{{ $word }}</span> @endforeach
             </p>
 
             <!-- Get Started Button -->
             <a href="#projects"
-               class="px-8 py-3 bg-transparent border border-white font-sans text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black relative z-10 opacity-0 translate-y-8"
+               class="px-10 py-4 sm:px-8 sm:py-3 bg-transparent border border-white font-sans text-sm sm:text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black relative z-10 opacity-0 translate-y-8"
                :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-               style="transition: transform 1000ms ease-out 2500ms, opacity 1000ms ease-out 2500ms, background-color 300ms, color 300ms;">
+               style="transition: transform 1654ms ease-out 4190ms, opacity 1654ms ease-out 4190ms, background-color 300ms, color 300ms;">
                 Get Started
             </a>
 
@@ -1718,7 +1729,7 @@
                 <div class="w-full lg:w-[40%] xl:w-[35%] text-center lg:text-left pt-2 lg:pt-4 order-2 lg:order-1">
                     <!-- Mobile heading: single line, centered -->
                     <h2 class="text-[1.75rem] lg:text-[2.75rem] xl:text-[3.25rem] whitespace-nowrap font-bold tracking-tight text-black mb-3 lg:mb-6 leading-tight font-poppins">
-                        Proof of <span class="font-normal" x-text="activeTab === 'all' ? 'Impact' : (activeTab === 'award' ? 'Excellence' : 'Skill')"></span>
+                        Proof of <span class="font-bold" style="font-weight: 700 !important;" x-text="activeTab === 'all' ? 'Impact' : (activeTab === 'award' ? 'Excellence' : 'Skill')"></span>
                     </h2>
                     <p class="text-gray-500 text-sm lg:text-lg leading-relaxed mb-6 lg:mb-12 font-medium font-poppins max-w-xs mx-auto lg:mx-0 lg:max-w-none">
                         Being appreciated for the work I do means the world to me. Whether achieved individually or alongside a talented team, these milestones translate beautifully into continuous learning and industry recognition.

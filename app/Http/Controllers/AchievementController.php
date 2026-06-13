@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Achievement;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,7 +12,20 @@ class AchievementController extends Controller
     public function index()
     {
         $achievements = Achievement::orderByDesc('year')->orderByDesc('created_at')->get();
-        return view('admin.achievements.index', compact('achievements'));
+        $profile = Profile::firstOrCreate([]);
+        return view('admin.achievements.index', compact('achievements', 'profile'));
+    }
+
+    public function toggleModals(Request $request)
+    {
+        $profile = Profile::firstOrCreate([]);
+        $profile->disable_achievements_modal = !$profile->disable_achievements_modal;
+        $profile->save();
+
+        return response()->json([
+            'success' => true,
+            'disable_achievements_modal' => $profile->disable_achievements_modal
+        ]);
     }
 
     public function store(Request $request)
@@ -51,7 +65,8 @@ class AchievementController extends Controller
     {
         $achievement = Achievement::findOrFail($id);
         $achievements = Achievement::orderByDesc('year')->get();
-        return view('admin.achievements.index', compact('achievements', 'achievement'));
+        $profile = Profile::firstOrCreate([]);
+        return view('admin.achievements.index', compact('achievements', 'achievement', 'profile'));
     }
 
     public function update(Request $request, $id)

@@ -76,6 +76,7 @@ Route::middleware([AdminAuthMiddleware::class])->prefix($adminPrefix)->group(fun
     Route::get('/achievements/edit/{id}', [AchievementController::class, 'edit'])->name('admin.achievements.edit');
     Route::post('/achievements/update/{id}', [AchievementController::class, 'update'])->name('admin.achievements.update');
     Route::post('/achievements/delete/{id}', [AchievementController::class, 'destroy'])->name('admin.achievements.delete');
+    Route::post('/achievements/toggle-modals', [AchievementController::class, 'toggleModals'])->name('admin.achievements.toggle_modals');
 
     // Work Experience CRUD
     Route::get('/experiences', [ExperienceController::class, 'index'])->name('admin.experiences.index');

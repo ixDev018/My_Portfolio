@@ -13,10 +13,5 @@ class Achievement extends Model
         'type',
         'description',
         'media_path',
-        'disable_modal',
-    ];
-
-    protected $casts = [
-        'disable_modal' => 'boolean',
     ];
 }

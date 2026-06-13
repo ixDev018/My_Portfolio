@@ -30,11 +30,13 @@ class Profile extends Model
         'exp_default_bg_type',
         'exp_default_bg_media_path',
         'exp_default_bg_gallery_images',
+        'disable_achievements_modal',
     ];
 
     protected $casts = [
         'hero_gradient_stops' => 'array',
         'tool_rows' => 'array',
         'exp_default_bg_gallery_images' => 'array',
+        'disable_achievements_modal' => 'boolean',
     ];
 }

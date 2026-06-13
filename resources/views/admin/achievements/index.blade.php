@@ -130,10 +130,16 @@
             <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Achievements</h1>
             <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Awards &amp; Certificates — displayed in the Achievements section</p>
         </div>
-        <button type="button" @click="openAddModal()" class="lt-btn-primary">
-            <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            Add Achievement
-        </button>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+            <button type="button" @click="toggleGlobalModals()" class="lt-btn-secondary" style="padding: 0.5rem; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center;" :title="globalModalsDisabled ? 'Enable Modals' : 'Disable Modals'">
+                <svg x-show="!globalModalsDisabled" style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                <svg x-show="globalModalsDisabled" x-cloak style="width:16px;height:16px; color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+            </button>
+            <button type="button" @click="openAddModal()" class="lt-btn-primary">
+                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Add Achievement
+            </button>
+        </div>
     </div>
 
     {{-- Table --}}
@@ -288,11 +294,6 @@
                         <label class="lt-label">Description (optional)</label>
                         <textarea name="description" x-model="formData.description" rows="3" class="lt-input" placeholder="Brief description…"></textarea>
                     </div>
-                    
-                    <div class="flex items-center gap-2 mt-4">
-                        <input type="checkbox" name="disable_modal" id="disable_modal" x-model="formData.disable_modal" value="1" class="w-4 h-4 text-[#6829AA] border-[#D8D4C8] rounded focus:ring-[#6829AA]">
-                        <label for="disable_modal" class="text-sm font-medium" style="color:#2c2826;">Disable Modal Preview</label>
-                    </div>
                 </div>
 
                 <div x-show="modalTab === 'media'" class="space-y-4" x-cloak>
@@ -346,6 +347,7 @@
 <script>
     function achievementData() {
         return {
+            globalModalsDisabled: {{ $profile->disable_achievements_modal ? 'true' : 'false' }},
             isModalOpen: false,
             formMode: 'add',
             modalTab: 'details',
@@ -356,17 +358,33 @@
                 year: '',
                 type: 'award',
                 description: '',
-                disable_modal: false,
                 old_image: ''
             },
             imageSelected: false,
             cropper: null,
             croppedData: '',
             
+            toggleGlobalModals() {
+                fetch('{{ route("admin.achievements.toggle_modals") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        this.globalModalsDisabled = data.disable_achievements_modal;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            },
+
             openAddModal() {
                 this.formMode = 'add';
                 this.modalTab = 'details';
-                this.formData = { id: null, title: '', issuer: '', year: '', type: 'award', description: '', disable_modal: false, old_image: '' };
+                this.formData = { id: null, title: '', issuer: '', year: '', type: 'award', description: '', old_image: '' };
                 this.resetImage();
                 this.isModalOpen = true;
             },
@@ -381,7 +399,6 @@
                     year: item.year,
                     type: item.type,
                     description: item.description || '',
-                    disable_modal: item.disable_modal ? true : false,
                     old_image: item.media_path ? '/storage/' + item.media_path : ''
                 };
                 this.resetImage();

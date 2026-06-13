@@ -15,7 +15,7 @@
     </style>
 
     <!-- HERO SECTION -->
-    <section id="hero" class="relative h-[100vh] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
+    <section id="hero" class="relative min-h-[calc(100vh+40px)] md:min-h-[calc(100vh+60px)] pb-[40px] md:pb-[60px] flex flex-col justify-between pt-36 text-white overflow-hidden select-none bg-[#111111]">
         
         <!-- Blurred Video Background -->
         @php
@@ -1787,13 +1787,13 @@
                             <!-- Card -->
                             <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
                                  x-transition.opacity
-                                 @if(!$item->disable_modal)
+                                 @if(!$profile->disable_achievements_modal)
                                  @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}', media_path: {{ Js::from($item->media_path ? asset('storage/' . $item->media_path) : null) }} }"
                                  @endif
-                                 class="flex-none snap-center lg:snap-start group {{ $item->disable_modal ? '' : 'cursor-pointer' }} relative"
+                                 class="flex-none snap-center lg:snap-start group {{ $profile->disable_achievements_modal ? '' : 'cursor-pointer' }} relative"
                                  style="width: min(78vw, 300px);">
                                  
-                                <div class="relative overflow-hidden bg-white rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.06)] {{ $item->disable_modal ? '' : 'group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030]' }} border-2 border-gray-100 h-auto lg:h-[420px] min-h-[300px]">
+                                <div class="relative overflow-hidden bg-white rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.06)] {{ $profile->disable_achievements_modal ? '' : 'group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030]' }} border-2 border-gray-100 h-auto lg:h-[420px] min-h-[300px]">
                                     
                                     <!-- Shine Effect -->
                                     <div class="absolute top-0 -left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent transform -skew-x-12 transition-all duration-700 ease-in-out group-hover:left-[150%] z-20 pointer-events-none"></div>

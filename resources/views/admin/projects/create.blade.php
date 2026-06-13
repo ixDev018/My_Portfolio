@@ -808,18 +808,11 @@
                         </div>
                         
                         <div class="pe-field">
-                            <label class="pe-field-label">External Full Video Link (For 15s Preview End)</label>
+                            <label class="pe-field-label">External Full Video Link (Fallback & 15s Preview End)</label>
                             <input type="url" name="full_video_url" class="pe-field-input"
                                    value="{{ old('full_video_url') }}"
                                    placeholder="https://youtube.com/... or https://vimeo.com/...">
-                            <p style="font-size:0.52rem; color:#9B9589; margin-top:0.15rem; font-family:'Space Mono',monospace;">Visitors will be linked here after the 15-second preview ends on thumbnails.</p>
-                        </div>
-
-                        <div class="pe-field">
-                            <label class="pe-field-label">External Full Video URL (Optional fallback)</label>
-                            <input type="url" name="video_url" class="pe-field-input"
-                                   value="{{ old('video_url') }}"
-                                   placeholder="https://youtube.com/...">
+                            <p style="font-size:0.52rem; color:#9B9589; margin-top:0.15rem; font-family:'Space Mono',monospace;">Visitors will be linked here for the 'See full video' fallback, or after the 15-second preview ends on thumbnails.</p>
                         </div>
                     </div>
 

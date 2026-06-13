@@ -40,7 +40,7 @@
     </div>
 
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
-        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all' }">
+        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '' }">
 
             <div class="mb-10 text-center">
                 <h1 class="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">All Outputs</h1>
@@ -72,8 +72,38 @@
             <div class="columns-2 md:columns-3 lg:columns-4 gap-4">
 
                 @forelse($visualProjects as $proj)
+                    @php
+                        $hasBodyContent = $proj->hasBodyContent();
+                        $hasAdminLink = !empty($proj->full_video_url) || !empty($proj->embed_url) || !empty($proj->video_url);
+                        $adminLinkUrl = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
+                        $isVideoProject = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLink;
+                        
+                        $localVideo = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : '';
+                        $localImage = $proj->main_image_path ? asset('storage/' . $proj->main_image_path) : '';
+                        
+                        $isFallback = !$hasBodyContent;
+
+                        if ($isFallback) {
+                            if ($hasAdminLink) {
+                                $cardHref = $adminLinkUrl;
+                                $cardTarget = '_blank';
+                                $onClick = '';
+                            } else {
+                                $cardHref = '#';
+                                $cardTarget = '_self';
+                                $onClick = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideo}'; modalImageSrc = '{$localImage}'; modalTitle = '".addslashes($proj->title)."';";
+                            }
+                        } else {
+                            $cardHref = route('portfolio.project.show', $proj->slug);
+                            $cardTarget = '_self';
+                            $onClick = '';
+                        }
+                    @endphp
                     {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
-                    <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                    <a href="{{ $cardHref }}"
+                       target="{{ $cardTarget }}"
+                       {!! $onClick ? 'x-on:click="'.$onClick.'"' : '' !!}
+                       @if($isFallback && $hasAdminLink) rel="noopener noreferrer" @endif
                        x-data="{ isDimmed: false }"
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        x-transition:enter="transition-opacity duration-300"
@@ -181,6 +211,7 @@
                                         <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>
                                     @endif
                                     <p class="text-white font-sans text-sm font-semibold mt-1 leading-snug">{{ $proj->title }}</p>
+
                                 </div>
                             </div>
 
@@ -206,6 +237,16 @@
                                     </span>
                                 @endif
                             </div>
+
+                            @if($isFallback)
+                                <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                                    <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Story Coming soon...</span>
+                                    <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                        {{ $isVideoProject ? 'See full video' : 'See full image' }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </a>
                 @empty
@@ -214,6 +255,39 @@
                     </div>
                 @endforelse
 
+            </div>
+
+            <!-- Coming Soon / Video Modal -->
+            <div x-show="comingSoonModal" 
+                 style="display: none;"
+                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
+                 x-transition.opacity>
+                
+                <div @click.away="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();"
+                     class="bg-[#1A1A1A] w-full max-w-5xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
+                     x-transition.scale.95>
+                    
+                    <!-- Close button -->
+                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+
+                    <!-- Content -->
+                    <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">
+                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
+                        <video x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="w-full h-full object-contain" controls autoplay playsinline></video>
+                    </div>
+                    
+                    <div x-show="!modalVideoSrc && modalImageSrc" class="w-full h-[80vh] bg-black relative flex items-center justify-center p-4">
+                        <img :src="comingSoonModal ? modalImageSrc : ''" class="max-w-full max-h-full object-contain rounded-lg">
+                    </div>
+                    
+                    <div x-show="!modalVideoSrc && !modalImageSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
+                        <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <h3 class="font-logo text-4xl md:text-5xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
+                        <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
+                    </div>
+                </div>
             </div>
 
         </div>

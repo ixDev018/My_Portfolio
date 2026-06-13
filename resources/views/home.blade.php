@@ -462,19 +462,20 @@
 
                     <!-- Bottom on mobile: Text -->
                     <div class="md:order-first">
-                        <div class="flex items-center gap-3 mb-1">
-                            <span class="text-sm italic text-white/70 font-sans whitespace-nowrap">{{ $slideItem->chapter_label }}</span>
-                            <div class="flex-1 border-t border-dotted border-white/40"></div>
+                        <div class="flex items-center gap-3 mb-2 w-full overflow-hidden">
+                            <span class="text-xs italic text-white/60 font-sans whitespace-nowrap shrink-0">{{ $slideItem->chapter_label }}</span>
+                            <div class="flex-1 min-w-0 border-t border-dotted border-white/30 overflow-hidden"></div>
                         </div>
-                        <h3 class="font-display whitespace-nowrap text-[clamp(1.25rem,6.5vw,1.875rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2">
+                        <h3 class="font-logo text-[clamp(2rem,10vw,2.5rem)] sm:text-5xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] text-[#4dd9f0] uppercase leading-none mb-2"
+                            style="-webkit-text-stroke: 1px black;">
                             {{ $slideItem->title }}
                         </h3>
                         @if($slideItem->subtitle)
-                        <p class="text-[10px] sm:text-xs font-sans text-white/50 tracking-wider mb-4 md:mb-8">
+                        <p class="text-[11px] sm:text-xs font-sans text-white/50 tracking-[0.12em] uppercase mb-3 md:mb-8 leading-relaxed">
                             {{ $slideItem->subtitle }}
                         </p>
                         @endif
-                        <div class="space-y-3 md:space-y-5 font-poppins text-sm text-white/80 leading-relaxed md:leading-loose">
+                        <div class="space-y-3 md:space-y-5 font-poppins text-[13px] sm:text-sm text-white/80 leading-[1.8] md:leading-loose">
                             {!! nl2br(e($slideItem->description)) !!}
                         </div>
                     </div>
@@ -1222,7 +1223,7 @@
         @endphp
 
         <div class="w-full pt-0 pb-20"
-             x-data="{ activeFilter: 'all' }">
+             x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '' }">
 
             <!-- Brutalist Edge-to-Edge Header & Filters -->
             <div class="w-full bg-[#D4D4D4] border-t border-black flex flex-col border-b sticky top-[72px] z-40">
@@ -1249,7 +1250,10 @@
             </div>
 
             {{-- Pinterest masonry — seamless edge-to-edge layout --}}
-            <div class="w-full relative bg-black">
+            <div class="w-full relative bg-black"
+                 x-data="{ dimming: false, hoverTimer: null }"
+                 @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
+                 @mouseleave="clearTimeout(hoverTimer); dimming = false;">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
                 <div class="relative overflow-hidden" style="max-height: 150vh;">
@@ -1260,8 +1264,38 @@
                          @mouseleave="clearTimeout(hoverTimer); dimming = false;">
 
                         @forelse($visualProjects as $proj)
+                            @php
+                                $hasBodyContentVis = $proj->hasBodyContent();
+                                $hasAdminLinkVis = !empty($proj->full_video_url) || !empty($proj->embed_url) || !empty($proj->video_url);
+                                $adminLinkUrlVis = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
+                                $isVideoProjectVis = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLinkVis;
+                                
+                                $localVideoVis = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : '';
+                                $localImageVis = $proj->main_image_path ? asset('storage/' . $proj->main_image_path) : '';
+                                
+                                $isFallbackVis = !$hasBodyContentVis;
+
+                                if ($isFallbackVis) {
+                                    if ($hasAdminLinkVis) {
+                                        $cardHrefVis = $adminLinkUrlVis;
+                                        $cardTargetVis = '_blank';
+                                        $onClickVis = '';
+                                    } else {
+                                        $cardHrefVis = '#';
+                                        $cardTargetVis = '_self';
+                                        $onClickVis = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideoVis}'; modalImageSrc = '{$localImageVis}'; modalTitle = '".addslashes($proj->title)."';";
+                                    }
+                                } else {
+                                    $cardHrefVis = route('portfolio.project.show', $proj->slug);
+                                    $cardTargetVis = '_self';
+                                    $onClickVis = '';
+                                }
+                            @endphp
                             {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
-                            <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                            <a href="{{ $cardHrefVis }}"
+                               target="{{ $cardTargetVis }}"
+                               {!! $onClickVis ? 'x-on:click="'.$onClickVis.'"' : '' !!}
+                               @if($isFallbackVis && $hasAdminLinkVis) rel="noopener noreferrer" @endif
                                x-data="{ isDimmed: false }"
                                x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                                x-transition:enter="transition-opacity duration-300"
@@ -1367,6 +1401,7 @@
                                                 <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>
                                             @endif
                                             <p class="text-white font-sans text-sm font-semibold mt-1 leading-snug">{{ $proj->title }}</p>
+
                                         </div>
                                     </div>
 
@@ -1392,6 +1427,16 @@
                                             </span>
                                         @endif
                                     </div>
+
+                                    @if($isFallbackVis)
+                                        <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                                            <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Story Coming soon...</span>
+                                            <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                                {{ $isVideoProjectVis ? 'See full video' : 'See full image' }}
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </a>
                         @empty
@@ -1415,6 +1460,35 @@
                     </a>
                 </div>
 
+            </div>
+
+            <!-- Coming Soon / Video Modal -->
+            <div x-show="comingSoonModal" 
+                 style="display: none;"
+                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
+                 x-transition.opacity>
+                
+                <div @click.away="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();"
+                     class="bg-[#1A1A1A] w-full max-w-5xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
+                     x-transition.scale.95>
+                    
+                    <!-- Close button -->
+                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+
+                    <!-- Content -->
+                    <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">
+                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
+                        <video x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="w-full h-full object-contain" controls autoplay playsinline></video>
+                    </div>
+                    
+                    <div x-show="!modalVideoSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
+                        <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <h3 class="font-logo text-4xl md:text-5xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
+                        <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
+                    </div>
+                </div>
             </div>
 
         </div>

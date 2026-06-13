@@ -132,6 +132,13 @@
                             </video>
                         @endif
                     </div>
+                    @if($iframeUrl && str_contains($iframeUrl, 'youtube-nocookie.com'))
+                        <div class="mt-3 text-center text-xs font-poppins text-black/50 px-4">
+                            <svg class="inline-block w-3.5 h-3.5 mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Due to copyright restrictions, some videos cannot be played here. 
+                            <a href="https://www.youtube.com/watch?v={{ $ytM[1] ?? '' }}" target="_blank" class="underline hover:text-black transition-colors font-semibold">Watch directly on YouTube</a>.
+                        </div>
+                    @endif
                 @else
                     {{-- ── FALLBACK: Existing local media display ── --}}
                     <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
@@ -356,6 +363,13 @@
                                                 <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
                                             @endif
                                         </div>
+                                        @if($isYouTube ?? false)
+                                            <div class="-mt-7 mb-10 text-center text-[11px] font-poppins text-black/40 px-4">
+                                                <svg class="inline-block w-3 h-3 mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                Due to copyright restrictions, some videos cannot be played here. 
+                                                <a href="https://www.youtube.com/watch?v={{ $ytMatch[1] ?? '' }}" target="_blank" class="underline hover:text-black transition-colors font-semibold">Watch directly on YouTube</a>.
+                                            </div>
+                                        @endif
                                         @if(!empty($block['caption']))
                                             <p class="text-center mt-2 font-mono text-[10px] uppercase tracking-widest text-black/40">{{ $block['caption'] }}</p>
                                         @endif

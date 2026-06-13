@@ -40,7 +40,7 @@
     </div>
 
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
-        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '' }">
+        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '' }">
 
             <div class="mb-10 text-center">
                 <h1 class="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">All Outputs</h1>
@@ -78,8 +78,16 @@
                         $adminLinkUrl = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
                         $isVideoProject = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLink;
                         
-                        $localVideo = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : '';
-                        $localImage = $proj->main_image_path ? asset('storage/' . $proj->main_image_path) : '';
+                        $localVideo = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : ($proj->thumbnail_video_path ? asset('storage/' . $proj->thumbnail_video_path) : '');
+                        
+                        $localImage = '';
+                        if ($proj->main_image_path) {
+                            $localImage = asset('storage/' . $proj->main_image_path);
+                        } elseif ($proj->thumbnail_path) {
+                            $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path);
+                        } elseif (!empty($proj->thumbnail_images)) {
+                            $localImage = asset('storage/' . $proj->thumbnail_images[0]);
+                        }
                         
                         $isFallback = !$hasBodyContent;
 
@@ -91,7 +99,7 @@
                             } else {
                                 $cardHref = '#';
                                 $cardTarget = '_self';
-                                $onClick = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideo}'; modalImageSrc = '{$localImage}'; modalTitle = '".addslashes($proj->title)."';";
+                                $onClick = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideo}'; modalImageSrc = '{$localImage}'; modalTitle = '".addslashes($proj->title)."'; modalMedium = '".addslashes($proj->medium)."'; modalYear = '".addslashes($proj->year)."';";
                             }
                         } else {
                             $cardHref = route('portfolio.project.show', $proj->slug);
@@ -271,6 +279,21 @@
                     <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
+
+                    <!-- Story coming soon indicator -->
+                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-4 left-4 z-20 px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 pointer-events-none">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                        <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
+                    </div>
+
+                    <!-- Title and Meta overlay -->
+                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-10">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalYear"></span>
+                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalMedium"></span>
+                        </div>
+                        <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
+                    </div>
 
                     <!-- Content -->
                     <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">

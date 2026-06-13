@@ -22,6 +22,7 @@ class AchievementController extends Controller
             'year'        => 'required|string|max:20',
             'type'        => 'required|in:award,certificate',
             'description' => 'nullable|string|max:2000',
+            'disable_modal' => 'nullable|boolean',
         ]);
 
         if ($request->filled('image_data')) {
@@ -40,6 +41,7 @@ class AchievementController extends Controller
                 }
             }
         }
+        $validated['disable_modal'] = $request->has('disable_modal');
 
         Achievement::create($validated);
         return redirect()->route('admin.achievements.index')->with('success', 'Achievement added successfully!');
@@ -61,6 +63,7 @@ class AchievementController extends Controller
             'year'        => 'required|string|max:20',
             'type'        => 'required|in:award,certificate',
             'description' => 'nullable|string|max:2000',
+            'disable_modal' => 'nullable|boolean',
         ]);
 
         if ($request->filled('image_data')) {
@@ -83,6 +86,7 @@ class AchievementController extends Controller
                 }
             }
         }
+        $validated['disable_modal'] = $request->has('disable_modal');
 
         $achievement->update($validated);
         return redirect()->route('admin.achievements.index')->with('success', 'Achievement updated!');

@@ -288,6 +288,11 @@
                         <label class="lt-label">Description (optional)</label>
                         <textarea name="description" x-model="formData.description" rows="3" class="lt-input" placeholder="Brief description…"></textarea>
                     </div>
+                    
+                    <div class="flex items-center gap-2 mt-4">
+                        <input type="checkbox" name="disable_modal" id="disable_modal" x-model="formData.disable_modal" value="1" class="w-4 h-4 text-[#6829AA] border-[#D8D4C8] rounded focus:ring-[#6829AA]">
+                        <label for="disable_modal" class="text-sm font-medium" style="color:#2c2826;">Disable Modal Preview</label>
+                    </div>
                 </div>
 
                 <div x-show="modalTab === 'media'" class="space-y-4" x-cloak>
@@ -351,6 +356,7 @@
                 year: '',
                 type: 'award',
                 description: '',
+                disable_modal: false,
                 old_image: ''
             },
             imageSelected: false,
@@ -360,7 +366,7 @@
             openAddModal() {
                 this.formMode = 'add';
                 this.modalTab = 'details';
-                this.formData = { id: null, title: '', issuer: '', year: '', type: 'award', description: '', old_image: '' };
+                this.formData = { id: null, title: '', issuer: '', year: '', type: 'award', description: '', disable_modal: false, old_image: '' };
                 this.resetImage();
                 this.isModalOpen = true;
             },
@@ -375,6 +381,7 @@
                     year: item.year,
                     type: item.type,
                     description: item.description || '',
+                    disable_modal: item.disable_modal ? true : false,
                     old_image: item.media_path ? '/storage/' + item.media_path : ''
                 };
                 this.resetImage();

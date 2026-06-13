@@ -174,11 +174,11 @@
             /* Wave Mask for clipping shapes to the top wave */
             .wave-mask {
                 -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), linear-gradient(black, black);
-                -webkit-mask-size: 100% 40px, 100% calc(100% - 20px);
+                -webkit-mask-size: 100% 40px, 100% calc(100% - 32px);
                 -webkit-mask-position: top left, bottom left;
                 -webkit-mask-repeat: no-repeat;
                 mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), linear-gradient(black, black);
-                mask-size: 100% 40px, 100% calc(100% - 20px);
+                mask-size: 100% 40px, 100% calc(100% - 32px);
                 mask-position: top left, bottom left;
                 mask-repeat: no-repeat;
             }
@@ -195,14 +195,14 @@
                     url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), 
                     url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L0,0Z' fill='black'/%3E%3C/svg%3E"), 
                     linear-gradient(black, black);
-                -webkit-mask-size: 100% 40px, 100% 40px, 100% calc(100% - 40px);
+                -webkit-mask-size: 100% 40px, 100% 40px, 100% calc(100% - 64px);
                 -webkit-mask-position: top left, bottom left, center left;
                 -webkit-mask-repeat: no-repeat;
                 mask-image: 
                     url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z' fill='black'/%3E%3C/svg%3E"), 
                     url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,0L0,0Z' fill='black'/%3E%3C/svg%3E"), 
                     linear-gradient(black, black);
-                mask-size: 100% 40px, 100% 40px, 100% calc(100% - 40px);
+                mask-size: 100% 40px, 100% 40px, 100% calc(100% - 64px);
                 mask-position: top left, bottom left, center left;
                 mask-repeat: no-repeat;
             }
@@ -1270,8 +1270,16 @@
                                 $adminLinkUrlVis = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
                                 $isVideoProjectVis = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLinkVis;
                                 
-                                $localVideoVis = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : '';
-                                $localImageVis = $proj->main_image_path ? asset('storage/' . $proj->main_image_path) : '';
+                                $localVideoVis = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : ($proj->thumbnail_video_path ? asset('storage/' . $proj->thumbnail_video_path) : '');
+                                
+                                $localImageVis = '';
+                                if ($proj->main_image_path) {
+                                    $localImageVis = asset('storage/' . $proj->main_image_path);
+                                } elseif ($proj->thumbnail_path) {
+                                    $localImageVis = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path);
+                                } elseif (!empty($proj->thumbnail_images)) {
+                                    $localImageVis = asset('storage/' . $proj->thumbnail_images[0]);
+                                }
                                 
                                 $isFallbackVis = !$hasBodyContentVis;
 
@@ -1283,7 +1291,7 @@
                                     } else {
                                         $cardHrefVis = '#';
                                         $cardTargetVis = '_self';
-                                        $onClickVis = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideoVis}'; modalImageSrc = '{$localImageVis}'; modalTitle = '".addslashes($proj->title)."';";
+                                        $onClickVis = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideoVis}'; modalImageSrc = '{$localImageVis}'; modalTitle = '".addslashes($proj->title)."'; modalMedium = '".addslashes($proj->medium)."'; modalYear = '".addslashes($proj->year)."';";
                                     }
                                 } else {
                                     $cardHrefVis = route('portfolio.project.show', $proj->slug);
@@ -1477,13 +1485,32 @@
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
 
+                    <!-- Story coming soon indicator -->
+                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-4 left-4 z-20 px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 pointer-events-none">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                        <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
+                    </div>
+
+                    <!-- Title and Meta overlay -->
+                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-10">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalYear"></span>
+                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalMedium"></span>
+                        </div>
+                        <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
+                    </div>
+
                     <!-- Content -->
                     <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">
                         <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
                         <video x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="w-full h-full object-contain" controls autoplay playsinline></video>
                     </div>
                     
-                    <div x-show="!modalVideoSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
+                    <div x-show="!modalVideoSrc && modalImageSrc" class="w-full h-[80vh] bg-black relative flex items-center justify-center p-4">
+                        <img :src="comingSoonModal ? modalImageSrc : ''" class="max-w-full max-h-full object-contain rounded-lg">
+                    </div>
+                    
+                    <div x-show="!modalVideoSrc && !modalImageSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
                         <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         <h3 class="font-logo text-4xl md:text-5xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
                         <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
@@ -1760,11 +1787,13 @@
                             <!-- Card -->
                             <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
                                  x-transition.opacity
+                                 @if(!$item->disable_modal)
                                  @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}', media_path: {{ Js::from($item->media_path ? asset('storage/' . $item->media_path) : null) }} }"
-                                 class="flex-none snap-center lg:snap-start group cursor-pointer relative"
+                                 @endif
+                                 class="flex-none snap-center lg:snap-start group {{ $item->disable_modal ? '' : 'cursor-pointer' }} relative"
                                  style="width: min(78vw, 300px);">
                                  
-                                <div class="relative overflow-hidden bg-white rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.06)] group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030] border-2 border-gray-100 h-auto lg:h-[420px] min-h-[300px]">
+                                <div class="relative overflow-hidden bg-white rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center text-center transition-all duration-500 transform shadow-[0_8px_30px_rgb(0,0,0,0.06)] {{ $item->disable_modal ? '' : 'group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgb(94,23,235,0.12)] group-hover:bg-[#E5C14D] group-hover:border-[#C4A030]' }} border-2 border-gray-100 h-auto lg:h-[420px] min-h-[300px]">
                                     
                                     <!-- Shine Effect -->
                                     <div class="absolute top-0 -left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent transform -skew-x-12 transition-all duration-700 ease-in-out group-hover:left-[150%] z-20 pointer-events-none"></div>

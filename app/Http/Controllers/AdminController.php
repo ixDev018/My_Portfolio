@@ -68,11 +68,71 @@ class AdminController extends Controller
         // Most-viewed project — placeholder until view tracking is added
         $mostViewedProject = Project::orderBy('created_at', 'desc')->first();
 
+        // Storage calculations
+        $mediaPath = storage_path('app/public');
+        $mediaBreakdown = $this->getStorageBreakdown($mediaPath);
+        $mediaSizeBytes = array_sum($mediaBreakdown);
+        
+        $dbConnection = config('database.default');
+        $dbSizeBytes = 0;
+        if ($dbConnection === 'sqlite') {
+            $dbPath = config('database.connections.sqlite.database');
+            if (file_exists($dbPath)) {
+                $dbSizeBytes = filesize($dbPath);
+            }
+        }
+        
+        $totalSizeBytes = $mediaSizeBytes + $dbSizeBytes;
+        
+        // Define a 1GB limit (standard free tier target warning threshold)
+        $limitBytes = 1024 * 1024 * 1024; // 1 GB
+        $usagePercent = min(100, max(0.1, round(($totalSizeBytes / $limitBytes) * 100, 2)));
+
+        // Calculate segmented percentages based on limit for the progress bar
+        $dbPercent = ($dbSizeBytes / $limitBytes) * 100;
+        $imgPercent = ($mediaBreakdown['images'] / $limitBytes) * 100;
+        $vidPercent = ($mediaBreakdown['videos'] / $limitBytes) * 100;
+        $docPercent = ($mediaBreakdown['documents'] / $limitBytes) * 100;
+        $othPercent = ($mediaBreakdown['other'] / $limitBytes) * 100;
+
         return view('admin.dashboard', compact(
             'projectsCount', 'skillsCount',
             'unreadMessagesCount', 'readMessagesCount', 'totalMessagesCount',
-            'recentMessages', 'profile', 'mostViewedProject'
+            'recentMessages', 'profile', 'mostViewedProject',
+            'mediaSizeBytes', 'dbSizeBytes', 'totalSizeBytes', 'usagePercent',
+            'mediaBreakdown', 'dbPercent', 'imgPercent', 'vidPercent', 'docPercent', 'othPercent'
         ));
+    }
+
+    private function getStorageBreakdown($path)
+    {
+        $breakdown = [
+            'images' => 0,
+            'videos' => 0,
+            'documents' => 0,
+            'other' => 0,
+        ];
+        
+        $path = realpath($path);
+        if ($path !== false && is_dir($path)) {
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)) as $file) {
+                if ($file->isFile()) {
+                    $size = $file->getSize();
+                    $ext = strtolower($file->getExtension());
+                    
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'])) {
+                        $breakdown['images'] += $size;
+                    } elseif (in_array($ext, ['mp4', 'mov', 'webm', 'ogg', 'avi'])) {
+                        $breakdown['videos'] += $size;
+                    } elseif (in_array($ext, ['pdf', 'doc', 'docx', 'txt', 'rtf'])) {
+                        $breakdown['documents'] += $size;
+                    } else {
+                        $breakdown['other'] += $size;
+                    }
+                }
+            }
+        }
+        return $breakdown;
     }
 
     /*

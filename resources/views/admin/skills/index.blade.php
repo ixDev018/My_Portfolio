@@ -574,7 +574,9 @@
             },
 
             getFormAction() {
-                return this.formMode === 'edit' ? `/admin/tools/update/${this.formData.id}` : `/admin/tools/store`;
+                return this.formMode === 'edit' 
+                    ? `{{ route('admin.tools.update', ':id') }}`.replace(':id', this.formData.id) 
+                    : `{{ route('admin.tools.store') }}`;
             },
 
             fileSelected(e) {
@@ -664,7 +666,9 @@
             },
 
             getSkillAction() {
-                return this.skillFormMode === 'edit' ? `/admin/skills/update/${this.skillFormData.id}` : `/admin/skills/store`;
+                return this.skillFormMode === 'edit' 
+                    ? `{{ route('admin.skills.update', ':id') }}`.replace(':id', this.skillFormData.id) 
+                    : `{{ route('admin.skills.store') }}`;
             },
 
             skillFileSelected(e) {

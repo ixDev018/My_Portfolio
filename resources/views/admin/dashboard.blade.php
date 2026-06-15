@@ -283,6 +283,89 @@
             </div>
         </div>
 
+        {{-- Storage consumption indicator --}}
+        <div class="db-card" style="margin-top: 1.25rem;">
+            <div class="db-card-header">
+                <span class="db-card-title">Storage Consumption</span>
+                <span class="db-inbox-pill">
+                    <span class="lbl">Limit:</span>
+                    <span class="val">1.0 GB</span>
+                </span>
+            </div>
+            <div style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-family:'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #1a1207; text-transform: uppercase;">
+                        Total Used: {{ number_format($totalSizeBytes / (1024 * 1024), 2) }} MB
+                    </span>
+                    <span style="font-family:'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #6829AA;">
+                        {{ $usagePercent }}%
+                    </span>
+                </div>
+                
+                {{-- Segmented Progress Bar --}}
+                <div style="width: 100%; height: 10px; background: #EEE6FF; border-radius: 100px; overflow: hidden; margin-bottom: 1.25rem; display: flex;">
+                    @if($totalSizeBytes > 0)
+                        @if($dbPercent > 0)<div style="width: {{ $dbPercent }}%; background: #6829AA;" title="Database"></div>@endif
+                        @if($imgPercent > 0)<div style="width: {{ $imgPercent }}%; background: #FF851B;" title="Images"></div>@endif
+                        @if($vidPercent > 0)<div style="width: {{ $vidPercent }}%; background: #4dd9f0;" title="Videos"></div>@endif
+                        @if($docPercent > 0)<div style="width: {{ $docPercent }}%; background: #F43F5E;" title="Documents"></div>@endif
+                        @if($othPercent > 0)<div style="width: {{ $othPercent }}%; background: #9B9589;" title="Other"></div>@endif
+                    @endif
+                </div>
+
+                {{-- Granulated Details List --}}
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; border-t: 1px solid #F0EDE6; padding-top: 1rem;">
+                    
+                    {{-- Database --}}
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #6829AA;"></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Database (SQLite)</span>
+                        </div>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($dbSizeBytes / (1024 * 1024), 2) }} MB</span>
+                    </div>
+
+                    {{-- Images --}}
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #FF851B;"></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Images</span>
+                        </div>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['images'] / (1024 * 1024), 2) }} MB</span>
+                    </div>
+
+                    {{-- Videos --}}
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #4dd9f0;"></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Videos</span>
+                        </div>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['videos'] / (1024 * 1024), 2) }} MB</span>
+                    </div>
+
+                    {{-- Documents --}}
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #F43F5E;"></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Documents & CVs</span>
+                        </div>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['documents'] / (1024 * 1024), 2) }} MB</span>
+                    </div>
+
+                    {{-- Other --}}
+                    @if($mediaBreakdown['other'] > 0)
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #9B9589;"></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Other Files</span>
+                        </div>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['other'] / (1024 * 1024), 2) }} MB</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         {{-- Bottom mini-stats row --}}
         <div class="db-stats-row">
             {{-- CV Downloads --}}

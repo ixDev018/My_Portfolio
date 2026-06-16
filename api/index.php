@@ -6,6 +6,16 @@
  * @package  Laravel
  */
 
+// Catch silent fatal errors and force them to display on the screen
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE])) {
+        echo "<h1>FATAL ERROR CAUGHT:</h1><pre>";
+        print_r($error);
+        echo "</pre>";
+    }
+});
+
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 

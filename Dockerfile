@@ -26,6 +26,14 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# Force AllowOverride All in Apache config
+RUN sed -i '/<Directory ${APACHE_DOCUMENT_ROOT}>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# Enable PHP errors to show up in Render Logs
+RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-error-display.ini
+RUN echo "log_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-error-display.ini
+RUN echo "error_log = /dev/stderr" >> /usr/local/etc/php/conf.d/docker-php-ext-error-display.ini
+
 # Configure Apache to listen on Render's PORT environment variable
 RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
@@ -44,8 +52,13 @@ RUN composer install --no-dev --optimize-autoloader
 # Install Node dependencies and build frontend assets
 RUN npm install && npm run build
 
-# Set permissions for Laravel's storage and cache folders
+# Ensure storage and bootstrap/cache directories exist and have proper permissions
+RUN mkdir -p /var/www/html/storage/framework/views
+RUN mkdir -p /var/www/html/storage/framework/cache
+RUN mkdir -p /var/www/html/storage/framework/sessions
+RUN mkdir -p /var/www/html/storage/logs
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose port (Render sets the PORT env var automatically)
 EXPOSE ${PORT}

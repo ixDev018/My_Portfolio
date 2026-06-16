@@ -136,6 +136,7 @@
                                     }
                                 @endphp
                                 <video src="{{ $vidSrc }}"
+                                       @if($localImage) poster="{{ $localImage }}" @endif
                                        muted playsinline loop preload="none"
                                        x-intersect:enter="$el.play()"
                                        x-intersect:leave="$el.pause()"
@@ -158,7 +159,6 @@
                                        "></video>
                             @elseif(!empty($proj->thumbnail_images))
                                 <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
-                                     x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                                      class="relative w-full overflow-hidden">
                                     <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
                                     <img src="{{ Storage::url($proj->thumbnail_images[0]) }}"

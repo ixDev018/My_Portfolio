@@ -1085,7 +1085,18 @@
                                                  alt="{{ $proj->title }}"
                                                  class="w-full h-auto object-cover">
                                         @elseif($proj->main_media_type === 'video' && $proj->main_video_path)
+                                            @php
+                                                $localImage = '';
+                                                if ($proj->thumbnail_path) {
+                                                    $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path);
+                                                } elseif ($proj->main_image_path) {
+                                                    $localImage = Storage::url($proj->main_image_path);
+                                                } elseif (!empty($proj->thumbnail_images)) {
+                                                    $localImage = Storage::url($proj->thumbnail_images[0]);
+                                                }
+                                            @endphp
                                             <video src="{{ Storage::url($proj->main_video_path) }}"
+                                                   @if($localImage) poster="{{ $localImage }}" @endif
                                                    muted playsinline loop preload="none"
                                                    x-intersect:enter="$el.play()"
                                                    x-intersect:leave="$el.pause()"
@@ -1113,7 +1124,6 @@
                                                    "></video>
                                         @elseif($proj->main_media_type === 'image' && !empty($proj->main_images))
                                             <div x-data="{ currentSlide: 0, total: {{ count($proj->main_images) }} }"
-                                                 x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000)"
                                                  class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
                                                 @foreach($proj->main_images as $index => $img)
                                                     <img src="{{ Storage::url($img) }}"
@@ -1339,6 +1349,7 @@
                                             }
                                         @endphp
                                         <video src="{{ $vidSrc }}"
+                                               @if($localImage) poster="{{ $localImage }}" @endif
                                                muted playsinline loop preload="none"
                                                x-intersect:enter="$el.play()"
                                                x-intersect:leave="$el.pause()"
@@ -1361,7 +1372,6 @@
                                                "></video>
                                     @elseif(!empty($proj->thumbnail_images))
                                         <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
-                                             x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                                              class="relative w-full overflow-hidden">
                                             <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
                                             <img src="{{ Storage::url($proj->thumbnail_images[0]) }}"

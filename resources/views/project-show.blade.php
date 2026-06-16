@@ -143,13 +143,13 @@
                     {{-- ── FALLBACK: Existing local media display ── --}}
                     <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
                     @if($project->main_media_type === 'video' && $project->main_video_path)
-                        <video src="{{ asset('storage/' . $project->main_video_path) }}"
+                        <video src="{{ asset($project->main_video_path) }}"
                                autoplay loop muted playsinline controls preload="auto"
                                class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
                         </video>
                     @elseif($project->thumbnail_video_path)
-                        <video src="{{ asset('storage/' . $project->thumbnail_video_path) }}"
+                        <video src="{{ asset($project->thumbnail_video_path) }}"
                                autoplay loop muted playsinline controls preload="auto"
                                class="w-full h-full object-contain"
                                @play="if (!timeoutStarted) { timeoutStarted = true; setTimeout(() => { $el.pause(); isDimmed = true; }, 15000); }">
@@ -166,7 +166,7 @@
                              x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                              class="relative w-full h-full overflow-hidden">
                             @foreach($images as $index => $img)
-                                <img src="{{ asset('storage/' . $img) }}"
+                                <img src="{{ asset($img) }}"
                                      x-show="currentSlide === {{ $index }}"
                                      x-transition.opacity.duration.700ms
                                      class="absolute inset-0 w-full h-full object-contain">
@@ -181,11 +181,11 @@
                             </div>
                         </div>
                     @elseif($project->main_image_path)
-                        <img src="{{ Str::startsWith($project->main_image_path, 'http') ? $project->main_image_path : asset('storage/' . $project->main_image_path) }}"
+                        <img src="{{ Str::startsWith($project->main_image_path, 'http') ? $project->main_image_path : asset($project->main_image_path) }}"
                              alt="{{ $project->title }}"
                              class="w-full h-full object-contain">
                     @elseif($project->thumbnail_path)
-                        <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : asset('storage/' . $project->thumbnail_path) }}"
+                        <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : asset($project->thumbnail_path) }}"
                              alt="{{ $project->title }}"
                              class="w-full h-full object-contain">
                     @else
@@ -436,7 +436,7 @@
         @if(!empty($project->gallery_images))
             @php
                 $slidesJson = collect($project->gallery_images)->map(function($path) {
-                    return asset('storage/' . $path);
+                    return asset($path);
                 })->toJson();
             @endphp
             <div class="mb-14" x-data="{ currentSlide: 0, slides: {{ $slidesJson }} }">

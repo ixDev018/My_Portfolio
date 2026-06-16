@@ -7,7 +7,6 @@
  */
 
 // Register the Composer autoloader...
-echo "Testing"; exit;
 require __DIR__.'/../vendor/autoload.php';
 
 // Bootstrap Laravel and handle the request...

@@ -29,6 +29,11 @@ return [
     */
 
     'disks' => [
+        'cloudinary' => [
+            'driver' => 'cloudinary',
+            'url' => env('CLOUDINARY_URL'),
+        ],
+
 
         'local' => [
             'driver' => 'local',

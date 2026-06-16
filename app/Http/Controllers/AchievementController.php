@@ -5,10 +5,47 @@ namespace App\Http\Controllers;
 use App\Models\Achievement;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AchievementController extends Controller
 {
+    protected function uploadMedia($data, string $folder): string
+    {
+        try {
+            if ($data instanceof \Illuminate\Http\UploadedFile) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data->getRealPath(),
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+            if (is_string($data) && preg_match('/^data:image\/\w+;base64,/', $data)) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data,
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+        } catch (\Exception $e) {
+            \Log::error("Cloudinary upload failed [{$folder}]: " . $e->getMessage());
+        }
+        return '';
+    }
+
+    protected function deleteMedia(string $path): void
+    {
+        if (empty($path)) return;
+        if (Str::startsWith($path, 'http')) {
+            try {
+                if (preg_match('/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/', $path, $matches)) {
+                    cloudinary()->uploadApi()->destroy($matches[1], ['resource_type' => 'image']);
+                }
+            } catch (\Exception $e) {}
+            return;
+        }
+        \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->delete($path);
+    }
+
     public function index()
     {
         $achievements = Achievement::orderByDesc('year')->orderByDesc('created_at')->get();
@@ -21,7 +58,6 @@ class AchievementController extends Controller
         $profile = Profile::firstOrCreate([]);
         $profile->disable_achievements_modal = !$profile->disable_achievements_modal;
         $profile->save();
-
         return response()->json([
             'success' => true,
             'disable_achievements_modal' => $profile->disable_achievements_modal
@@ -31,30 +67,19 @@ class AchievementController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'issuer'      => 'required|string|max:255',
-            'year'        => 'required|string|max:20',
-            'type'        => 'required|in:award,certificate',
-            'description' => 'nullable|string|max:2000',
+            'title'         => 'required|string|max:255',
+            'issuer'        => 'required|string|max:255',
+            'year'          => 'required|string|max:20',
+            'type'          => 'required|in:award,certificate',
+            'description'   => 'nullable|string|max:2000',
             'disable_modal' => 'nullable|boolean',
         ]);
 
         if ($request->filled('image_data')) {
-            $imageData = $request->input('image_data');
-            // Remove the data URL prefix
-            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
-                $imageData = substr($imageData, strpos($imageData, ',') + 1);
-                $type = strtolower($type[1]);
-                if (in_array($type, ['jpg', 'jpeg', 'png'])) {
-                    $imageData = base64_decode($imageData);
-                    if ($imageData !== false) {
-                        $filename = 'achievements/' . uniqid() . '.png';
-                        Storage::disk(config('filesystems.default'))->put($filename, $imageData);
-                        $validated['media_path'] = $filename;
-                    }
-                }
-            }
+            $url = $this->uploadMedia($request->input('image_data'), 'achievements');
+            if ($url) $validated['media_path'] = $url;
         }
+
         $validated['disable_modal'] = $request->has('disable_modal');
 
         Achievement::create($validated);
@@ -73,36 +98,21 @@ class AchievementController extends Controller
     {
         $achievement = Achievement::findOrFail($id);
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'issuer'      => 'required|string|max:255',
-            'year'        => 'required|string|max:20',
-            'type'        => 'required|in:award,certificate',
-            'description' => 'nullable|string|max:2000',
+            'title'         => 'required|string|max:255',
+            'issuer'        => 'required|string|max:255',
+            'year'          => 'required|string|max:20',
+            'type'          => 'required|in:award,certificate',
+            'description'   => 'nullable|string|max:2000',
             'disable_modal' => 'nullable|boolean',
         ]);
 
         if ($request->filled('image_data')) {
-            $imageData = $request->input('image_data');
-            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
-                $imageData = substr($imageData, strpos($imageData, ',') + 1);
-                $type = strtolower($type[1]);
-                if (in_array($type, ['jpg', 'jpeg', 'png'])) {
-                    $imageData = base64_decode($imageData);
-                    if ($imageData !== false) {
-                        $filename = 'achievements/' . uniqid() . '.png';
-                        Storage::disk(config('filesystems.default'))->put($filename, $imageData);
-                        $validated['media_path'] = $filename;
-
-                        // optionally delete old image
-                        if ($achievement->media_path && Storage::disk(config('filesystems.default'))->exists($achievement->media_path)) {
-                            Storage::disk(config('filesystems.default'))->delete($achievement->media_path);
-                        }
-                    }
-                }
-            }
+            if ($achievement->media_path) $this->deleteMedia($achievement->media_path);
+            $url = $this->uploadMedia($request->input('image_data'), 'achievements');
+            if ($url) $validated['media_path'] = $url;
         }
-        $validated['disable_modal'] = $request->has('disable_modal');
 
+        $validated['disable_modal'] = $request->has('disable_modal');
         $achievement->update($validated);
         return redirect()->route('admin.achievements.index')->with('success', 'Achievement updated!');
     }
@@ -110,9 +120,7 @@ class AchievementController extends Controller
     public function destroy($id)
     {
         $achievement = Achievement::findOrFail($id);
-        if ($achievement->media_path && Storage::disk(config('filesystems.default'))->exists($achievement->media_path)) {
-            Storage::disk(config('filesystems.default'))->delete($achievement->media_path);
-        }
+        if ($achievement->media_path) $this->deleteMedia($achievement->media_path);
         $achievement->delete();
         return redirect()->route('admin.achievements.index')->with('success', 'Achievement deleted.');
     }

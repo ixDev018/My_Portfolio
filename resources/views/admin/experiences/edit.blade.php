@@ -948,9 +948,9 @@ function notionEditorEdit() {
 
         // Media variables
         isDraggingThumb: false,
-        thumbPreview: {!! $experience->image_path ? "'" . asset('storage/' . $experience->image_path) . "'" : 'null' !!},
+        thumbPreview: {!! $experience->image_path ? "'" . (Str::startsWith($experience->image_path, 'http') ? $experience->image_path : (Str::startsWith($experience->image_path, 'images/embedded/') ? asset($experience->image_path) : asset('storage/' . $experience->image_path))) . "'" : 'null' !!},
         isDraggingBg: false,
-        bgPreviewUrl: {!! $experience->bg_media_path ? "'" . asset('storage/' . $experience->bg_media_path) . "'" : 'null' !!},
+        bgPreviewUrl: {!! $experience->bg_media_path ? "'" . (Str::startsWith($experience->bg_media_path, 'http') ? $experience->bg_media_path : (Str::startsWith($experience->bg_media_path, 'images/embedded/') ? asset($experience->bg_media_path) : asset('storage/' . $experience->bg_media_path))) . "'" : 'null' !!},
         bgPreviewType: '{!! $experience->bg_media_type ?? 'image' !!}',
 
         // Slideshow & cropper variables

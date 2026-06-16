@@ -78,15 +78,15 @@
                         $adminLinkUrl = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
                         $isVideoProject = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLink;
                         
-                        $localVideo = $proj->main_video_path ? Storage::url($proj->main_video_path) : ($proj->thumbnail_video_path ? Storage::url($proj->thumbnail_video_path) : '');
+                        $localVideo = $proj->main_video_path ? (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) : ($proj->thumbnail_video_path ? (Str::startsWith($proj->thumbnail_video_path, 'http') ? $proj->thumbnail_video_path : ((Str::startsWith($proj->thumbnail_video_path, 'images/') || Str::startsWith($proj->thumbnail_video_path, 'videos/')) ? asset($proj->thumbnail_video_path) : Storage::url($proj->thumbnail_video_path))) : '');
                         
                         $localImage = '';
                         if ($proj->main_image_path) {
-                            $localImage = Storage::url($proj->main_image_path);
+                            $localImage = Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path));
                         } elseif ($proj->thumbnail_path) {
-                            $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path);
+                            $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path));
                         } elseif (!empty($proj->thumbnail_images)) {
-                            $localImage = Storage::url($proj->thumbnail_images[0]);
+                            $localImage = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0]));
                         }
                         
                         $isFallback = !$hasBodyContent;
@@ -130,18 +130,11 @@
                                 @php
                                     $vidSrc = '';
                                     if ($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) {
-                                        $vidSrc = Storage::url($proj->thumbnail_video_path);
+                                        $vidSrc = Str::startsWith($proj->thumbnail_video_path, 'http') ? $proj->thumbnail_video_path : ((Str::startsWith($proj->thumbnail_video_path, 'images/') || Str::startsWith($proj->thumbnail_video_path, 'videos/')) ? asset($proj->thumbnail_video_path) : Storage::url($proj->thumbnail_video_path));
                                     } elseif ($proj->main_media_type === 'video') {
-                                        $vidSrc = $proj->main_video_path ? Storage::url($proj->main_video_path) : $proj->video_url;
+                                        $vidSrc = $proj->main_video_path ? (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) : $proj->video_url;
                                     }
                                 @endphp
-                                
-                                {{-- Spacer to prevent layout shift --}}
-                                @if($localImage)
-                                    <img src="{{ $localImage }}" class="w-full h-auto invisible block" alt="spacer">
-                                @else
-                                    <div class="w-full" style="padding-top: 56.25%"></div>
-                                @endif
 
                                 {{-- Loading Indicator --}}
                                 <div x-show="intersecting && !vidLoaded" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
@@ -151,14 +144,15 @@
                                     </svg>
                                 </div>
 
+                                {{-- Video: preload=none means zero bytes fetched until played --}}
                                 <video src="{{ $vidSrc }}"
                                        @if($localImage) poster="{{ $localImage }}" @endif
                                        @loadeddata="vidLoaded = true"
                                        @canplay="vidLoaded = true"
-                                       muted playsinline loop preload="none"
-                                       x-intersect:enter="intersecting = true; $el.play()"
+                                       muted playsinline loop preload="metadata"
+                                       x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
                                        x-intersect:leave="intersecting = false; $el.pause()"
-                                       class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                                       class="w-full h-auto block pointer-events-none"
                                        x-init="
                                            let vid = $el;
                                            let loopStart = {{ $proj->video_loop_start ?? 0 }};
@@ -169,8 +163,7 @@
                                                    vid.currentTime = loopStart;
                                                }
                                            };
-                                           if (vid.readyState >= 1) initLoop();
-                                           else vid.addEventListener('loadedmetadata', initLoop);
+                                           vid.addEventListener('loadedmetadata', initLoop);
                                            vid.addEventListener('timeupdate', () => {
                                                if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
                                            });
@@ -179,12 +172,13 @@
                                 <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
                                      class="relative w-full overflow-hidden">
                                     <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
-                                    <img src="{{ Storage::url($proj->thumbnail_images[0]) }}"
-                                         class="w-full h-auto object-cover invisible">
+                                    <img src="{{ Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])) }}"
+                                         class="w-full h-auto object-cover invisible" loading="lazy">
                                     @foreach($proj->thumbnail_images as $index => $img)
-                                        <img src="{{ Storage::url($img) }}"
+                                        <img src="{{ Str::startsWith($img, 'http') ? $img : ((Str::startsWith($img, 'images/') || Str::startsWith($img, 'videos/')) ? asset($img) : Storage::url($img)) }}"
                                              x-show="currentSlide === {{ $index }}"
                                              x-transition.opacity.duration.700ms
+                                             loading="lazy"
                                              class="absolute inset-0 w-full h-full object-cover">
                                     @endforeach
                                     <!-- Dots indicator -->
@@ -196,7 +190,7 @@
                                     </div>
                                 </div>
                             @elseif($proj->thumbnail_path)
-                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path) }}"
+                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path)) }}"
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto object-cover" loading="lazy">
                             @else

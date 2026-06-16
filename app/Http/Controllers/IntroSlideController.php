@@ -4,13 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\IntroSlide;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class IntroSlideController extends Controller
 {
+    protected function uploadMedia($data, string $folder): string
+    {
+        try {
+            if ($data instanceof \Illuminate\Http\UploadedFile) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data->getRealPath(),
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+            if (is_string($data) && preg_match('/^data:image\/\w+;base64,/', $data)) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data,
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+        } catch (\Exception $e) {
+            \Log::error("Cloudinary upload failed [{$folder}]: " . $e->getMessage());
+        }
+        return '';
+    }
+
+    protected function deleteMedia(string $path): void
+    {
+        if (empty($path)) return;
+        if (Str::startsWith($path, 'http')) {
+            try {
+                if (preg_match('/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/', $path, $matches)) {
+                    cloudinary()->uploadApi()->destroy($matches[1], ['resource_type' => 'image']);
+                }
+            } catch (\Exception $e) {}
+            return;
+        }
+        \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->delete($path);
+    }
+
     public function index()
     {
-        // Seed slide 1 if table is empty
         if (IntroSlide::count() === 0) {
             IntroSlide::create([
                 'chapter_label' => 'I am',
@@ -39,16 +75,14 @@ class IntroSlideController extends Controller
         ]);
 
         $validated['sort_order'] = IntroSlide::max('sort_order') + 1;
-        $validated['is_locked'] = false;
+        $validated['is_locked']  = false;
 
         if (!empty($validated['image_data'])) {
-            $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
-            $data = base64_decode($data);
-            $filename = 'intro_slides/' . uniqid() . '.png';
-            Storage::disk(config('filesystems.default'))->put($filename, $data);
-            $validated['image_path'] = $filename;
+            $url = $this->uploadMedia($validated['image_data'], 'intro_slides');
+            if ($url) $validated['image_path'] = $url;
         } elseif ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('intro_slides', config('filesystems.default'));
+            $url = $this->uploadMedia($request->file('image'), 'intro_slides');
+            if ($url) $validated['image_path'] = $url;
         }
 
         unset($validated['image'], $validated['image_data']);
@@ -76,19 +110,13 @@ class IntroSlideController extends Controller
         ]);
 
         if (!empty($validated['image_data'])) {
-            if ($slide->image_path) {
-                Storage::disk(config('filesystems.default'))->delete($slide->image_path);
-            }
-            $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
-            $data = base64_decode($data);
-            $filename = 'intro_slides/' . uniqid() . '.png';
-            Storage::disk(config('filesystems.default'))->put($filename, $data);
-            $validated['image_path'] = $filename;
+            if ($slide->image_path) $this->deleteMedia($slide->image_path);
+            $url = $this->uploadMedia($validated['image_data'], 'intro_slides');
+            if ($url) $validated['image_path'] = $url;
         } elseif ($request->hasFile('image')) {
-            if ($slide->image_path) {
-                Storage::disk(config('filesystems.default'))->delete($slide->image_path);
-            }
-            $validated['image_path'] = $request->file('image')->store('intro_slides', config('filesystems.default'));
+            if ($slide->image_path) $this->deleteMedia($slide->image_path);
+            $url = $this->uploadMedia($request->file('image'), 'intro_slides');
+            if ($url) $validated['image_path'] = $url;
         }
 
         unset($validated['image'], $validated['image_data']);
@@ -102,9 +130,7 @@ class IntroSlideController extends Controller
         if ($slide->is_locked) {
             return redirect()->route('admin.intro_slides.index')->with('error', 'Slide 1 is locked and cannot be deleted.');
         }
-        if ($slide->image_path) {
-            Storage::disk(config('filesystems.default'))->delete($slide->image_path);
-        }
+        if ($slide->image_path) $this->deleteMedia($slide->image_path);
         $slide->delete();
         return redirect()->route('admin.intro_slides.index')->with('success', 'Slide deleted.');
     }
@@ -113,7 +139,6 @@ class IntroSlideController extends Controller
     {
         $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:intro_slides,id']);
         foreach ($request->order as $position => $id) {
-            // Never move locked slide from position 0
             $slide = IntroSlide::find($id);
             if ($slide && !$slide->is_locked) {
                 $slide->update(['sort_order' => $position]);

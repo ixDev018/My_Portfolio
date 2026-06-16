@@ -62,4 +62,7 @@ RUN mkdir -p /var/www/html/storage/logs
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Create storage symlink so uploaded files are publicly accessible
+RUN php artisan storage:link
+
 # End of Dockerfile

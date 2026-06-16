@@ -6,9 +6,66 @@ use App\Models\Experience;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ExperienceController extends Controller
 {
+    /**
+     * Upload any media (UploadedFile or base64 string) to Cloudinary.
+     * Returns the secure_url on success, empty string on failure.
+     */
+    protected function uploadMedia($data, string $folder): string
+    {
+        try {
+            if ($data instanceof \Illuminate\Http\UploadedFile) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data->getRealPath(),
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+
+            if (is_string($data) && preg_match('/^data:(\w+)\/(\w+);base64,/', $data)) {
+                $uploaded = cloudinary()->uploadApi()->upload(
+                    $data,
+                    ['folder' => "portfolio/{$folder}", 'resource_type' => 'auto']
+                );
+                return $uploaded['secure_url'];
+            }
+
+            return '';
+        } catch (\Exception $e) {
+            \Log::error("Cloudinary upload failed [{$folder}]: " . $e->getMessage());
+            return '';
+        }
+    }
+
+    /**
+     * Delete media from Cloudinary (if it's an http URL) or local storage.
+     */
+    protected function deleteMedia(string $path): void
+    {
+        if (empty($path)) return;
+
+        if (Str::startsWith($path, 'http')) {
+            // Extract public_id from Cloudinary URL
+            // e.g. https://res.cloudinary.com/xxx/image/upload/v123/portfolio/experiences/abc.jpg
+            // public_id = portfolio/experiences/abc
+            try {
+                if (preg_match('/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/', $path, $matches)) {
+                    $publicId = $matches[1];
+                    cloudinary()->uploadApi()->destroy($publicId, ['resource_type' => 'image']);
+                    cloudinary()->uploadApi()->destroy($publicId, ['resource_type' => 'video']);
+                }
+            } catch (\Exception $e) {
+                \Log::warning("Cloudinary delete failed for [{$path}]: " . $e->getMessage());
+            }
+            return;
+        }
+
+        Storage::disk(config('filesystems.default'))->delete($path);
+    }
+
     public function index()
     {
         $experiences = Experience::orderBy('sort_order')->orderByDesc('created_at')->get();
@@ -29,82 +86,53 @@ class ExperienceController extends Controller
             'duration'          => 'required|string|max:100',
             'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
             'is_active'         => 'boolean',
-            'body_content'      => 'nullable|string', // JSON from Editor
+            'body_content'      => 'nullable|string',
             'bg_media_type'     => 'nullable|string|in:image,video,slideshow',
             'bg_media_file'     => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,webm|max:102400',
             'bg_gallery_files.*'=> 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $validated['sort_order'] = Experience::max('sort_order') + 1;
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['sort_order']    = Experience::max('sort_order') + 1;
+        $validated['is_active']     = $request->boolean('is_active');
         $validated['bg_media_type'] = $validated['bg_media_type'] ?? 'image';
 
         if (!empty($validated['body_content'])) {
             $validated['body_content'] = json_decode($validated['body_content'], true);
         }
 
+        // Company logo / avatar
         if ($request->filled('image_base64')) {
-            $data = $request->input('image_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $ext = strtolower($type[1]);
-                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                    $data = base64_decode($data);
-                    if ($data !== false) {
-                        $filename = 'experiences/' . uniqid() . '.' . $ext;
-                        Storage::disk(config('filesystems.default'))->put($filename, $data);
-                        $validated['image_path'] = $filename;
-                    }
-                }
-            }
+            $url = $this->uploadMedia($request->input('image_base64'), 'experiences');
+            if ($url) $validated['image_path'] = $url;
         } elseif ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('experiences', config('filesystems.default'));
+            $url = $this->uploadMedia($request->file('image'), 'experiences');
+            if ($url) $validated['image_path'] = $url;
         }
 
-        // Handle Background Media
+        // Background media (single image/video)
         if ($request->filled('bg_media_base64') && $validated['bg_media_type'] === 'image') {
-            $data = $request->input('bg_media_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $ext = strtolower($type[1]);
-                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                    $data = base64_decode($data);
-                    if ($data !== false) {
-                        $filename = 'experiences/bg/' . uniqid() . '.' . $ext;
-                        Storage::disk(config('filesystems.default'))->put($filename, $data);
-                        $validated['bg_media_path'] = $filename;
-                    }
-                }
-            }
+            $url = $this->uploadMedia($request->input('bg_media_base64'), 'experiences/bg');
+            if ($url) $validated['bg_media_path'] = $url;
         } elseif ($request->hasFile('bg_media_file')) {
-            $validated['bg_media_path'] = $request->file('bg_media_file')->store('experiences/bg', config('filesystems.default'));
+            $url = $this->uploadMedia($request->file('bg_media_file'), 'experiences/bg');
+            if ($url) $validated['bg_media_path'] = $url;
         }
 
+        // Background gallery slideshow
         $finalGallery = [];
         if ($request->filled('reordered_bg_gallery')) {
             $slidesData = json_decode($request->input('reordered_bg_gallery'), true);
             if (is_array($slidesData)) {
                 foreach ($slidesData as $slide) {
                     if ($slide['type'] === 'new' && !empty($slide['data'])) {
-                        // Decode base64 and save
-                        $data = $slide['data'];
-                        if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                            $data = substr($data, strpos($data, ',') + 1);
-                            $ext = strtolower($type[1]);
-                            if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                                $data = base64_decode($data);
-                                if ($data !== false) {
-                                    $filename = 'experiences/bg_gallery/' . uniqid() . '.' . $ext;
-                                    Storage::disk(config('filesystems.default'))->put($filename, $data);
-                                    $finalGallery[] = $filename;
-                                }
-                            }
-                        }
+                        $url = $this->uploadMedia($slide['data'], 'experiences/bg_gallery');
+                        if ($url) $finalGallery[] = $url;
                     }
                 }
                 $validated['bg_gallery_images'] = array_values($finalGallery);
             }
         }
+
         unset($validated['image'], $validated['bg_media_file'], $validated['bg_gallery_files']);
         Experience::create($validated);
         return redirect()->route('admin.experiences.index')->with('success', 'Work experience added!');
@@ -125,14 +153,14 @@ class ExperienceController extends Controller
             'duration'          => 'required|string|max:100',
             'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
             'is_active'         => 'boolean',
-            'body_content'      => 'nullable|string', // JSON from Editor
+            'body_content'      => 'nullable|string',
             'bg_media_type'     => 'nullable|string|in:image,video,slideshow',
             'bg_media_file'     => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,webm|max:102400',
             'bg_gallery_files.*'=> 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
             'delete_bg_gallery' => 'nullable|array',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_active']     = $request->boolean('is_active');
         $validated['bg_media_type'] = $validated['bg_media_type'] ?? 'image';
 
         if (!empty($validated['body_content'])) {
@@ -141,88 +169,51 @@ class ExperienceController extends Controller
             $validated['body_content'] = null;
         }
 
+        // Company logo / avatar
         if ($request->filled('image_base64')) {
-            $data = $request->input('image_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $ext = strtolower($type[1]);
-                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                    $data = base64_decode($data);
-                    if ($data !== false) {
-                        if ($experience->image_path) {
-                            Storage::disk(config('filesystems.default'))->delete($experience->image_path);
-                        }
-                        $filename = 'experiences/' . uniqid() . '.' . $ext;
-                        Storage::disk(config('filesystems.default'))->put($filename, $data);
-                        $validated['image_path'] = $filename;
-                    }
-                }
-            }
+            if ($experience->image_path) $this->deleteMedia($experience->image_path);
+            $url = $this->uploadMedia($request->input('image_base64'), 'experiences');
+            if ($url) $validated['image_path'] = $url;
         } elseif ($request->hasFile('image')) {
-            if ($experience->image_path) {
-                Storage::disk(config('filesystems.default'))->delete($experience->image_path);
-            }
-            $validated['image_path'] = $request->file('image')->store('experiences', config('filesystems.default'));
+            if ($experience->image_path) $this->deleteMedia($experience->image_path);
+            $url = $this->uploadMedia($request->file('image'), 'experiences');
+            if ($url) $validated['image_path'] = $url;
         }
 
+        // Background media
         if ($request->filled('bg_media_base64') && $validated['bg_media_type'] === 'image') {
-            $data = $request->input('bg_media_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $ext = strtolower($type[1]);
-                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                    $data = base64_decode($data);
-                    if ($data !== false) {
-                        if ($experience->bg_media_path) {
-                            Storage::disk(config('filesystems.default'))->delete($experience->bg_media_path);
-                        }
-                        $filename = 'experiences/bg/' . uniqid() . '.' . $ext;
-                        Storage::disk(config('filesystems.default'))->put($filename, $data);
-                        $validated['bg_media_path'] = $filename;
-                    }
-                }
-            }
+            if ($experience->bg_media_path) $this->deleteMedia($experience->bg_media_path);
+            $url = $this->uploadMedia($request->input('bg_media_base64'), 'experiences/bg');
+            if ($url) $validated['bg_media_path'] = $url;
         } elseif ($request->hasFile('bg_media_file')) {
-            if ($experience->bg_media_path) {
-                Storage::disk(config('filesystems.default'))->delete($experience->bg_media_path);
-            }
-            $validated['bg_media_path'] = $request->file('bg_media_file')->store('experiences/bg', config('filesystems.default'));
+            if ($experience->bg_media_path) $this->deleteMedia($experience->bg_media_path);
+            $url = $this->uploadMedia($request->file('bg_media_file'), 'experiences/bg');
+            if ($url) $validated['bg_media_path'] = $url;
         }
 
+        // Background gallery slideshow
         $finalGallery = [];
         if ($request->filled('reordered_bg_gallery')) {
             $slidesData = json_decode($request->input('reordered_bg_gallery'), true);
             if (is_array($slidesData)) {
                 $existingPaths = $experience->bg_gallery_images ?? [];
-                
+
                 foreach ($slidesData as $slide) {
                     if ($slide['type'] === 'existing' && in_array($slide['path'], $existingPaths)) {
                         $finalGallery[] = $slide['path'];
                     } elseif ($slide['type'] === 'new' && !empty($slide['data'])) {
-                        // Decode base64 and save
-                        $data = $slide['data'];
-                        if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                            $data = substr($data, strpos($data, ',') + 1);
-                            $ext = strtolower($type[1]);
-                            if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                                $data = base64_decode($data);
-                                if ($data !== false) {
-                                    $filename = 'experiences/bg_gallery/' . uniqid() . '.' . $ext;
-                                    Storage::disk(config('filesystems.default'))->put($filename, $data);
-                                    $finalGallery[] = $filename;
-                                }
-                            }
-                        }
+                        $url = $this->uploadMedia($slide['data'], 'experiences/bg_gallery');
+                        if ($url) $finalGallery[] = $url;
                     }
                 }
-                
-                // Delete any existing paths that are no longer in $finalGallery
+
+                // Delete removed paths
                 foreach ($existingPaths as $oldPath) {
                     if (!in_array($oldPath, $finalGallery)) {
-                        Storage::disk(config('filesystems.default'))->delete($oldPath);
+                        $this->deleteMedia($oldPath);
                     }
                 }
-                
+
                 $validated['bg_gallery_images'] = array_values($finalGallery);
             }
         }
@@ -235,10 +226,10 @@ class ExperienceController extends Controller
     public function destroy($id)
     {
         $experience = Experience::findOrFail($id);
-        if ($experience->image_path) Storage::disk(config('filesystems.default'))->delete($experience->image_path);
-        if ($experience->bg_media_path) Storage::disk(config('filesystems.default'))->delete($experience->bg_media_path);
+        if ($experience->image_path)    $this->deleteMedia($experience->image_path);
+        if ($experience->bg_media_path) $this->deleteMedia($experience->bg_media_path);
         if (!empty($experience->bg_gallery_images)) {
-            foreach ($experience->bg_gallery_images as $path) Storage::disk(config('filesystems.default'))->delete($path);
+            foreach ($experience->bg_gallery_images as $path) $this->deleteMedia($path);
         }
         $experience->delete();
         return redirect()->route('admin.experiences.index')->with('success', 'Experience deleted.');
@@ -259,8 +250,8 @@ class ExperienceController extends Controller
             'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
         ]);
 
-        $path = $request->file('file')->store('experiences/body', config('filesystems.default'));
-        return response()->json(['url' => asset('storage/' . $path)]);
+        $url = $this->uploadMedia($request->file('file'), 'experiences/body');
+        return response()->json(['url' => $url]);
     }
 
     public function updateSettings(Request $request)
@@ -280,27 +271,13 @@ class ExperienceController extends Controller
         $profile->exp_default_bg_type = $validated['exp_default_bg_type'] ?? 'image';
 
         if ($request->filled('single_cropped_base64') && $profile->exp_default_bg_type === 'image') {
-            $data = $request->input('single_cropped_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                $data = substr($data, strpos($data, ',') + 1);
-                $ext = strtolower($type[1]);
-                if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                    $data = base64_decode($data);
-                    if ($data !== false) {
-                        if ($profile->exp_default_bg_media_path) {
-                            Storage::disk(config('filesystems.default'))->delete($profile->exp_default_bg_media_path);
-                        }
-                        $filename = 'profiles/exp_bg/' . uniqid() . '.' . $ext;
-                        Storage::disk(config('filesystems.default'))->put($filename, $data);
-                        $profile->exp_default_bg_media_path = $filename;
-                    }
-                }
-            }
+            if ($profile->exp_default_bg_media_path) $this->deleteMedia($profile->exp_default_bg_media_path);
+            $url = $this->uploadMedia($request->input('single_cropped_base64'), 'profiles/exp_bg');
+            if ($url) $profile->exp_default_bg_media_path = $url;
         } elseif ($request->hasFile('bg_media_file')) {
-            if ($profile->exp_default_bg_media_path) {
-                Storage::disk(config('filesystems.default'))->delete($profile->exp_default_bg_media_path);
-            }
-            $profile->exp_default_bg_media_path = $request->file('bg_media_file')->store('profiles/exp_bg', config('filesystems.default'));
+            if ($profile->exp_default_bg_media_path) $this->deleteMedia($profile->exp_default_bg_media_path);
+            $url = $this->uploadMedia($request->file('bg_media_file'), 'profiles/exp_bg');
+            if ($url) $profile->exp_default_bg_media_path = $url;
         }
 
         $finalGallery = [];
@@ -308,43 +285,26 @@ class ExperienceController extends Controller
             $slidesData = json_decode($request->input('reordered_bg_gallery'), true);
             if (is_array($slidesData)) {
                 $existingPaths = $profile->exp_default_bg_gallery_images ?? [];
-                
+
                 foreach ($slidesData as $slide) {
                     if ($slide['type'] === 'existing' && in_array($slide['path'], $existingPaths)) {
                         $finalGallery[] = $slide['path'];
                     } elseif ($slide['type'] === 'new' && !empty($slide['data'])) {
-                        // Decode base64 and save
-                        $data = $slide['data'];
-                        if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
-                            $data = substr($data, strpos($data, ',') + 1);
-                            $ext = strtolower($type[1]);
-                            if (in_array($ext, ['jpg', 'jpeg', 'gif', 'png', 'webp'])) {
-                                $data = base64_decode($data);
-                                if ($data !== false) {
-                                    $filename = 'profiles/exp_bg_gallery/' . uniqid() . '.' . $ext;
-                                    Storage::disk(config('filesystems.default'))->put($filename, $data);
-                                    $finalGallery[] = $filename;
-                                }
-                            }
-                        }
+                        $url = $this->uploadMedia($slide['data'], 'profiles/exp_bg_gallery');
+                        if ($url) $finalGallery[] = $url;
                     }
                 }
-                
-                // Delete any existing paths that are no longer in $finalGallery
+
                 foreach ($existingPaths as $oldPath) {
                     if (!in_array($oldPath, $finalGallery)) {
-                        Storage::disk(config('filesystems.default'))->delete($oldPath);
+                        $this->deleteMedia($oldPath);
                     }
                 }
             }
         } else {
-            // Keep existing gallery if not filled, but since we always submit the JSON, 
-            // empty array means they deleted everything.
-            if ($request->has('reordered_bg_gallery')) { // Form was submitted but empty
+            if ($request->has('reordered_bg_gallery')) {
                 $existingPaths = $profile->exp_default_bg_gallery_images ?? [];
-                foreach ($existingPaths as $oldPath) {
-                    Storage::disk(config('filesystems.default'))->delete($oldPath);
-                }
+                foreach ($existingPaths as $oldPath) $this->deleteMedia($oldPath);
             } else {
                 $finalGallery = $profile->exp_default_bg_gallery_images ?? [];
             }
@@ -355,7 +315,6 @@ class ExperienceController extends Controller
         }
 
         $profile->save();
-
         return redirect()->back()->with('success', 'Experience settings updated successfully!');
     }
 }

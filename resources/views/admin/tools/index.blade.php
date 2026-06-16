@@ -116,7 +116,7 @@
                                 
                                 @if($tool->image_path)
                                     <div class="w-12 h-12 flex items-center justify-center">
-                                        <img src="{{ asset('storage/' . $tool->image_path) }}" alt="{{ $tool->name }}" class="w-full h-full object-contain">
+                                        <img src="{{ (Str::startsWith($tool->image_path, 'http') ? $tool->image_path : (Str::startsWith($tool->image_path, 'images/embedded/') ? asset($tool->image_path) : asset('storage/' . $tool->image_path))) }}" alt="{{ $tool->name }}" class="w-full h-full object-contain">
                                     </div>
                                 @else
                                     <div class="w-12 h-12 rounded border border-slate-800 bg-slate-900 flex items-center justify-center text-slate-500 text-xs font-bold uppercase">

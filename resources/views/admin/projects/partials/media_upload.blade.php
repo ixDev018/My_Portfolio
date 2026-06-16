@@ -609,10 +609,10 @@
                 img.src = url;
                 if(this.featuredCropper) { this.featuredCropper.destroy(); }
                 this.featuredCropper = new Cropper(img, {
-                    aspectRatio: 16 / 9,
+                    aspectRatio: NaN,
                     viewMode: 1,
                     crop: (event) => {
-                        let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                        let canvas = this.featuredCropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
                         document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
                     }
                 });
@@ -639,10 +639,10 @@
             img.src = dataURL;
             if(this.featuredCropper) { this.featuredCropper.destroy(); }
             this.featuredCropper = new Cropper(img, {
-                aspectRatio: 16 / 9,
+                aspectRatio: NaN,
                 viewMode: 1,
                 crop: (event) => {
-                    let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                    let canvas = this.featuredCropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
                     document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
                 }
             });
@@ -674,10 +674,10 @@
             img.src = dataURL;
             if(this.featuredCropper) { this.featuredCropper.destroy(); }
             this.featuredCropper = new Cropper(img, {
-                aspectRatio: 16 / 9,
+                aspectRatio: NaN,
                 viewMode: 1,
                 crop: (event) => {
-                    let canvas = this.featuredCropper.getCroppedCanvas({ width: 1280, height: 720 });
+                    let canvas = this.featuredCropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
                     document.getElementById('featured_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
                 }
             });
@@ -893,19 +893,19 @@
                     @if(isset($project) && !empty($project->main_images))
                         <div class="mu-img-grid">
                             @foreach($project->main_images as $img)
-                                <img src="{{ asset('storage/' . $img) }}">
+                                <img src="{{ (Str::startsWith($img, 'http') ? $img : (Str::startsWith($img, 'images/embedded/') ? asset($img) : asset('storage/' . $img))) }}">
                             @endforeach
                         </div>
                     @elseif(isset($project) && $project->main_image_path)
-                        <img src="{{ asset('storage/' . $project->main_image_path) }}" style="width:100%;max-height:200px;object-fit:contain;border-radius:0.5rem;">
+                        <img src="{{ (Str::startsWith($project->main_image_path, 'http') ? $project->main_image_path : (Str::startsWith($project->main_image_path, 'images/embedded/') ? asset($project->main_image_path) : asset('storage/' . $project->main_image_path))) }}" style="width:100%;max-height:200px;object-fit:contain;border-radius:0.5rem;">
                     @elseif(isset($project) && !empty($project->thumbnail_images))
                         <div class="mu-img-grid">
                             @foreach($project->thumbnail_images as $img)
-                                <img src="{{ asset('storage/' . $img) }}">
+                                <img src="{{ (Str::startsWith($img, 'http') ? $img : (Str::startsWith($img, 'images/embedded/') ? asset($img) : asset('storage/' . $img))) }}">
                             @endforeach
                         </div>
                     @elseif(isset($project) && $project->thumbnail_path)
-                        <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : asset('storage/' . $project->thumbnail_path) }}" style="width:100%;max-height:200px;object-fit:contain;border-radius:0.5rem;">
+                        <img src="{{ Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : (Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : (Str::startsWith($project->thumbnail_path, 'images/embedded/') ? asset($project->thumbnail_path) : asset('storage/' . $project->thumbnail_path))) }}" style="width:100%;max-height:200px;object-fit:contain;border-radius:0.5rem;">
                     @else
                         <div class="mu-no-media">No image selected</div>
                     @endif
@@ -929,9 +929,9 @@
         <div x-show="mainMediaType === 'video'" class="relative" style="display:none;">
             <div class="mu-video-wrap">
                 @if(isset($project) && $project->main_video_path)
-                    <video id="main-video-player" src="{{ asset('storage/' . $project->main_video_path) }}" style="width:100%;height:auto;max-height:260px;object-fit:contain;" muted playsinline controls preload="metadata"></video>
+                    <video id="main-video-player" src="{{ (Str::startsWith($project->main_video_path, 'http') ? $project->main_video_path : (Str::startsWith($project->main_video_path, 'images/embedded/') ? asset($project->main_video_path) : asset('storage/' . $project->main_video_path))) }}" style="width:100%;height:auto;max-height:260px;object-fit:contain;" muted playsinline controls preload="metadata"></video>
                 @elseif(isset($project) && $project->thumbnail_video_path)
-                    <video id="main-video-player" src="{{ asset('storage/' . $project->thumbnail_video_path) }}" style="width:100%;height:auto;max-height:260px;object-fit:contain;" muted playsinline controls preload="metadata"></video>
+                    <video id="main-video-player" src="{{ (Str::startsWith($project->thumbnail_video_path, 'http') ? $project->thumbnail_video_path : (Str::startsWith($project->thumbnail_video_path, 'images/embedded/') ? asset($project->thumbnail_video_path) : asset('storage/' . $project->thumbnail_video_path))) }}" style="width:100%;height:auto;max-height:260px;object-fit:contain;" muted playsinline controls preload="metadata"></video>
                 @elseif(isset($project) && $project->video_url)
                     <video id="main-video-player" src="{{ $project->video_url }}" style="width:100%;height:auto;max-height:260px;object-fit:contain;" muted playsinline controls preload="metadata"></video>
                 @else
@@ -1012,7 +1012,7 @@
             <!-- Existing Custom Thumbnail -->
             <div x-show="!thumbPreview && !removeThumbnail">
                 @if(isset($project->thumbnail_path) && $project->thumbnail_path)
-                    <img src="{{ asset('storage/' . $project->thumbnail_path) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
+                    <img src="{{ (Str::startsWith($project->thumbnail_path, 'http') ? $project->thumbnail_path : (Str::startsWith($project->thumbnail_path, 'images/embedded/') ? asset($project->thumbnail_path) : asset('storage/' . $project->thumbnail_path))) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
                 @endif
             </div>
         </div>
@@ -1074,7 +1074,7 @@
             <!-- Existing Featured Thumbnail -->
             <div x-show="!featuredThumbPreview && !removeFeaturedThumbnail">
                 @if(isset($project->featured_thumbnail) && $project->featured_thumbnail)
-                    <img src="{{ asset('storage/' . $project->featured_thumbnail) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
+                    <img src="{{ (Str::startsWith($project->featured_thumbnail, 'http') ? $project->featured_thumbnail : (Str::startsWith($project->featured_thumbnail, 'images/embedded/') ? asset($project->featured_thumbnail) : asset('storage/' . $project->featured_thumbnail))) }}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:0.5rem; border:1px solid #E2DDD3;">
                 @endif
             </div>
         </div>

@@ -148,22 +148,11 @@
                                                    vid.currentTime = loopStart;
                                                }
                                            };
-                                           const setup = () => {
-                                               if (vid.readyState >= 1) initLoop();
-                                               else vid.addEventListener('loadedmetadata', initLoop);
-                                               vid.addEventListener('timeupdate', () => {
-                                                   if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
-                                               });
-                                           };
-                                           if (vid.src && vid.src.startsWith('http') && !vid.src.startsWith('blob:')) {
-                                               fetch(vid.src).then(r => r.blob()).then(b => {
-                                                   vid.src = URL.createObjectURL(b);
-                                                   setup();
-                                                   vid.load();
-                                               }).catch(() => setup());
-                                           } else {
-                                               setup();
-                                           }
+                                           if (vid.readyState >= 1) initLoop();
+                                           else vid.addEventListener('loadedmetadata', initLoop);
+                                           vid.addEventListener('timeupdate', () => {
+                                               if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
+                                           });
                                        "></video>
                             @elseif(!empty($proj->thumbnail_images))
                                 <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"

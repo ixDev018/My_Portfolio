@@ -20,6 +20,14 @@ Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 
+// Route to serve Google Drive images directly through Laravel
+Route::get('/media/{path}', function ($path) {
+    if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
+        abort(404);
+    }
+    return \Illuminate\Support\Facades\Storage::disk('google')->response($path);
+})->where('path', '.*')->name('media.serve');
+
 $adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');
 
 // Admin Auth Routes

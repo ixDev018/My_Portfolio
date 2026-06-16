@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
 
                         try {
                             return \Illuminate\Support\Facades\Cache::remember('gdrive_url_' . md5($path), 86400, function() use ($path) {
-                                return parent::url($path);
+                                return route('media.serve', ['path' => $path]);
                             });
                         } catch (\Exception $e) {
                             return asset('images/placeholder.jpg');

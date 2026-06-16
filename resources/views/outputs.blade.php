@@ -136,7 +136,9 @@
                                     }
                                 @endphp
                                 <video src="{{ $vidSrc }}"
-                                       muted playsinline autoplay loop
+                                       muted playsinline loop preload="none"
+                                       x-intersect:enter="$el.play()"
+                                       x-intersect:leave="$el.pause()"
                                        class="w-full h-auto object-cover pointer-events-none"
                                        x-init="
                                            let vid = $el;

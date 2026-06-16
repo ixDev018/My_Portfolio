@@ -19,6 +19,53 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        try {
+            \Illuminate\Support\Facades\Storage::extend('google', function($app, $config) {
+                $options = [];
+
+                if (!empty($config['teamDriveId'] ?? null)) {
+                    $options['teamDriveId'] = $config['teamDriveId'];
+                }
+
+                if (!empty($config['sharedFolderId'] ?? null)) {
+                    $options['sharedFolderId'] = $config['sharedFolderId'];
+                }
+
+                $client = new \Google\Client();
+                $client->setClientId($config['clientId']);
+                $client->setClientSecret($config['clientSecret']);
+                $client->refreshToken($config['refreshToken']);
+                
+                $service = new \Google\Service\Drive($client);
+                $adapter = new \Masbug\Flysystem\GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
+                $driver = new \League\Flysystem\Filesystem($adapter);
+
+                return new class($driver, $adapter) extends \Illuminate\Filesystem\FilesystemAdapter {
+                    public function url($path)
+                    {
+                        if (empty($path)) return '';
+                        if (str_starts_with($path, 'http')) return $path;
+                        
+                        if (file_exists(public_path($path))) {
+                            return asset($path);
+                        }
+
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                            return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                        }
+
+                        try {
+                            return \Illuminate\Support\Facades\Cache::remember('gdrive_url_' . md5($path), 86400, function() use ($path) {
+                                return parent::url($path);
+                            });
+                        } catch (\Exception $e) {
+                            return asset('images/placeholder.jpg');
+                        }
+                    }
+                };
+            });
+        } catch(\Exception $e) {
+            // fail silently or log
+        }
     }
 }

@@ -45,10 +45,10 @@ class IntroSlideController extends Controller
             $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
             $data = base64_decode($data);
             $filename = 'intro_slides/' . uniqid() . '.png';
-            Storage::disk('public')->put($filename, $data);
+            Storage::disk(config('filesystems.default'))->put($filename, $data);
             $validated['image_path'] = $filename;
         } elseif ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('intro_slides', 'public');
+            $validated['image_path'] = $request->file('image')->store('intro_slides', config('filesystems.default'));
         }
 
         unset($validated['image'], $validated['image_data']);
@@ -77,18 +77,18 @@ class IntroSlideController extends Controller
 
         if (!empty($validated['image_data'])) {
             if ($slide->image_path) {
-                Storage::disk('public')->delete($slide->image_path);
+                Storage::disk(config('filesystems.default'))->delete($slide->image_path);
             }
             $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
             $data = base64_decode($data);
             $filename = 'intro_slides/' . uniqid() . '.png';
-            Storage::disk('public')->put($filename, $data);
+            Storage::disk(config('filesystems.default'))->put($filename, $data);
             $validated['image_path'] = $filename;
         } elseif ($request->hasFile('image')) {
             if ($slide->image_path) {
-                Storage::disk('public')->delete($slide->image_path);
+                Storage::disk(config('filesystems.default'))->delete($slide->image_path);
             }
-            $validated['image_path'] = $request->file('image')->store('intro_slides', 'public');
+            $validated['image_path'] = $request->file('image')->store('intro_slides', config('filesystems.default'));
         }
 
         unset($validated['image'], $validated['image_data']);
@@ -103,7 +103,7 @@ class IntroSlideController extends Controller
             return redirect()->route('admin.intro_slides.index')->with('error', 'Slide 1 is locked and cannot be deleted.');
         }
         if ($slide->image_path) {
-            Storage::disk('public')->delete($slide->image_path);
+            Storage::disk(config('filesystems.default'))->delete($slide->image_path);
         }
         $slide->delete();
         return redirect()->route('admin.intro_slides.index')->with('success', 'Slide deleted.');

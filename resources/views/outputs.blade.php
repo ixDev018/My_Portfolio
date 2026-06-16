@@ -78,15 +78,15 @@
                         $adminLinkUrl = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
                         $isVideoProject = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLink;
                         
-                        $localVideo = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : ($proj->thumbnail_video_path ? asset('storage/' . $proj->thumbnail_video_path) : '');
+                        $localVideo = $proj->main_video_path ? Storage::url($proj->main_video_path) : ($proj->thumbnail_video_path ? Storage::url($proj->thumbnail_video_path) : '');
                         
                         $localImage = '';
                         if ($proj->main_image_path) {
-                            $localImage = asset('storage/' . $proj->main_image_path);
+                            $localImage = Storage::url($proj->main_image_path);
                         } elseif ($proj->thumbnail_path) {
-                            $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path);
+                            $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path);
                         } elseif (!empty($proj->thumbnail_images)) {
-                            $localImage = asset('storage/' . $proj->thumbnail_images[0]);
+                            $localImage = Storage::url($proj->thumbnail_images[0]);
                         }
                         
                         $isFallback = !$hasBodyContent;
@@ -130,9 +130,9 @@
                                 @php
                                     $vidSrc = '';
                                     if ($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) {
-                                        $vidSrc = asset('storage/' . $proj->thumbnail_video_path);
+                                        $vidSrc = Storage::url($proj->thumbnail_video_path);
                                     } elseif ($proj->main_media_type === 'video') {
-                                        $vidSrc = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : $proj->video_url;
+                                        $vidSrc = $proj->main_video_path ? Storage::url($proj->main_video_path) : $proj->video_url;
                                     }
                                 @endphp
                                 <video src="{{ $vidSrc }}"
@@ -170,10 +170,10 @@
                                      x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                                      class="relative w-full overflow-hidden">
                                     <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
-                                    <img src="{{ asset('storage/' . $proj->thumbnail_images[0]) }}"
+                                    <img src="{{ Storage::url($proj->thumbnail_images[0]) }}"
                                          class="w-full h-auto object-cover invisible">
                                     @foreach($proj->thumbnail_images as $index => $img)
-                                        <img src="{{ asset('storage/' . $img) }}"
+                                        <img src="{{ Storage::url($img) }}"
                                              x-show="currentSlide === {{ $index }}"
                                              x-transition.opacity.duration.700ms
                                              class="absolute inset-0 w-full h-full object-cover">
@@ -187,7 +187,7 @@
                                     </div>
                                 </div>
                             @elseif($proj->thumbnail_path)
-                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path) }}"
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto object-cover" loading="lazy">
                             @else

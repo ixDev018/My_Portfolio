@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ($profile->hero_title ?? 'My') . ' | Portfolio')
+@section('title', 'IX-Media | Portfolio')
 
 @section('content')
 
@@ -78,7 +78,7 @@
         <video x-ref="bgVideo" @playing="initAnim()" preload="auto" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"
                style="filter: blur({{ $blurPx }}px); opacity: {{ number_format($opacityVal, 2) }}">
             @if($profile && $profile->hero_video_path)
-                <source src="{{ asset('storage/' . $profile->hero_video_path) }}" type="video/mp4">
+                <source src="{{ Storage::url($profile->hero_video_path) }}" type="video/mp4">
             @endif
             <source src="{{ asset('videos/bg_showreel_loop.mp4') }}" type="video/mp4">
         </video>
@@ -464,7 +464,7 @@
                         <div class="overflow-hidden w-[65vw] max-w-[240px] md:w-full md:max-w-[340px] md:h-auto md:mr-2
                                     {{ $index === 0 ? 'shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)] outline outline-[1.5px] outline-offset-[-1.5px] outline-black' : 'rounded-2xl' }}"
                              style="{{ $index === 0 ? 'aspect-ratio: 3/4; border-radius: 24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%;' : '' }}">
-                            <img src="{{ $slideItem->image_path ? asset('storage/' . $slideItem->image_path) : ($index === 0 ? asset('images/intro/profile.png') : asset('images/intro/slide'.($index+1).'.jpg')) }}"
+                            <img src="{{ $slideItem->image_path ? Storage::url($slideItem->image_path) : ($index === 0 ? asset('images/intro/profile.png') : asset('images/intro/slide'.($index+1).'.jpg')) }}"
                                  alt="{{ $slideItem->title }}"
                                  class="w-full {{ $index === 0 ? 'h-full object-cover object-top' : 'h-auto object-contain' }}"
                                  onerror="this.src='{{ asset('images/placeholder.jpg') }}';">
@@ -574,7 +574,7 @@
                         <!-- Skills Cards -->
                         <div class="grid grid-cols-2 {{ $desktopGridClass }} md:col-span-4 w-full">
                             @foreach($skills as $index => $skill)
-                                <div @click="skillModal = { show: true, name: '{{ addslashes($skill->name) }}', category: '{{ addslashes($skill->category) }} Skill', desc: '{{ addslashes($skill->tooltip_info ?? '') }}', proficiency: {{ $skill->proficiency ?? 5 }}, image: '{{ !empty($skill->image_path) ? asset('storage/' . $skill->image_path) : '' }}' }" 
+                                <div @click="skillModal = { show: true, name: '{{ addslashes($skill->name) }}', category: '{{ addslashes($skill->category) }} Skill', desc: '{{ addslashes($skill->tooltip_info ?? '') }}', proficiency: {{ $skill->proficiency ?? 5 }}, image: '{{ !empty($skill->image_path) ? Storage::url($skill->image_path) : '' }}' }" 
                                      class="p-4 md:p-6 border-r border-b md:border-b-0 border-black flex flex-col justify-between min-h-[120px] md:min-h-[260px] transition-all duration-300 hover:bg-black/5 md:hover:bg-gradient-to-br md:hover:from-white/90 md:hover:via-white/40 md:hover:to-transparent cursor-pointer group">
                                     <div class="w-6 h-6 md:w-7 md:h-7 rounded-full border border-black flex items-center justify-center text-[10px] md:text-[11px] font-sans text-black">
                                         {{ $index + 1 }}
@@ -635,13 +635,13 @@
                             <div class="animate-marquee flex whitespace-nowrap items-center shrink-0">
                                 @foreach($repeatedTools as $item)
                                     <span class="cursor-pointer ml-10 md:ml-16 font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative transition-opacity duration-300 group-has-[:hover]/marquee:opacity-30 hover:!opacity-100"
-                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? asset('storage/' . $item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
+                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? Storage::url($item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
                                           @mouseenter="tooltip = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', x: $event.clientX, y: $event.clientY }"
                                           @mouseleave="tooltip.show = false"
                                           @mousemove="tooltip.x = $event.clientX; tooltip.y = $event.clientY">
                                         @if(!empty($item['image_path']))
                                             <div class="h-10 md:h-14 w-auto flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
-                                                <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
+                                                <img src="{{ Storage::url($item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
                                             </div>
                                         @else
                                             <div class="h-10 w-10 md:h-12 md:w-12 border border-[#783800]/20 rounded-md flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase shrink-0">{{ substr($item['name'], 0, 2) }}</div>
@@ -654,13 +654,13 @@
                             <div class="animate-marquee flex whitespace-nowrap items-center shrink-0" aria-hidden="true">
                                 @foreach($repeatedTools as $item)
                                     <span class="cursor-pointer ml-10 md:ml-16 font-normal font-sans text-xs md:text-xl flex items-center gap-3 group relative transition-opacity duration-300 group-has-[:hover]/marquee:opacity-30 hover:!opacity-100"
-                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? asset('storage/' . $item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
+                                          @click="toolModal = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', image: '{{ !empty($item['image_path']) ? Storage::url($item['image_path']) : '' }}', category: '{{ addslashes($rowLabel) }}', proficiency: {{ $item['proficiency'] ?? 5 }} }; tooltip.show = false;"
                                           @mouseenter="tooltip = { show: true, name: '{{ addslashes($item['name']) }}', desc: '{{ addslashes($item['tooltip_info'] ?? '') }}', x: $event.clientX, y: $event.clientY }"
                                           @mouseleave="tooltip.show = false"
                                           @mousemove="tooltip.x = $event.clientX; tooltip.y = $event.clientY">
                                         @if(!empty($item['image_path']))
                                             <div class="h-10 md:h-14 w-auto flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
-                                                <img src="{{ asset('storage/' . $item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
+                                                <img src="{{ Storage::url($item['image_path']) }}" alt="{{ $item['name'] }}" class="h-full w-auto object-contain drop-shadow-md">
                                             </div>
                                         @else
                                             <div class="h-10 w-10 md:h-12 md:w-12 border border-[#783800]/20 rounded-md flex items-center justify-center text-[10px] md:text-xs bg-[#783800]/5 text-[#783800]/80 font-bold uppercase shrink-0">{{ substr($item['name'], 0, 2) }}</div>
@@ -1081,11 +1081,11 @@
                                                 @if(($proj->use_custom_thumbnail && $proj->thumbnail_path) || $proj->main_video_path) bg-black @else bg-black @endif
                                                 flex items-center justify-center">
                                         @if($proj->use_custom_thumbnail && $proj->thumbnail_path)
-                                            <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                            <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path) }}"
                                                  alt="{{ $proj->title }}"
                                                  class="w-full h-auto object-cover">
                                         @elseif($proj->main_media_type === 'video' && $proj->main_video_path)
-                                            <video src="{{ asset('storage/' . $proj->main_video_path) }}"
+                                            <video src="{{ Storage::url($proj->main_video_path) }}"
                                                    muted playsinline autoplay loop
                                                    class="w-full h-auto object-cover pointer-events-none"
                                                    x-init="
@@ -1114,7 +1114,7 @@
                                                  x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000)"
                                                  class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
                                                 @foreach($proj->main_images as $index => $img)
-                                                    <img src="{{ asset('storage/' . $img) }}"
+                                                    <img src="{{ Storage::url($img) }}"
                                                          x-show="currentSlide === {{ $index }}"
                                                          x-transition.opacity.duration.700ms
                                                          class="absolute inset-0 w-full h-full object-cover">
@@ -1128,7 +1128,7 @@
                                                 </div>
                                             </div>
                                         @elseif($proj->main_image_path)
-                                            <img src="{{ Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : asset('storage/' . $proj->main_image_path) }}"
+                                            <img src="{{ Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : Storage::url($proj->main_image_path) }}"
                                                  alt="{{ $proj->title }}"
                                                  class="w-full h-auto object-cover">
                                         @else
@@ -1281,15 +1281,15 @@
                                 $adminLinkUrlVis = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
                                 $isVideoProjectVis = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLinkVis;
                                 
-                                $localVideoVis = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : ($proj->thumbnail_video_path ? asset('storage/' . $proj->thumbnail_video_path) : '');
+                                $localVideoVis = $proj->main_video_path ? Storage::url($proj->main_video_path) : ($proj->thumbnail_video_path ? Storage::url($proj->thumbnail_video_path) : '');
                                 
                                 $localImageVis = '';
                                 if ($proj->main_image_path) {
-                                    $localImageVis = asset('storage/' . $proj->main_image_path);
+                                    $localImageVis = Storage::url($proj->main_image_path);
                                 } elseif ($proj->thumbnail_path) {
-                                    $localImageVis = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path);
+                                    $localImageVis = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path);
                                 } elseif (!empty($proj->thumbnail_images)) {
-                                    $localImageVis = asset('storage/' . $proj->thumbnail_images[0]);
+                                    $localImageVis = Storage::url($proj->thumbnail_images[0]);
                                 }
                                 
                                 $isFallbackVis = !$hasBodyContentVis;
@@ -1331,9 +1331,9 @@
                                         @php
                                             $vidSrc = '';
                                             if ($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) {
-                                                $vidSrc = asset('storage/' . $proj->thumbnail_video_path);
+                                                $vidSrc = Storage::url($proj->thumbnail_video_path);
                                             } elseif ($proj->main_media_type === 'video') {
-                                                $vidSrc = $proj->main_video_path ? asset('storage/' . $proj->main_video_path) : $proj->video_url;
+                                                $vidSrc = $proj->main_video_path ? Storage::url($proj->main_video_path) : $proj->video_url;
                                             }
                                         @endphp
                                         <video src="{{ $vidSrc }}"
@@ -1371,10 +1371,10 @@
                                              x-init="setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3500)"
                                              class="relative w-full overflow-hidden">
                                             <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
-                                            <img src="{{ asset('storage/' . $proj->thumbnail_images[0]) }}"
+                                            <img src="{{ Storage::url($proj->thumbnail_images[0]) }}"
                                                  class="w-full h-auto object-cover invisible">
                                             @foreach($proj->thumbnail_images as $index => $img)
-                                                <img src="{{ asset('storage/' . $img) }}"
+                                                <img src="{{ Storage::url($img) }}"
                                                      x-show="currentSlide === {{ $index }}"
                                                      x-transition.opacity.duration.700ms
                                                      class="absolute inset-0 w-full h-full object-cover">
@@ -1388,7 +1388,7 @@
                                             </div>
                                         </div>
                                     @elseif($proj->thumbnail_path)
-                                        <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : asset('storage/' . $proj->thumbnail_path) }}"
+                                        <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path) }}"
                                              alt="{{ $proj->title }}"
                                              class="w-full h-auto object-cover" loading="lazy">
                                     @else
@@ -1799,7 +1799,7 @@
                             <div x-show="activeTab === 'all' || activeTab === '{{ $item->type }}'"
                                  x-transition.opacity
                                  @if(!$profile->disable_achievements_modal)
-                                 @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}', media_path: {{ Js::from($item->media_path ? asset('storage/' . $item->media_path) : null) }} }"
+                                 @click="selectedItem = { title: {{ Js::from($item->title) }}, issuer: {{ Js::from($item->issuer) }}, year: {{ Js::from($item->year) }}, description: {{ Js::from($item->description) }}, type: '{{ $itemType }}', media_path: {{ Js::from($item->media_path ? Storage::url($item->media_path) : null) }} }"
                                  @endif
                                  class="flex-none snap-center lg:snap-start group {{ $profile->disable_achievements_modal ? '' : 'cursor-pointer' }} relative"
                                  style="width: min(78vw, 300px);">
@@ -1962,15 +1962,15 @@
                 <!-- Custom Global Media for Unselected State -->
                 <div x-show="activeIndex === null" x-transition.opacity.duration.1500ms class="absolute inset-0">
                     @if($profile->exp_default_bg_type === 'video' && $profile->exp_default_bg_media_path)
-                        <video src="{{ asset('storage/' . $profile->exp_default_bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                        <video src="{{ Storage::url($profile->exp_default_bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
                     @elseif($profile->exp_default_bg_type === 'slideshow' && !empty($profile->exp_default_bg_gallery_images))
                         <div x-data="{ sIndex: 0, sTotal: {{ count($profile->exp_default_bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === null) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                             @foreach($profile->exp_default_bg_gallery_images as $slideIndex => $sImage)
-                                <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                                <img src="{{ Storage::url($sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
                             @endforeach
                         </div>
                     @elseif($profile->exp_default_bg_media_path)
-                        <img src="{{ asset('storage/' . $profile->exp_default_bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                        <img src="{{ Storage::url($profile->exp_default_bg_media_path) }}" class="w-full h-full object-cover opacity-60">
                     @endif
                 </div>
 
@@ -1980,17 +1980,17 @@
                          x-transition.opacity.duration.1500ms
                          class="absolute inset-0">
                          @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
-                             <video src="{{ asset('storage/' . $exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                             <video src="{{ Storage::url($exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
                          @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
                              <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }}) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                                  @foreach($exp->bg_gallery_images as $slideIndex => $sImage)
-                                     <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                                     <img src="{{ Storage::url($sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
                                  @endforeach
                              </div>
                          @elseif($exp->bg_media_path)
-                             <img src="{{ asset('storage/' . $exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                             <img src="{{ Storage::url($exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
                          @elseif($exp->image_path)
-                             <img src="{{ asset('storage/' . $exp->image_path) }}" class="w-full h-full object-cover opacity-60">
+                             <img src="{{ Storage::url($exp->image_path) }}" class="w-full h-full object-cover opacity-60">
                          @endif
                     </div>
                 @endforeach
@@ -2008,17 +2008,17 @@
                          x-transition.opacity.duration.1500ms
                          class="absolute inset-0">
                          @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
-                             <video src="{{ asset('storage/' . $exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                             <video src="{{ Storage::url($exp->bg_media_path) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
                          @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
                              <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }} || (activeIndex === null && bgIndex === {{ $i }})) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                                  @foreach($exp->bg_gallery_images as $slideIndex => $sImage)
-                                     <img src="{{ asset('storage/' . $sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
+                                     <img src="{{ Storage::url($sImage) }}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" :class="sIndex === {{ $slideIndex }} ? 'opacity-60' : 'opacity-0'">
                                  @endforeach
                              </div>
                          @elseif($exp->bg_media_path)
-                             <img src="{{ asset('storage/' . $exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
+                             <img src="{{ Storage::url($exp->bg_media_path) }}" class="w-full h-full object-cover opacity-60">
                          @elseif($exp->image_path)
-                             <img src="{{ asset('storage/' . $exp->image_path) }}" class="w-full h-full object-cover opacity-60">
+                             <img src="{{ Storage::url($exp->image_path) }}" class="w-full h-full object-cover opacity-60">
                          @endif
                     </div>
                 @endforeach

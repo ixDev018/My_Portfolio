@@ -222,7 +222,7 @@
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div class="avatar-ring">
                         <img id="avatar-preview"
-                             src="{{ $profile && $profile->avatar_path ? asset('storage/'.$profile->avatar_path) : asset('images/intro/profile.png') }}"
+                             src="{{ $profile && $profile->avatar_path ? Storage::url($profile->avatar_path) : Storage::url('images/intro/profile.png') }}"
                              alt="Avatar">
                     </div>
                     <div>
@@ -259,7 +259,7 @@
             <div class="ps-body">
                 <div class="cv-box">
                     @if($profile && $profile->cv_path)
-                        <iframe src="{{ asset('storage/'.$profile->cv_path) }}"></iframe>
+                        <iframe src="{{ Storage::url($profile->cv_path) }}"></iframe>
                     @else
                         <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;opacity:0.5;">
                             <svg style="width:2.5rem;height:2.5rem;color:#C4BDB2;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -270,7 +270,7 @@
                 @if($profile && $profile->cv_path)
                     <div style="display:flex;align-items:center;gap:0.75rem;">
                         <span style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#7A7267;">{{ basename($profile->cv_path) }}</span>
-                        <a href="{{ asset('storage/'.$profile->cv_path) }}" target="_blank"
+                        <a href="{{ Storage::url($profile->cv_path) }}" target="_blank"
                            style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#6829AA;text-decoration:underline;">Open ↗</a>
                     </div>
                 @endif

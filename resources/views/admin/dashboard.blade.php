@@ -248,9 +248,9 @@
     <div class="db-hero-info">
         <div class="db-avatar">
             @if($profile && $profile->avatar_path)
-                <img src="{{ asset('storage/'.$profile->avatar_path) }}" alt="Avatar">
+                <img src="{{ Storage::url($profile->avatar_path) }}" alt="Avatar">
             @else
-                <img src="{{ asset('images/intro/profile.png') }}" alt="Avatar">
+                <img src="{{ Storage::url('images/intro/profile.png') }}" alt="Avatar">
             @endif
         </div>
         <div>

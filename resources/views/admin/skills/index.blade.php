@@ -165,7 +165,7 @@
                                 <div class="p-4 bg-[#111111] border border-[#2A2A2A] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#FF851B] hover:shadow-[0_0_15px_rgba(255,133,27,0.15)] transition-all relative group h-32">
                                     @if($skill->image_path)
                                         <div class="w-full h-12 flex items-center justify-center px-2">
-                                            <img src="{{ asset('storage/' . $skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
+                                            <img src="{{ Storage::url($skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
                                         </div>
                                     @else
                                         <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">
@@ -204,7 +204,7 @@
                                 <div class="p-4 bg-[#111111] border border-[#2A2A2A] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#FF851B] hover:shadow-[0_0_15px_rgba(255,133,27,0.15)] transition-all relative group h-32">
                                     @if($skill->image_path)
                                         <div class="w-full h-12 flex items-center justify-center px-2">
-                                            <img src="{{ asset('storage/' . $skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
+                                            <img src="{{ Storage::url($skill->image_path) }}" alt="{{ $skill->name }}" class="max-h-full max-w-full object-contain">
                                         </div>
                                     @else
                                         <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">
@@ -367,7 +367,7 @@
                                     
                                     @if($tool->image_path)
                                         <div class="w-full h-12 flex items-center justify-center px-2">
-                                            <img src="{{ asset('storage/' . $tool->image_path) }}" alt="{{ $tool->name }}" class="max-h-full max-w-full object-contain">
+                                            <img src="{{ Storage::url($tool->image_path) }}" alt="{{ $tool->name }}" class="max-h-full max-w-full object-contain">
                                         </div>
                                     @else
                                         <div class="w-12 h-12 rounded-lg border border-[#333] bg-[#1A1A1A] flex items-center justify-center text-[#666] text-sm font-bold uppercase">

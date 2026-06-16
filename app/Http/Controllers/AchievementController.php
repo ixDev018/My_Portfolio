@@ -49,7 +49,7 @@ class AchievementController extends Controller
                     $imageData = base64_decode($imageData);
                     if ($imageData !== false) {
                         $filename = 'achievements/' . uniqid() . '.png';
-                        Storage::disk('public')->put($filename, $imageData);
+                        Storage::disk(config('filesystems.default'))->put($filename, $imageData);
                         $validated['media_path'] = $filename;
                     }
                 }
@@ -90,12 +90,12 @@ class AchievementController extends Controller
                     $imageData = base64_decode($imageData);
                     if ($imageData !== false) {
                         $filename = 'achievements/' . uniqid() . '.png';
-                        Storage::disk('public')->put($filename, $imageData);
+                        Storage::disk(config('filesystems.default'))->put($filename, $imageData);
                         $validated['media_path'] = $filename;
 
                         // optionally delete old image
-                        if ($achievement->media_path && Storage::disk('public')->exists($achievement->media_path)) {
-                            Storage::disk('public')->delete($achievement->media_path);
+                        if ($achievement->media_path && Storage::disk(config('filesystems.default'))->exists($achievement->media_path)) {
+                            Storage::disk(config('filesystems.default'))->delete($achievement->media_path);
                         }
                     }
                 }
@@ -110,8 +110,8 @@ class AchievementController extends Controller
     public function destroy($id)
     {
         $achievement = Achievement::findOrFail($id);
-        if ($achievement->media_path && Storage::disk('public')->exists($achievement->media_path)) {
-            Storage::disk('public')->delete($achievement->media_path);
+        if ($achievement->media_path && Storage::disk(config('filesystems.default'))->exists($achievement->media_path)) {
+            Storage::disk(config('filesystems.default'))->delete($achievement->media_path);
         }
         $achievement->delete();
         return redirect()->route('admin.achievements.index')->with('success', 'Achievement deleted.');

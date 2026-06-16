@@ -42,7 +42,7 @@
     $heroHtml   = $profile->hero_html_content ?? $defaultHeroHtml;
     $blurAmount = $profile->hero_blur_amount ?? 35;
     $videoSrc   = $profile && $profile->hero_video_path
-                    ? asset('storage/' . $profile->hero_video_path)
+                    ? Storage::url($profile->hero_video_path)
                     : asset('videos/bg_showreel_loop.mp4');
     $videoFilename = $profile && $profile->hero_video_path
                     ? basename($profile->hero_video_path)
@@ -417,10 +417,10 @@
                                 <div>
                                     <div class="text-[10px] font-extrabold text-black uppercase mb-1 tracking-wider">File Size:</div>
                                     <div class="text-xs text-gray-800 pb-1 border-b border-gray-200 font-medium">
-                                        <span x-text="fileSize !== '—' ? fileSize : '{{ ($profile && $profile->hero_video_path && file_exists(storage_path('app/public/'.$profile->hero_video_path))) ? round(filesize(storage_path('app/public/'.$profile->hero_video_path))/(1024*1024),2).' MB' : 'Default' }}'">
+                                        <span x-text="fileSize !== '—' ? fileSize : '{{ ($profile && $profile->hero_video_path && Storage::exists($profile->hero_video_path)) ? round(Storage::size($profile->hero_video_path)/(1024*1024),2).' MB' : 'Default' }}'">
                                             @if($profile && $profile->hero_video_path)
-                                                @php $vpath = storage_path('app/public/'.$profile->hero_video_path); @endphp
-                                                {{ file_exists($vpath) ? round(filesize($vpath)/(1024*1024),2).' MB' : '—' }}
+                                                @php $vpath = $profile->hero_video_path; @endphp
+                                                {{ Storage::exists($vpath) ? round(Storage::size($vpath)/(1024*1024),2).' MB' : '—' }}
                                             @else
                                                 Default
                                             @endif

@@ -11,7 +11,7 @@
     <!-- Thumbnail Graphic Area -->
     <div class="relative overflow-hidden aspect-video bg-slate-950 flex items-center justify-center border-2 border-black rounded-xl mb-4">
         @if($project->thumbnail_path)
-            <img src="{{ asset('storage/' . $project->thumbnail_path) }}" 
+            <img src="{{ Storage::url($project->thumbnail_path) }}" 
                  alt="{{ $project->title }}" 
                  class="w-full h-full object-cover">
         @else

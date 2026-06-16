@@ -182,25 +182,25 @@ class AdminController extends Controller
         // Handle Avatar File Upload
         if ($request->hasFile('avatar')) {
             if ($profile->avatar_path) {
-                Storage::disk('public')->delete($profile->avatar_path);
+                Storage::disk(config('filesystems.default'))->delete($profile->avatar_path);
             }
-            $validated['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar_path'] = $request->file('avatar')->store('avatars', config('filesystems.default'));
         }
 
         // Handle CV File Upload
         if ($request->hasFile('cv')) {
             if ($profile->cv_path) {
-                Storage::disk('public')->delete($profile->cv_path);
+                Storage::disk(config('filesystems.default'))->delete($profile->cv_path);
             }
-            $validated['cv_path'] = $request->file('cv')->store('documents', 'public');
+            $validated['cv_path'] = $request->file('cv')->store('documents', config('filesystems.default'));
         }
 
         // Handle Hero Video Upload
         if ($request->hasFile('hero_video')) {
             if ($profile->hero_video_path) {
-                Storage::disk('public')->delete($profile->hero_video_path);
+                Storage::disk(config('filesystems.default'))->delete($profile->hero_video_path);
             }
-            $validated['hero_video_path'] = $request->file('hero_video')->store('videos', 'public');
+            $validated['hero_video_path'] = $request->file('hero_video')->store('videos', config('filesystems.default'));
         }
 
         // Remove file input keys not in model fillable
@@ -242,16 +242,16 @@ class AdminController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($profile->avatar_path) {
-                Storage::disk('public')->delete($profile->avatar_path);
+                Storage::disk(config('filesystems.default'))->delete($profile->avatar_path);
             }
-            $validated['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar_path'] = $request->file('avatar')->store('avatars', config('filesystems.default'));
         }
 
         if ($request->hasFile('cv')) {
             if ($profile->cv_path) {
-                Storage::disk('public')->delete($profile->cv_path);
+                Storage::disk(config('filesystems.default'))->delete($profile->cv_path);
             }
-            $validated['cv_path'] = $request->file('cv')->store('documents', 'public');
+            $validated['cv_path'] = $request->file('cv')->store('documents', config('filesystems.default'));
         }
 
         unset($validated['avatar'], $validated['cv']);
@@ -333,22 +333,22 @@ class AdminController extends Controller
                 $type = strtolower($type[1]);
                 $data = base64_decode($data);
                 $filename = 'projects/main_images/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['main_image_path'] = $filename;
                 $validated['main_images'] = null;
             }
         } elseif ($request->hasFile('main_media_upload')) {
             $files = $request->file('main_media_upload');
             if ($validated['main_media_type'] === 'video') {
-                $validated['main_video_path'] = $files[0]->store('projects/main_videos', 'public');
+                $validated['main_video_path'] = $files[0]->store('projects/main_videos', config('filesystems.default'));
             } else {
                 if (count($files) === 1) {
-                    $validated['main_image_path'] = $files[0]->store('projects/main_images', 'public');
+                    $validated['main_image_path'] = $files[0]->store('projects/main_images', config('filesystems.default'));
                     $validated['main_images'] = null;
                 } else {
                     $paths = [];
                     foreach ($files as $f) {
-                        $paths[] = $f->store('projects/main_images', 'public');
+                        $paths[] = $f->store('projects/main_images', config('filesystems.default'));
                     }
                     $validated['main_images'] = $paths;
                     $validated['main_image_path'] = $paths[0]; // fallback cover
@@ -364,7 +364,7 @@ class AdminController extends Controller
                 $type = strtolower($type[1]); // jpg, png, etc
                 $data = base64_decode($data);
                 $filename = 'projects/thumbnails/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['thumbnail_path'] = $filename;
                 $validated['thumbnail_type'] = 'image';
             }
@@ -378,7 +378,7 @@ class AdminController extends Controller
                 $type = strtolower($type[1]); // jpg, png, etc
                 $data = base64_decode($data);
                 $filename = 'projects/featured_thumbnails/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['featured_thumbnail'] = $filename;
             }
         }
@@ -386,7 +386,7 @@ class AdminController extends Controller
         if ($request->hasFile('gallery')) {
             $galleryPaths = [];
             foreach ($request->file('gallery') as $image) {
-                $galleryPaths[] = $image->store('projects/gallery', 'public');
+                $galleryPaths[] = $image->store('projects/gallery', config('filesystems.default'));
             }
             $validated['gallery_images'] = $galleryPaths;
         }
@@ -454,18 +454,18 @@ class AdminController extends Controller
         // Featured Thumbnail Deletion
         if ($request->input('remove_featured_thumbnail') == '1' || !$validated['is_best_work']) {
             if ($project->featured_thumbnail) {
-                Storage::disk('public')->delete($project->featured_thumbnail);
+                Storage::disk(config('filesystems.default'))->delete($project->featured_thumbnail);
             }
             $validated['featured_thumbnail'] = null;
         }
 
         // Custom Thumbnail Deletion
         if ($request->input('remove_thumbnail') == '1') {
-            if ($project->thumbnail_video_path) Storage::disk('public')->delete($project->thumbnail_video_path);
-            if ($project->thumbnail_path) Storage::disk('public')->delete($project->thumbnail_path);
+            if ($project->thumbnail_video_path) Storage::disk(config('filesystems.default'))->delete($project->thumbnail_video_path);
+            if ($project->thumbnail_path) Storage::disk(config('filesystems.default'))->delete($project->thumbnail_path);
             if ($project->thumbnail_images) {
                 foreach ($project->thumbnail_images as $oldImg) {
-                    Storage::disk('public')->delete($oldImg);
+                    Storage::disk(config('filesystems.default'))->delete($oldImg);
                 }
             }
             $validated['thumbnail_video_path'] = null;
@@ -479,17 +479,17 @@ class AdminController extends Controller
         if ($validated['main_media_type'] === 'image' && $request->input('main_media_base64')) {
             $base64 = $request->input('main_media_base64');
             if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
-                if ($project->main_image_path) Storage::disk('public')->delete($project->main_image_path);
+                if ($project->main_image_path) Storage::disk(config('filesystems.default'))->delete($project->main_image_path);
                 if ($project->main_images) {
                     foreach ($project->main_images as $oldImg) {
-                        Storage::disk('public')->delete($oldImg);
+                        Storage::disk(config('filesystems.default'))->delete($oldImg);
                     }
                 }
                 $data = substr($base64, strpos($base64, ',') + 1);
                 $type = strtolower($type[1]);
                 $data = base64_decode($data);
                 $filename = 'projects/main_images/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['main_image_path'] = $filename;
                 $validated['main_images'] = null;
             }
@@ -497,26 +497,26 @@ class AdminController extends Controller
             $files = $request->file('main_media_upload');
             if ($validated['main_media_type'] === 'video') {
                 if ($project->main_video_path) {
-                    Storage::disk('public')->delete($project->main_video_path);
+                    Storage::disk(config('filesystems.default'))->delete($project->main_video_path);
                 }
-                $validated['main_video_path'] = $files[0]->store('projects/main_videos', 'public');
+                $validated['main_video_path'] = $files[0]->store('projects/main_videos', config('filesystems.default'));
             } else {
                 if ($project->main_image_path) {
-                    Storage::disk('public')->delete($project->main_image_path);
+                    Storage::disk(config('filesystems.default'))->delete($project->main_image_path);
                 }
                 if ($project->main_images) {
                     foreach ($project->main_images as $oldImg) {
-                        Storage::disk('public')->delete($oldImg);
+                        Storage::disk(config('filesystems.default'))->delete($oldImg);
                     }
                 }
                 
                 if (count($files) === 1) {
-                    $validated['main_image_path'] = $files[0]->store('projects/main_images', 'public');
+                    $validated['main_image_path'] = $files[0]->store('projects/main_images', config('filesystems.default'));
                     $validated['main_images'] = null;
                 } else {
                     $paths = [];
                     foreach ($files as $f) {
-                        $paths[] = $f->store('projects/main_images', 'public');
+                        $paths[] = $f->store('projects/main_images', config('filesystems.default'));
                     }
                     $validated['main_images'] = $paths;
                     $validated['main_image_path'] = $paths[0];
@@ -530,13 +530,13 @@ class AdminController extends Controller
             if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
                 
                 // delete old custom thumbnail if it exists
-                if ($project->thumbnail_path) Storage::disk('public')->delete($project->thumbnail_path);
+                if ($project->thumbnail_path) Storage::disk(config('filesystems.default'))->delete($project->thumbnail_path);
                 
                 $data = substr($base64, strpos($base64, ',') + 1);
                 $type = strtolower($type[1]); // jpg, png, etc
                 $data = base64_decode($data);
                 $filename = 'projects/thumbnails/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['thumbnail_path'] = $filename;
                 $validated['thumbnail_type'] = 'image';
             }
@@ -548,13 +548,13 @@ class AdminController extends Controller
             if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
                 
                 // delete old featured thumbnail if it exists
-                if ($project->featured_thumbnail) Storage::disk('public')->delete($project->featured_thumbnail);
+                if ($project->featured_thumbnail) Storage::disk(config('filesystems.default'))->delete($project->featured_thumbnail);
                 
                 $data = substr($base64, strpos($base64, ',') + 1);
                 $type = strtolower($type[1]); // jpg, png, etc
                 $data = base64_decode($data);
                 $filename = 'projects/featured_thumbnails/' . uniqid() . '.' . $type;
-                Storage::disk('public')->put($filename, $data);
+                Storage::disk(config('filesystems.default'))->put($filename, $data);
                 $validated['featured_thumbnail'] = $filename;
             }
         }
@@ -564,7 +564,7 @@ class AdminController extends Controller
         if ($request->has('delete_gallery')) {
             foreach ($request->input('delete_gallery') as $indexToDelete) {
                 if (isset($currentGallery[$indexToDelete])) {
-                    Storage::disk('public')->delete($currentGallery[$indexToDelete]);
+                    Storage::disk(config('filesystems.default'))->delete($currentGallery[$indexToDelete]);
                     unset($currentGallery[$indexToDelete]);
                 }
             }
@@ -573,7 +573,7 @@ class AdminController extends Controller
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $image) {
-                $currentGallery[] = $image->store('projects/gallery', 'public');
+                $currentGallery[] = $image->store('projects/gallery', config('filesystems.default'));
             }
         }
 
@@ -588,14 +588,14 @@ class AdminController extends Controller
     {
         $project = Project::findOrFail($id);
         if ($project->thumbnail_path) {
-            Storage::disk('public')->delete($project->thumbnail_path);
+            Storage::disk(config('filesystems.default'))->delete($project->thumbnail_path);
         }
         if ($project->thumbnail_video_path) {
-            Storage::disk('public')->delete($project->thumbnail_video_path);
+            Storage::disk(config('filesystems.default'))->delete($project->thumbnail_video_path);
         }
         if (is_array($project->gallery_images)) {
             foreach ($project->gallery_images as $image) {
-                Storage::disk('public')->delete($image);
+                Storage::disk(config('filesystems.default'))->delete($image);
             }
         }
         $project->delete();
@@ -612,14 +612,14 @@ class AdminController extends Controller
 
         foreach ($projects as $project) {
             if ($project->thumbnail_path) {
-                Storage::disk('public')->delete($project->thumbnail_path);
+                Storage::disk(config('filesystems.default'))->delete($project->thumbnail_path);
             }
             if ($project->thumbnail_video_path) {
-                Storage::disk('public')->delete($project->thumbnail_video_path);
+                Storage::disk(config('filesystems.default'))->delete($project->thumbnail_video_path);
             }
             if (is_array($project->gallery_images)) {
                 foreach ($project->gallery_images as $image) {
-                    Storage::disk('public')->delete($image);
+                    Storage::disk(config('filesystems.default'))->delete($image);
                 }
             }
             $project->delete();
@@ -692,7 +692,7 @@ class AdminController extends Controller
             'file' => 'required|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
         ]);
 
-        $path = $request->file('file')->store('projects/body', 'public');
+        $path = $request->file('file')->store('projects/body', config('filesystems.default'));
         return response()->json(['url' => asset('storage/' . $path)]);
     }
 
@@ -729,7 +729,7 @@ class AdminController extends Controller
                 $imageBase64 = base64_decode($imageParts[1]);
                 $fileName = 'skill_' . time() . '_' . uniqid() . '.png';
                 $imagePath = 'skills/' . $fileName;
-                Storage::disk('public')->put($imagePath, $imageBase64);
+                Storage::disk(config('filesystems.default'))->put($imagePath, $imageBase64);
             }
         }
 
@@ -764,10 +764,10 @@ class AdminController extends Controller
                 $imageBase64 = base64_decode($imageParts[1]);
                 $fileName = 'skill_' . time() . '_' . uniqid() . '.png';
                 $imagePath = 'skills/' . $fileName;
-                Storage::disk('public')->put($imagePath, $imageBase64);
+                Storage::disk(config('filesystems.default'))->put($imagePath, $imageBase64);
                 
                 if ($skill->image_path) {
-                    Storage::disk('public')->delete($skill->image_path);
+                    Storage::disk(config('filesystems.default'))->delete($skill->image_path);
                 }
                 $skill->image_path = $imagePath;
             }
@@ -845,7 +845,7 @@ class AdminController extends Controller
             $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
             $data = base64_decode($data);
             $filename = 'tools/' . Str::uuid() . '.png';
-            Storage::disk('public')->put($filename, $data);
+            Storage::disk(config('filesystems.default'))->put($filename, $data);
             $imagePath = $filename;
         }
 
@@ -867,7 +867,7 @@ class AdminController extends Controller
     {
         $tool = ToolItem::findOrFail($id);
         if ($tool->image_path) {
-            Storage::disk('public')->delete($tool->image_path);
+            Storage::disk(config('filesystems.default'))->delete($tool->image_path);
         }
         $tool->delete();
 
@@ -889,14 +889,14 @@ class AdminController extends Controller
         if (!empty($validated['image_data'])) {
             // Delete old image if exists
             if ($tool->image_path) {
-                Storage::disk('public')->delete($tool->image_path);
+                Storage::disk(config('filesystems.default'))->delete($tool->image_path);
             }
             
             // Strip the data URI header, decode and save as PNG
             $data = preg_replace('/^data:image\/\w+;base64,/', '', $validated['image_data']);
             $data = base64_decode($data);
             $filename = 'tools/' . Str::uuid() . '.png';
-            Storage::disk('public')->put($filename, $data);
+            Storage::disk(config('filesystems.default'))->put($filename, $data);
             $tool->image_path = $filename;
         }
 

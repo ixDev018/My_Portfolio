@@ -1072,7 +1072,7 @@
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
                                 <a href="{{ route('portfolio.project.show', $proj->slug) }}"
-                                   x-data="{ isDimmed: false }"
+                                   x-data="{ isDimmed: false, vidLoaded: false, intersecting: false }"
                                    class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100"
                                    :class="(dimming ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')">
 
@@ -1095,12 +1095,30 @@
                                                     $localImage = Storage::url($proj->thumbnail_images[0]);
                                                 }
                                             @endphp
+                                            
+                                            {{-- Spacer to prevent layout shift --}}
+                                            @if($localImage)
+                                                <img src="{{ $localImage }}" class="w-full h-auto invisible block" alt="spacer">
+                                            @else
+                                                <div class="w-full" style="padding-top: 56.25%"></div>
+                                            @endif
+
+                                            {{-- Loading Indicator --}}
+                                            <div x-show="intersecting && !vidLoaded" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                                <svg class="w-6 h-6 text-white/40 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+
                                             <video src="{{ Storage::url($proj->main_video_path) }}"
                                                    @if($localImage) poster="{{ $localImage }}" @endif
+                                                   @loadeddata="vidLoaded = true"
+                                                   @canplay="vidLoaded = true"
                                                    muted playsinline loop preload="none"
-                                                   x-intersect:enter="$el.play()"
-                                                   x-intersect:leave="$el.pause()"
-                                                   class="w-full h-auto object-cover pointer-events-none"
+                                                   x-intersect:enter="intersecting = true; $el.play()"
+                                                   x-intersect:leave="intersecting = false; $el.pause()"
+                                                   class="absolute inset-0 w-full h-full object-cover pointer-events-none"
                                                    x-init="
                                                        let vid = $el;
                                                        let loopStart = {{ $proj->video_loop_start ?? 0 }};
@@ -1357,12 +1375,30 @@
                                                 $localImage = Storage::url($proj->thumbnail_images[0]);
                                             }
                                         @endphp
+                                        
+                                        {{-- Spacer to prevent layout shift --}}
+                                        @if($localImage)
+                                            <img src="{{ $localImage }}" class="w-full h-auto invisible block" alt="spacer">
+                                        @else
+                                            <div class="w-full" style="padding-top: 56.25%"></div>
+                                        @endif
+
+                                        {{-- Loading Indicator --}}
+                                        <div x-show="intersecting && !vidLoaded" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                            <svg class="w-6 h-6 text-white/40 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </div>
+
                                         <video src="{{ $vidSrc }}"
                                                @if($localImage) poster="{{ $localImage }}" @endif
+                                               @loadeddata="vidLoaded = true"
+                                               @canplay="vidLoaded = true"
                                                muted playsinline loop preload="none"
-                                               x-intersect:enter="$el.play()"
-                                               x-intersect:leave="$el.pause()"
-                                               class="w-full h-auto object-cover pointer-events-none"
+                                               x-intersect:enter="intersecting = true; $el.play()"
+                                               x-intersect:leave="intersecting = false; $el.pause()"
+                                               class="absolute inset-0 w-full h-full object-cover pointer-events-none"
                                                x-init="
                                                    let vid = $el;
                                                    let loopStart = {{ $proj->video_loop_start ?? 0 }};

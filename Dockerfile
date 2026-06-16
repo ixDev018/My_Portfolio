@@ -34,8 +34,8 @@ RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-error
 RUN echo "log_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-error-display.ini
 RUN echo "error_log = /dev/stderr" >> /usr/local/etc/php/conf.d/docker-php-ext-error-display.ini
 
-# Configure Apache to listen on Render's PORT environment variable
-RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+# Listen on default Apache port 80. Render will automatically route to this port.
+EXPOSE 80
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -60,5 +60,4 @@ RUN mkdir -p /var/www/html/storage/logs
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expose port (Render sets the PORT env var automatically)
-EXPOSE ${PORT}
+# End of Dockerfile

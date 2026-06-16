@@ -1347,6 +1347,15 @@
                                             } elseif ($proj->main_media_type === 'video') {
                                                 $vidSrc = $proj->main_video_path ? Storage::url($proj->main_video_path) : $proj->video_url;
                                             }
+                                            
+                                            $localImage = '';
+                                            if ($proj->thumbnail_path) {
+                                                $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : Storage::url($proj->thumbnail_path);
+                                            } elseif ($proj->main_image_path) {
+                                                $localImage = Storage::url($proj->main_image_path);
+                                            } elseif (!empty($proj->thumbnail_images)) {
+                                                $localImage = Storage::url($proj->thumbnail_images[0]);
+                                            }
                                         @endphp
                                         <video src="{{ $vidSrc }}"
                                                @if($localImage) poster="{{ $localImage }}" @endif

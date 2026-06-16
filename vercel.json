@@ -54,7 +54,7 @@
         "DB_USERNAME": "neondb_owner",
         "DB_PASSWORD": "npg_UW3sdugVIm6q",
         "DB_SSLMODE": "require",
-        "FILESYSTEM_DISK": "cloudinary",
+        "FILESYSTEM_DISK": "google",
         "CLOUDINARY_URL": "cloudinary://434111799756376:HGm_C3VcnnOSd4l5KSaY7ZWc8TA@dq2nuqpqr"
     }
 }

@@ -18,6 +18,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/public/images/embedded
+/public/videos
+/storage/app
+/storage/logs
 /vendor
 Homestead.json
 Homestead.yaml

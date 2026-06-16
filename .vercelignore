@@ -2,3 +2,5 @@ public/images/embedded/
 public/videos/
 storage/app/
 storage/logs/
+.git/
+node_modules/

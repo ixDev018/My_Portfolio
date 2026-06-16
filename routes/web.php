@@ -20,12 +20,32 @@ Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 
-// Route to serve Google Drive images directly through Laravel
+// Route to serve Google Drive media directly and cache locally for video streaming support
 Route::get('/media/{path}', function ($path) {
-    if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
-        abort(404);
+    $localPath = storage_path('app/public/' . $path);
+    
+    // If we haven't downloaded it yet from Google Drive
+    if (!file_exists($localPath)) {
+        if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
+            abort(404);
+        }
+        
+        // Ensure directory exists locally
+        $dir = dirname($localPath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        
+        // Stream it to local disk to save RAM and avoid timeouts
+        $readStream = \Illuminate\Support\Facades\Storage::disk('google')->readStream($path);
+        $writeStream = fopen($localPath, 'w');
+        stream_copy_to_stream($readStream, $writeStream);
+        fclose($writeStream);
+        fclose($readStream);
     }
-    return \Illuminate\Support\Facades\Storage::disk('google')->response($path);
+    
+    // Serve it natively with Symfony's BinaryFileResponse (which supports video buffering and Range requests!)
+    return response()->file($localPath);
 })->where('path', '.*')->name('media.serve');
 
 $adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');

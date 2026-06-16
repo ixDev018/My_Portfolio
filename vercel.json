@@ -5,7 +5,7 @@
             "src": "api/index.php",
             "use": "vercel-php@0.9.0",
             "config": {
-                "excludeFiles": ["public/images/**", "public/videos/**", "public/storage/**", "storage/app/**", "storage/logs/**", ".git/**", "node_modules/**", "vendor/google/apiclient-services/**"]
+                "excludeFiles": ["public/images/**", "public/videos/**", "public/storage/**", "storage/app/**", "storage/logs/**", ".git/**", "node_modules/**", "vendor/google/apiclient-services/src/**"]
             }
         },
         {

@@ -47,7 +47,13 @@ Route::get('/media/{path}', function ($path) {
     abort(404);
 })->where('path', '.*')->name('media.serve');
 
-$adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');
+$adminPrefix = 'ix-secure-portal';
+
+// Emergency Cache Clear Route
+Route::get('/clear-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return 'Cache cleared successfully. You can now access /ix-secure-portal/login';
+});
 
 // Admin Auth Routes
 Route::get("/{$adminPrefix}/login", [AdminController::class, 'showLogin'])->name('admin.login');

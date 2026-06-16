@@ -20,32 +20,22 @@ Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 
-// Route to serve Google Drive media directly and cache locally for video streaming support
+// Route to serve Google Drive media by redirecting to save RAM
 Route::get('/media/{path}', function ($path) {
-    $localPath = storage_path('app/public/' . $path);
-    
-    // If we haven't downloaded it yet from Google Drive
-    if (!file_exists($localPath)) {
-        if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
-            abort(404);
-        }
-        
-        // Ensure directory exists locally
-        $dir = dirname($localPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-        
-        // Stream it to local disk to save RAM and avoid timeouts
-        $readStream = \Illuminate\Support\Facades\Storage::disk('google')->readStream($path);
-        $writeStream = fopen($localPath, 'w');
-        stream_copy_to_stream($readStream, $writeStream);
-        fclose($writeStream);
-        fclose($readStream);
+    if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
+        abort(404);
     }
     
-    // Serve it natively with Symfony's BinaryFileResponse (which supports video buffering and Range requests!)
-    return response()->file($localPath);
+    $adapter = \Illuminate\Support\Facades\Storage::disk('google')->getAdapter();
+    $meta = $adapter->getMetadata($path);
+    if ($meta && is_callable([$meta, 'extraMetadata'])) {
+        $extra = $meta->extraMetadata();
+        if (isset($extra['id'])) {
+            return redirect('https://drive.google.com/uc?id=' . $extra['id']);
+        }
+    }
+    
+    return \Illuminate\Support\Facades\Storage::disk('google')->response($path);
 })->where('path', '.*')->name('media.serve');
 
 $adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');

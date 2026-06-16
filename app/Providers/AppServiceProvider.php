@@ -58,26 +58,8 @@ class AppServiceProvider extends ServiceProvider
                             return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
                         }
 
-                        // Get direct Google Drive URL to bypass our server and save RAM!
-                        try {
-                            return \Illuminate\Support\Facades\Cache::remember('gdrive_url_' . md5($path), 86400, function() use ($path) {
-                                try {
-                                    $adapter = \Illuminate\Support\Facades\Storage::disk('google')->getAdapter();
-                                    $meta = $adapter->getMetadata($path);
-                                    if ($meta && is_callable([$meta, 'extraMetadata'])) {
-                                        $extra = $meta->extraMetadata();
-                                        if (isset($extra['id'])) {
-                                            return 'https://drive.google.com/uc?id=' . $extra['id'];
-                                        }
-                                    }
-                                } catch (\Exception $e) {
-                                    // Ignore API errors during cache generation
-                                }
-                                return route('media.serve', ['path' => $path]);
-                            });
-                        } catch (\Exception $e) {
-                            return route('media.serve', ['path' => $path]);
-                        }
+                        // Return a fast local route to prevent blocking the HTML page load!
+                        return route('media.serve', ['path' => $path]);
                     }
                 };
             });

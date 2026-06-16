@@ -22,20 +22,29 @@ Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfoli
 
 // Route to serve Google Drive media by redirecting to save RAM
 Route::get('/media/{path}', function ($path) {
-    if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
-        abort(404);
-    }
-    
-    $adapter = \Illuminate\Support\Facades\Storage::disk('google')->getAdapter();
-    $meta = $adapter->getMetadata($path);
-    if ($meta && is_callable([$meta, 'extraMetadata'])) {
-        $extra = $meta->extraMetadata();
-        if (isset($extra['id'])) {
-            return redirect('https://drive.google.com/uc?id=' . $extra['id']);
+    // Check if the URL is cached first
+    $redirectUrl = \Illuminate\Support\Facades\Cache::remember('gdrive_redirect_' . md5($path), 86400, function() use ($path) {
+        if (!\Illuminate\Support\Facades\Storage::disk('google')->exists($path)) {
+            return null;
         }
+        
+        $adapter = \Illuminate\Support\Facades\Storage::disk('google')->getAdapter();
+        $meta = $adapter->getMetadata($path);
+        if ($meta && is_callable([$meta, 'extraMetadata'])) {
+            $extra = $meta->extraMetadata();
+            if (isset($extra['id'])) {
+                return 'https://drive.google.com/uc?id=' . $extra['id'];
+            }
+        }
+        
+        return null;
+    });
+
+    if ($redirectUrl) {
+        return redirect($redirectUrl);
     }
     
-    return \Illuminate\Support\Facades\Storage::disk('google')->response($path);
+    abort(404);
 })->where('path', '.*')->name('media.serve');
 
 $adminPrefix = env('ADMIN_PANEL_PREFIX', 'ix-secure-portal');

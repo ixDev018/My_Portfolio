@@ -22,7 +22,7 @@
         <div class="bg-black w-full py-5 px-6 shadow-md border-b border-black/10">
             <div class="max-w-[1400px] mx-auto flex items-center">
                 <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
-                    <span class="text-[#ff6b00] font-display text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
+                    <span class="text-3xl text-[#ff6b00] hover:text-white transition-colors duration-300 font-logo uppercase leading-none">IX-MEDIA</span>
                 </a>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 @endphp
                 <a href="{{ $backUrl }}"
                    class="inline-flex items-center gap-2.5 font-sans text-[12px] text-[#ff6b00] hover:text-[#e66000] transition-colors duration-300">
-                    <div class="w-7 h-7 rounded-full border border-current flex items-center justify-center bg-[#FAF7E6]">
+                    <div class="w-7 h-7 rounded-full border border-current flex items-center justify-center bg-[#fdfaf0]">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     </div>
                     <span class="font-bold uppercase tracking-widest mt-0.5">Back</span>
@@ -51,7 +51,7 @@
      PROJECT OUTPUT — SPA-STYLE DETAIL PAGE
      Layout: sticky marquee bg → playback hero → CMS body
 ═══════════════════════════════════════════════════════════ --}}
-<div class="bg-[#FAF7E6] grid-bg-section text-black min-h-screen" style="font-family: 'Bitcount Single', monospace;">
+<div class="bg-[#fdfaf0] grid-bg-section text-black min-h-screen" style="font-family: 'Bitcount Single', monospace;">
 
     {{-- ── HERO BLOCK ── --}}
     <div class="relative w-full pt-16 pb-6">
@@ -89,8 +89,8 @@
                     @endfor
                 </div>
                 {{-- Fade edges --}}
-                <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#FAF7E6] to-transparent"></div>
-                <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#FAF7E6] to-transparent"></div>
+                <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#fdfaf0] to-transparent"></div>
+                <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdfaf0] to-transparent"></div>
             </div>
 
     {{-- ── PLAYBACK DISPLAY CARD ── --}}
@@ -116,9 +116,18 @@
                 @if($embedUrl)
                     {{-- ── EMBEDDED PLAYER (primary) ── --}}
                     <div class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative">
+                        {{-- Marquee title loop behind the embedded video --}}
+                        <div class="absolute inset-0 overflow-hidden pointer-events-none select-none flex flex-col justify-center z-[1]">
+                            <div class="flex whitespace-nowrap" style="animation: marquee-left 14s linear infinite;">
+                                @for ($i = 0; $i < 8; $i++)
+                                    <span class="font-poppins font-black text-white/10 leading-none shrink-0"
+                                          style="font-size: clamp(40px, 8vw, 120px);">{{ strtoupper($project->title) }}&nbsp;&nbsp;◆&nbsp;&nbsp;</span>
+                                @endfor
+                            </div>
+                        </div>
                         @if($iframeUrl)
                             <iframe src="{{ $iframeUrl }}"
-                                    class="absolute inset-0 w-full h-full border-none"
+                                    class="absolute inset-0 w-full h-full border-none z-[2]"
                                     allowfullscreen
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     referrerpolicy="strict-origin-when-cross-origin"
@@ -128,7 +137,7 @@
                             {{-- Direct video/mp4 URL --}}
                             <video src="{{ $embedUrl }}"
                                    autoplay loop muted playsinline controls preload="auto"
-                                   class="absolute inset-0 w-full h-full object-contain">
+                                   class="absolute inset-0 w-full h-full object-contain z-[2]">
                             </video>
                         @endif
                     </div>

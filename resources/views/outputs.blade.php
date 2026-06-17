@@ -41,7 +41,8 @@
 
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
         <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
-             @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }">
+             @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
+             @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }">
 
             <div class="mb-10 text-center">
                 <h1 class="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">All Outputs</h1>
@@ -113,11 +114,11 @@
                        target="{{ $cardTarget }}"
                        {!! $onClick ? 'x-on:click="'.$onClick.'"' : '' !!}
                        @if($isFallback && $hasAdminLink) rel="noopener noreferrer" @endif
-                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'item-{{$index}}' }"
+                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}', intersecting: false }"
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); $el.style.transform='scale(1.018)'; }"
                        @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; $el.style.transform='scale(1)'; }"
-                       @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; } else if(isMobile) { $el.style.transform='scale(1)'; }"
+                       @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isMobile) { $el.style.transform='scale(1)'; }"
                        x-transition:enter="transition-opacity duration-300"
                        x-transition:enter-start="opacity-0"
                        x-transition:enter-end="opacity-100"
@@ -125,10 +126,10 @@
                        x-transition:leave-start="opacity-100"
                        x-transition:leave-end="opacity-0"
                        :class="dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25' : 'opacity-100'"
-                       class="block w-full break-inside-avoid mb-4 rounded-2xl overflow-hidden relative group bg-white border border-black/8 cursor-pointer transition-opacity duration-500 hover:!opacity-100 z-10"
-                       :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20; transition: transform 0.22s ease;' : 'transition: transform 0.22s ease;'">
+                       class="block w-full break-inside-avoid mb-0 rounded-none relative group cursor-pointer transition-opacity duration-500 hover:!opacity-100 z-10"
+                       :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''">
 
-                        <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100">
+                        <div class="relative w-full overflow-hidden flex items-center justify-center bg-black">
                             @if(($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) || ($proj->main_media_type === 'video' && ($proj->main_video_path || $proj->video_url)))
                                 @php
                                     $vidSrc = '';
@@ -138,14 +139,12 @@
                                         $vidSrc = $proj->main_video_path ? (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) : $proj->video_url;
                                     }
                                     
-                                    // Auto-generate Cloudinary poster from video URL, grabbing the frame at 2 seconds
                                     if (empty($localImage) && $vidSrc && Str::contains($vidSrc, 'res.cloudinary.com')) {
                                         $autoJpg = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidSrc);
                                         $localImage = str_replace('/upload/', '/upload/so_2/', $autoJpg);
                                     }
                                 @endphp
 
-                                {{-- Loading Indicator --}}
                                 <div x-show="intersecting && !vidLoaded" class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                                     <svg class="w-6 h-6 text-black/40 animate-spin" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -153,7 +152,6 @@
                                     </svg>
                                 </div>
 
-                                {{-- Video: preload=none means zero bytes fetched until played --}}
                                 <video src="{{ $vidSrc }}"
                                        @if($localImage) poster="{{ $localImage }}" @endif
                                        @loadeddata="vidLoaded = true"
@@ -185,7 +183,6 @@
                             @elseif(!empty($proj->thumbnail_images))
                                 <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
                                      class="relative w-full overflow-hidden">
-                                    <!-- To maintain natural aspect ratio for masonry, use the first image for height, rest absolute -->
                                     <img src="{{ Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])) }}"
                                          class="w-full h-auto object-cover invisible" loading="lazy">
                                     @foreach($proj->thumbnail_images as $index => $img)
@@ -195,7 +192,6 @@
                                              loading="lazy"
                                              class="absolute inset-0 w-full h-full object-cover">
                                     @endforeach
-                                    <!-- Dots indicator -->
                                     <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
                                         <template x-for="i in total" :key="i">
                                             <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
@@ -208,12 +204,9 @@
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto object-cover" loading="lazy">
                             @else
-                                {{-- Fallback placeholder if missing --}}
                                 <div class="w-full" style="padding-top: 100%;">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                                        <svg class="w-8 h-8 text-black/12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
+                                    <div class="absolute inset-0 bg-neutral-900 flex items-center justify-center">
+                                        <span class="text-neutral-700 font-mono text-xs uppercase tracking-widest">No Media</span>
                                     </div>
                                 </div>
                             @endif
@@ -230,8 +223,21 @@
                             @endif
 
                             {{-- Hover overlay: gradient + title reveal --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 pointer-events-none z-10">
-                                <div class="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-250">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 flex flex-col justify-end p-4 pointer-events-none z-10"
+                                 :class="(isMobile && mobileFocusId === itemId) ? 'opacity-100' : 'opacity-0 xl:group-hover:opacity-100'">
+                                <div class="transition-all duration-250"
+                                     :class="(isMobile && mobileFocusId === itemId) ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 xl:group-hover:translate-y-0 xl:group-hover:opacity-100'">
+                                    
+                                    <!-- Mobile Focus Indicator -->
+                                    <div x-show="isMobile && mobileFocusId === itemId" 
+                                         x-transition.opacity.duration.300ms
+                                         class="mb-1.5 flex items-center gap-1.5 text-white">
+                                        <span class="font-mono text-[9px] uppercase tracking-widest text-white/90">click to preview project</span>
+                                        <svg class="w-3 h-3 text-white/80 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                        </svg>
+                                    </div>
+
                                     @if($proj->medium)
                                         <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>
                                     @endif
@@ -273,6 +279,18 @@
                                 </div>
                             @endif
                         </div>
+
+                        <!-- Floating Mobile Focus Indicator outside the bottom of the item -->
+                        <div x-show="isMobile && mobileFocusId === itemId" 
+                             x-transition.opacity.duration.300ms
+                             class="absolute left-0 right-0 -bottom-8 flex justify-center items-center pointer-events-none z-50">
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-white flex items-center gap-1.5 drop-shadow-md bg-black/80 px-3 py-1.5 rounded-full border border-white/20">
+                                click to preview project
+                                <svg class="w-3 h-3 text-white/80 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </span>
+                        </div>
                     </a>
                 @empty
                     <div class="col-span-4 py-20 flex items-center justify-center text-black/30 font-mono text-xs uppercase tracking-widest">
@@ -288,46 +306,49 @@
                  class="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
                  x-transition.opacity>
                 
+                <!-- Adapt width to content -->
                 <div @click.away="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();"
-                     class="bg-[#1A1A1A] w-full max-w-5xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
+                     class="bg-[#0A0A0A] w-auto min-w-[300px] max-w-[95vw] md:max-w-5xl rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
                      x-transition.scale.95>
                     
-                    <!-- Close button -->
-                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                    <!-- Top Center: Story coming soon indicator -->
+                    <div class="absolute top-4 left-1/2 -translate-x-1/2 md:top-6 z-50">
+                        <div class="px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 shadow-sm">
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                            <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest whitespace-nowrap">Story coming soon</span>
+                        </div>
+                    </div>
+
+                    <!-- Close button on top right -->
+                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 shrink-0 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
 
-                    <!-- Top Info overlay: Title, Meta, and Story indicator -->
-                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-b from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-20">
-                        <div class="flex flex-wrap items-center gap-3 mb-2">
-                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
-                            <!-- Story coming soon indicator -->
-                            <div class="px-3 py-1 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
-                                <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalYear"></span>
-                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalMedium"></span>
+                    <!-- Content Area (Center Row) -->
+                    <div class="relative bg-black flex items-center justify-center p-4 md:p-8 pt-20 md:pt-20">
+                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
+                        <video x-show="modalVideoSrc" x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
+                        
+                        <img x-show="!modalVideoSrc && modalImageSrc" :src="comingSoonModal ? modalImageSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
+                        
+                        <div x-show="!modalVideoSrc && !modalImageSrc" class="py-24 px-6 flex flex-col items-center text-center">
+                            <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
+                            <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
                         </div>
                     </div>
 
-                    <!-- Content -->
-                    <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">
-                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
-                        <video x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="w-full h-full object-contain" controls autoplay playsinline></video>
+                    <!-- Footer: Title and Badges (Bottom Row) -->
+                    <div class="p-6 md:p-8 flex flex-col gap-2 bg-[#1A1A1A] border-t border-white/5">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalYear"></span>
+                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalMedium"></span>
+                        </div>
                     </div>
-                    
-                    <div x-show="!modalVideoSrc && modalImageSrc" class="w-full h-[80vh] bg-black relative flex items-center justify-center p-4">
-                        <img :src="comingSoonModal ? modalImageSrc : ''" class="max-w-full max-h-full object-contain rounded-lg">
-                    </div>
-                    
-                    <div x-show="!modalVideoSrc && !modalImageSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
-                        <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <h3 class="font-logo text-4xl md:text-5xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
-                        <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
-                    </div>
+
                 </div>
             </div>
 

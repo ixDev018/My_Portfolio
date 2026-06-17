@@ -439,8 +439,29 @@
                     return asset($path);
                 })->toJson();
             @endphp
-            <div class="mb-14" x-data="{ currentSlide: 0, slides: {{ $slidesJson }} }">
-                <div class="relative w-full aspect-video bg-black/5 rounded-xl overflow-hidden group">
+            <div class="mb-14" x-data="{
+                    currentSlide: 0,
+                    slides: {{ $slidesJson }},
+                    touchStartX: 0,
+                    touchEndX: 0,
+                    showSwipeHint: true,
+                    onTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
+                    onTouchEnd(e) {
+                        this.touchEndX = e.changedTouches[0].screenX;
+                        this.showSwipeHint = false;
+                        const diff = this.touchStartX - this.touchEndX;
+                        if (Math.abs(diff) > 40) {
+                            if (diff > 0) {
+                                this.currentSlide = this.currentSlide === this.slides.length - 1 ? 0 : this.currentSlide + 1;
+                            } else {
+                                this.currentSlide = this.currentSlide === 0 ? this.slides.length - 1 : this.currentSlide - 1;
+                            }
+                        }
+                    }
+                }">
+                <div class="relative w-full aspect-video bg-black/5 rounded-xl overflow-hidden group"
+                     @touchstart="onTouchStart($event)"
+                     @touchend="onTouchEnd($event)">
                     <template x-for="(slide, index) in slides" :key="index">
                         <img :src="slide" 
                              class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out" 
@@ -448,23 +469,37 @@
                              alt="Project Slide">
                     </template>
 
-                {{-- Controls --}}
-                <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                    <button @click="currentSlide = currentSlide === 0 ? slides.length - 1 : currentSlide - 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button @click="currentSlide = currentSlide === slides.length - 1 ? 0 : currentSlide + 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
+                    {{-- Desktop-only Arrow Controls --}}
+                    <div class="hidden md:flex absolute inset-x-0 top-1/2 -translate-y-1/2 justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <button @click="currentSlide = currentSlide === 0 ? slides.length - 1 : currentSlide - 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <button @click="currentSlide = currentSlide === slides.length - 1 ? 0 : currentSlide + 1" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-black/10 flex items-center justify-center hover:bg-white transition-colors text-black shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
 
-                {{-- Indicators --}}
-                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
-                    <template x-for="(slide, index) in slides" :key="index">
-                        <button @click="currentSlide = index"
-                                class="h-1.5 rounded-full transition-all duration-300"
-                                :class="currentSlide === index ? 'w-6 bg-white shadow' : 'w-2 bg-white/50 hover:bg-white/80'"></button>
-                    </template>
+                    {{-- Mobile Swipe Hint --}}
+                    <div x-show="showSwipeHint"
+                         x-transition:leave="transition ease-in duration-500"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="md:hidden absolute inset-0 flex items-center justify-center gap-4 z-20 pointer-events-none">
+                        <div class="flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-white/80 whitespace-nowrap">Swipe to browse</span>
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </div>
+                    </div>
+
+                    {{-- Dot Indicators --}}
+                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                        <template x-for="(slide, index) in slides" :key="index">
+                            <button @click="currentSlide = index"
+                                    class="h-1.5 rounded-full transition-all duration-300"
+                                    :class="currentSlide === index ? 'w-6 bg-white shadow' : 'w-2 bg-white/50 hover:bg-white/80'"></button>
+                        </template>
+                    </div>
                 </div>
             </div>
         @endif

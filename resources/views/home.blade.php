@@ -425,13 +425,23 @@
             </template>
         </div>
 
-        <!-- Slides Component (Isolated from background shapes to prevent animation restart) -->
+        <!-- Slides Component -->
         <div class="relative z-10 flex flex-col flex-1 w-full transition-all duration-1000 ease-out opacity-0 translate-y-12" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" x-data="{
             sectionVisible: false,
             slide: 0,
             total: {{ $introSlides->count() }},
+            showSwipeHint: true,
+            touchStartX: 0,
             prev() { this.slide = (this.slide - 1 + this.total) % this.total; },
-            next() { this.slide = (this.slide + 1) % this.total; }
+            next() { this.slide = (this.slide + 1) % this.total; },
+            onTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
+            onTouchEnd(e) {
+                this.showSwipeHint = false;
+                const diff = this.touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 50) {
+                    diff > 0 ? this.next() : this.prev();
+                }
+            }
         }">
 
             <!-- Section Header -->
@@ -440,8 +450,8 @@
             </div>
         <hr class="border-white/25 mx-0 relative z-10">
 
-        <!-- Slides Wrapper -->
-        <div class="flex-1 w-full max-w-5xl mx-auto px-6 md:px-10 py-6 md:py-0 flex flex-col justify-center relative z-10">
+        <!-- Slides Wrapper (Desktop only - fade transition) -->
+        <div class="hidden md:flex flex-1 w-full max-w-5xl mx-auto px-6 md:px-10 py-6 md:py-0 flex-col justify-center relative z-10">
 
             <!-- Slides Container: Uses CSS Grid area trick to stack slides perfectly on top of each other on mobile. 
                  This prevents the container from doubling in height and stretching the layout when both slides are fading in/out simultaneously. -->
@@ -451,13 +461,13 @@
                 <!-- SLIDE {{ $index + 1 }} -->
                 <div x-show="slide === {{ $index }}"
                      x-transition:enter="transition ease-out duration-500"
-                     x-transition:enter-start="opacity-0"
-                     x-transition:enter-end="opacity-100"
+                     x-transition:enter-start="opacity-0 scale-50"
+                     x-transition:enter-end="opacity-100 scale-100"
                      x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-50"
                      class="flex flex-col md:grid md:gap-12 md:items-center gap-6 w-full"
-                     style="grid-area: slide; grid-template-columns: 3fr 2fr;">
+                     style="grid-area: slide; grid-template-columns: 3fr 2fr; transform-origin: center center;">
 
                     <!-- Top on mobile: Photo -->
                     <div class="flex items-center justify-center md:order-last md:justify-end md:h-full">
@@ -496,9 +506,78 @@
             </div>
         </div>
 
-        <!-- Navigation: divider + dots + arrows -->
-        <hr class="border-white/25 mx-0 mt-2 md:mt-0 relative z-10">
-        <div class="py-4 md:py-5 flex items-center justify-center gap-6 relative z-10">
+        <!-- MOBILE: Touch-swipe controlled slides (same x-show transitions as desktop) -->
+        <div class="md:hidden relative w-full px-6 py-6"
+             @touchstart="onTouchStart($event)"
+             @touchend="onTouchEnd($event)"
+             style="touch-action: pan-y;">
+
+            <!-- Swipe Hint -->
+            <div x-show="showSwipeHint"
+                 x-transition:leave="transition ease-in duration-500"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="absolute inset-x-0 bottom-4 flex justify-center z-30 pointer-events-none">
+                <div class="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span class="font-mono text-[9px] uppercase tracking-widest text-white/80 whitespace-nowrap">Swipe to browse</span>
+                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </div>
+
+            <!-- Stacked slides with scale+fade transitions -->
+            <div class="relative w-full grid" style="grid-template-areas: 'slide';">
+                @foreach($introSlides as $index => $slideItem)
+                <div x-show="slide === {{ $index }}"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0 scale-50"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-50"
+                     class="flex flex-col gap-6 w-full"
+                     style="grid-area: slide; transform-origin: center center;">
+
+                    <!-- Photo -->
+                    <div class="flex items-center justify-center">
+                        <div class="overflow-hidden w-[65vw] max-w-[240px]
+                                    {{ $index === 0 ? 'shadow-[5.5px_5.5px_0px_0px_rgba(0,0,0,1)] outline outline-[1.5px] outline-offset-[-1.5px] outline-black' : 'rounded-2xl' }}"
+                             style="{{ $index === 0 ? 'aspect-ratio: 3/4; border-radius: 24.3% 6.1% 24.3% 6.1% / 18.2% 4.6% 18.2% 4.6%;' : '' }}">
+                            <img src="{{ $slideItem->image_path ? (Str::startsWith($slideItem->image_path, 'http') ? $slideItem->image_path : ((Str::startsWith($slideItem->image_path, 'images/') || Str::startsWith($slideItem->image_path, 'videos/')) ? asset($slideItem->image_path) : Storage::url($slideItem->image_path))) : ($index === 0 ? asset('images/intro/profile.png') : asset('images/intro/slide'.($index+1).'.jpg')) }}"
+                                 alt="{{ $slideItem->title }}"
+                                 class="w-full {{ $index === 0 ? 'h-full object-cover object-top' : 'h-auto object-contain' }}"
+                                 onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23222%22/%3E%3C/svg%3E';">
+                        </div>
+                    </div>
+
+                    <!-- Text -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-2 w-full overflow-hidden">
+                            <span class="text-xs italic text-white/60 font-sans whitespace-nowrap shrink-0">{{ $slideItem->chapter_label }}</span>
+                            <div class="flex-1 min-w-0 border-t border-dotted border-white/30 overflow-hidden"></div>
+                        </div>
+                        <h3 class="font-logo text-[clamp(2rem,10vw,2.5rem)] text-[#4dd9f0] uppercase leading-none mb-2"
+                            style="-webkit-text-stroke: 1px black;">
+                            {{ $slideItem->title }}
+                        </h3>
+                        @if($slideItem->subtitle)
+                        <p class="text-[11px] font-sans text-white/50 tracking-[0.12em] uppercase mb-3 leading-relaxed">
+                            {{ $slideItem->subtitle }}
+                        </p>
+                        @endif
+                        <div class="space-y-3 font-poppins text-[13px] text-white/80 leading-[1.8]">
+                            {!! nl2br(e($slideItem->description)) !!}
+                        </div>
+                    </div>
+
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Navigation: divider + dots + arrows (Desktop only) -->
+        <hr class="hidden md:block border-white/25 mx-0 mt-2 md:mt-0 relative z-10">
+        <div class="hidden md:flex py-4 md:py-5 items-center justify-center gap-6 relative z-10">
 
             <!-- Prev Arrow -->
             <button @click="prev()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">
@@ -521,7 +600,15 @@
             </button>
 
         </div>
-        <!-- End Slides Component -->
+        <!-- Mobile-only: dots -->
+        <div class="md:hidden py-4 flex items-center justify-center gap-2.5 relative z-10">
+            <template x-for="i in total" :key="i">
+                <button @click="slide = i - 1"
+                        :class="slide === i - 1 ? 'bg-white scale-110' : 'bg-white/35 hover:bg-white/60'"
+                        class="w-2.5 h-2.5 rounded-full transition-all duration-300">
+                </button>
+            </template>
+        </div>
         </div>
 
     </section>
@@ -987,27 +1074,32 @@
                 dimming: false,
                 hoverTimer: null,
                 mobileFocusId: null,
+                showSwipeHint: true,
                 isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
                 get total() { return this.allItems.length; },
-                prev() { this.current = (this.current - 1 + this.total) % this.total; },
-                next() { this.current = (this.current + 1) % this.total; },
-                get maxOffset() {
-                    const gap = 0;
-                    const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
-                    const cw = this.$refs.viewport ? this.$refs.viewport.clientWidth : this.$el.clientWidth;
-                    const max = ((this.total + 1) * (cardPx + gap) - gap) - cw;
-                    return max > 0 ? max : 0;
+                prev() {
+                    const track = this.$refs.track;
+                    const card = track.querySelector('a');
+                    if (!card) return;
+                    track.scrollBy({ left: -(card.offsetWidth), behavior: 'smooth' });
                 },
-                get offset() {
-                    const gap = 0;
-                    const cardPx = window.innerWidth >= 1024 ? 560 : (window.innerWidth >= 768 ? 560 : window.innerWidth * 0.82);
-                    let target = this.current * (cardPx + gap);
-                    return target > this.maxOffset ? this.maxOffset : target;
+                next() {
+                    const track = this.$refs.track;
+                    const card = track.querySelector('a');
+                    if (!card) return;
+                    track.scrollBy({ left: card.offsetWidth, behavior: 'smooth' });
+                },
+                onScroll() {
+                    this.showSwipeHint = false;
+                    const track = this.$refs.track;
+                    const card = track.querySelector('a');
+                    if (card) this.current = Math.round(track.scrollLeft / card.offsetWidth);
                 }
-            }" @resize.window="current = current"
+            }"
                @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
                @mouseenter="if(!isMobile) { hoverTimer = setTimeout(() => { dimming = true; }, 5000); }"
-               @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }">
+               @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }"
+               @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }">
 
                 <!-- Brutalist Edge-to-Edge Header & Filters for UI/UX -->
                 @php
@@ -1033,44 +1125,46 @@
                 </div>
 
                 <!-- Carousel Viewport -->
-                <div class="relative w-full bg-black" x-ref="viewport">
+                <div class="relative w-full bg-black">
 
-                    <!-- Left Arrow -->
+                    <!-- Desktop-only Left Arrow -->
                     <button @click="prev()"
-                            x-show="current > 0"
-                            x-transition:enter="transition-opacity duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
-                            x-transition:leave="transition-opacity duration-200"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
-                            class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 flex items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
+                            class="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
                             aria-label="Previous slide">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </button>
 
-                    <!-- Right Arrow -->
+                    <!-- Desktop-only Right Arrow -->
                     <button @click="next()"
-                            x-show="current < total - 1"
-                            x-transition:enter="transition-opacity duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
-                            x-transition:leave="transition-opacity duration-200"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 flex items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
+                            class="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-black/15 items-center justify-center text-black hover:bg-black hover:text-white transition-all duration-200 focus:outline-none"
                             aria-label="Next slide">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </button>
 
-                    <!-- Track wrapper -->
-                    <div style="overflow-x: clip; overflow-y: visible;">
-                        <div x-ref="track" class="flex gap-0 py-0 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] w-max"
-                             :style="'transform: translateX(-' + offset + 'px)'">
+                    <!-- Mobile Swipe Hint -->
+                    <div x-show="isMobile && showSwipeHint"
+                         x-transition:leave="transition ease-in duration-500"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="md:hidden absolute inset-x-0 bottom-4 flex items-end justify-center z-30 pointer-events-none">
+                        <div class="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-white/80 whitespace-nowrap">Swipe to browse</span>
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- Native Scroll Track -->
+                    <div x-ref="track"
+                         @scroll="onScroll()"
+                         class="flex gap-0 py-0 w-full"
+                         style="overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;"
+                         @scroll.passive="true">
+                        <style>.ui-track::-webkit-scrollbar { display: none; }</style>
 
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
@@ -1078,10 +1172,11 @@
                                    x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'best-{{$index}}' }"
                                    @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
                                    @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
-                                   @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; }"
+                                   @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); }"
                                    class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100 z-10"
+                                   style="scroll-snap-align: start;"
                                    :class="(dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')"
-                                   :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''">
+                                   :style="`scroll-snap-align: start; ${((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''}`">
 
                                     <!-- Image / placeholder -->
                                     <div class="relative w-full rounded-none overflow-hidden
@@ -1173,6 +1268,16 @@
                                         @endif
                                     </div>
 
+                                    <!-- Mobile Focus Indicator -->
+                                    <div x-show="isMobile && mobileFocusId === itemId" 
+                                         x-transition.opacity.duration.300ms
+                                         class="absolute bottom-4 left-4 right-4 z-30 px-4 py-2.5 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-between text-white pointer-events-none shadow-lg">
+                                        <span class="font-mono text-[10px] uppercase tracking-widest text-white/90">click to preview project</span>
+                                        <svg class="w-3.5 h-3.5 text-white/80 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                        </svg>
+                                    </div>
+
                                     <!-- Hover overlay -->
                                     <div class="absolute inset-0 rounded-none bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex flex-col justify-end p-5 pointer-events-none z-10">
                                         <div class="translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -1224,7 +1329,7 @@
                 <div class="py-6 flex items-center justify-center gap-5 bg-[#D4D4D4] border-y border-black px-6 w-full">
                     <div class="flex items-center gap-2">
                         @foreach($uiProjects as $index => $proj)
-                            <button @click="current = {{ $index }}"
+                            <button @click="$refs.track.scrollTo({ left: {{ $index }} * ($refs.track.querySelector('a')?.offsetWidth ?? 0), behavior: 'smooth' });"
                                     :class="{{ $index }} === current ? 'w-5 bg-black' : 'w-2 bg-black/25 hover:bg-black/50'"
                                     class="h-2 rounded-full transition-all duration-300 focus:outline-none"
                                     aria-label="Go to slide {{ $index + 1 }}">
@@ -1295,7 +1400,7 @@
             </div>
 
             {{-- Pinterest masonry — seamless edge-to-edge layout --}}
-            <div class="w-full relative bg-black">
+            <div class="w-full relative bg-slate-950">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
                 <div class="relative overflow-hidden" style="max-height: 150vh;">
@@ -1304,7 +1409,8 @@
                          x-data="{ dimming: false, hoverTimer: null, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
                          @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
                          @mouseenter="if(!isMobile) { hoverTimer = setTimeout(() => { dimming = true; }, 5000); }"
-                         @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }">
+                         @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }"
+                         @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }">
 
                         @forelse($visualProjects as $proj)
                             @php
@@ -1347,11 +1453,11 @@
                                target="{{ $cardTargetVis }}"
                                {!! $onClickVis ? 'x-on:click="'.$onClickVis.'"' : '' !!}
                                @if($isFallbackVis && $hasAdminLinkVis) rel="noopener noreferrer" @endif
-                               x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'item-{{$index}}' }"
+                               x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}' }"
                                x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                                @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
                                @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
-                               @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; }"
+                               @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); }"
                                x-transition:enter="transition-opacity duration-300"
                                x-transition:enter-start="opacity-0"
                                x-transition:enter-end="opacity-100"
@@ -1359,7 +1465,7 @@
                                x-transition:leave-start="opacity-100"
                                x-transition:leave-end="opacity-0"
                                :class="dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25' : 'opacity-100'"
-                               class="block w-full break-inside-avoid mb-0 rounded-none overflow-hidden relative group bg-black cursor-pointer transition-opacity duration-500 hover:!opacity-100 z-10"
+                               class="block w-full break-inside-avoid mb-0 rounded-none relative group cursor-pointer transition-opacity duration-500 hover:!opacity-100 z-10"
                                :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''">
 
                                 <div class="relative w-full overflow-hidden flex items-center justify-center bg-black">
@@ -1450,6 +1556,8 @@
                                                 <svg class="w-8 h-8 text-black/12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                                 </svg>
+                                            <div class="absolute inset-0 bg-neutral-900 flex items-center justify-center">
+                                                <span class="text-neutral-700 font-mono text-xs uppercase tracking-widest">No Media</span>
                                             </div>
                                         </div>
                                     @endif
@@ -1466,8 +1574,11 @@
                                     @endif
 
                                     {{-- Hover overlay: gradient + title reveal --}}
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 pointer-events-none z-10">
-                                        <div class="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-250">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 flex flex-col justify-end p-4 pointer-events-none z-10"
+                                         :class="(isMobile && mobileFocusId === itemId) ? 'opacity-100' : 'opacity-0 xl:group-hover:opacity-100'">
+                                        <div class="transition-all duration-250"
+                                             :class="(isMobile && mobileFocusId === itemId) ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 xl:group-hover:translate-y-0 xl:group-hover:opacity-100'">
+                                            
                                             @if($proj->medium)
                                                 <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>
                                             @endif
@@ -1509,6 +1620,18 @@
                                         </div>
                                     @endif
                                 </div>
+
+                                <!-- Floating Mobile Focus Indicator outside the bottom of the item -->
+                                <div x-show="isMobile && mobileFocusId === itemId" 
+                                     x-transition.opacity.duration.300ms
+                                     class="absolute left-0 right-0 -bottom-8 flex justify-center items-center pointer-events-none z-50">
+                                    <span class="font-mono text-[9px] uppercase tracking-widest text-white flex items-center gap-1.5 drop-shadow-md bg-black/80 px-3 py-1.5 rounded-full border border-white/20">
+                                        click to preview project
+                                        <svg class="w-3 h-3 text-white/80 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                        </svg>
+                                    </span>
+                                </div>
                             </a>
                         @empty
                             <div class="col-span-4 py-20 flex items-center justify-center text-black/30 font-mono text-xs uppercase tracking-widest">
@@ -1518,14 +1641,14 @@
 
                     </div>
 
-                    {{-- Gradient Overlay --}}
-                    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#FAF7E6] via-[#FAF7E6]/90 to-transparent pointer-events-none"></div>
+                    {{-- Gradient Overlay to blend into the black section so the white wave mask reveals the black background --}}
+                    <div class="absolute inset-x-0 bottom-0 h-[400px] bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent pointer-events-none z-10"></div>
                 </div>
 
                 {{-- See More Button --}}
-                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20">
                     <a href="{{ route('portfolio.outputs') }}" 
-                       class="inline-block px-10 py-3 border-[1.5px] border-[#ff6b00] text-[#ff6b00] font-sans font-bold text-sm tracking-wider uppercase hover:bg-[#ff6b00] hover:text-white transition-colors duration-300 bg-[#FAF7E6] shadow-sm"
+                       class="inline-block px-10 py-3 border-[1.5px] border-white bg-white text-slate-950 font-sans font-bold text-sm tracking-wider uppercase hover:bg-transparent hover:text-white transition-colors duration-300 shadow-lg backdrop-blur-sm rounded-full"
                        style="font-family: 'Poppins', sans-serif;">
                         See More
                     </a>
@@ -1539,46 +1662,49 @@
                  class="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
                  x-transition.opacity>
                 
+                <!-- Adapt width to content -->
                 <div @click.away="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();"
-                     class="bg-[#1A1A1A] w-full max-w-5xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
+                     class="bg-[#0A0A0A] w-auto min-w-[300px] max-w-[95vw] md:max-w-5xl rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
                      x-transition.scale.95>
                     
-                    <!-- Close button -->
-                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                    <!-- Top Center: Story coming soon indicator -->
+                    <div class="absolute top-4 left-1/2 -translate-x-1/2 md:top-6 z-50">
+                        <div class="px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 shadow-sm">
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                            <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest whitespace-nowrap">Story coming soon</span>
+                        </div>
+                    </div>
+
+                    <!-- Close button on top right -->
+                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 shrink-0 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
 
-                    <!-- Top Info overlay: Title, Meta, and Story indicator -->
-                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-b from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-20">
-                        <div class="flex flex-wrap items-center gap-3 mb-2">
-                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
-                            <!-- Story coming soon indicator -->
-                            <div class="px-3 py-1 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
-                                <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalYear"></span>
-                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalMedium"></span>
+                    <!-- Content Area (Center Row) -->
+                    <div class="relative bg-black flex items-center justify-center p-4 md:p-8 pt-20 md:pt-20">
+                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
+                        <video x-show="modalVideoSrc" x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
+                        
+                        <img x-show="!modalVideoSrc && modalImageSrc" :src="comingSoonModal ? modalImageSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
+                        
+                        <div x-show="!modalVideoSrc && !modalImageSrc" class="py-24 px-6 flex flex-col items-center text-center">
+                            <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
+                            <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
                         </div>
                     </div>
 
-                    <!-- Content -->
-                    <div x-show="modalVideoSrc" class="w-full aspect-video bg-black relative">
-                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
-                        <video x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="w-full h-full object-contain" controls autoplay playsinline></video>
+                    <!-- Footer: Title and Badges (Bottom Row) -->
+                    <div class="p-6 md:p-8 flex flex-col gap-2 bg-[#1A1A1A] border-t border-white/5">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalYear"></span>
+                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalMedium"></span>
+                        </div>
                     </div>
-                    
-                    <div x-show="!modalVideoSrc && modalImageSrc" class="w-full h-[80vh] bg-black relative flex items-center justify-center p-4">
-                        <img :src="comingSoonModal ? modalImageSrc : ''" class="max-w-full max-h-full object-contain rounded-lg">
-                    </div>
-                    
-                    <div x-show="!modalVideoSrc && !modalImageSrc" class="w-full py-32 px-6 flex flex-col items-center text-center">
-                        <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <h3 class="font-logo text-4xl md:text-5xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
-                        <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
-                    </div>
+
                 </div>
             </div>
 

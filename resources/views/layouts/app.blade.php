@@ -262,6 +262,8 @@
                 $cvUrl = asset($profile->cv_path);
             }
         }
+        // Use Google Docs Viewer to embed — bypasses X-Frame-Options from Vercel/Cloudinary
+        $cvEmbedUrl = 'https://docs.google.com/viewer?url=' . urlencode($cvUrl) . '&embedded=true';
     @endphp
     <div x-show="showResumeModal" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background dimming -->
@@ -310,10 +312,10 @@
                         </div>
                     </div>
 
-                    <!-- PDF iframe: exact A4 aspect ratio, #view=Fit fills 1 page -->
+                    <!-- PDF embed via Google Docs Viewer (bypasses X-Frame-Options) -->
                     <div style="aspect-ratio: 210/297; overflow:hidden; background:#525659; flex-shrink:0;">
                         <iframe
-                            src="{{ $cvUrl }}#navpanes=0&toolbar=0&view=Fit&page=1"
+                            src="{{ $cvEmbedUrl }}"
                             style="width:100%; height:100%; border:none; display:block;"
                             title="Resume PDF">
                         </iframe>

@@ -448,26 +448,54 @@
     sortBy: 'custom',
     sortOpen: false,
     filters: {{ collect($projects->pluck('medium')->filter()->unique()->values())->prepend('all')->toJson() }},
-    allProjects: {{ $projects->map(fn($p) => [
-        'id'             => $p->id,
-        'sort_order'     => $p->sort_order,
-        'title'          => $p->title,
-        'slug'           => $p->slug,
-        'medium'         => $p->medium,
-        'year'           => $p->year,
-        'tags'           => $p->tags,
-        'featured'       => $p->featured,
-        'is_top'         => $p->is_top,
-        'is_archived'    => $p->is_archived,
-        'updated_at'     => $p->updated_at ? $p->updated_at->toIso8601String() : null,
-        'thumbnail_path' => $p->thumbnail_path ? asset('storage/'.$p->thumbnail_path) : null,
-        'thumbnail_video_path' => $p->thumbnail_video_path ? asset('storage/'.$p->thumbnail_video_path) : ($p->main_media_type === 'video' && $p->main_video_path ? asset('storage/'.$p->main_video_path) : ($p->main_media_type === 'video' ? $p->video_url : null)),
-        'main_media_type'=> $p->main_media_type,
-        'edit_url'       => route('admin.projects.edit', $p->id),
-        'delete_url'     => route('admin.projects.delete', $p->id),
-        'view_url'       => route('portfolio.project.show', $p->slug),
-        'has_content'    => $p->hasBodyContent()
-    ])->toJson() }},
+    allProjects: {{ $projects->map(function($p) {
+        $thumbUrl = null;
+        if ($p->thumbnail_path) {
+            $thumbUrl = Str::startsWith($p->thumbnail_path, 'http') ? $p->thumbnail_path : asset('storage/'.$p->thumbnail_path);
+        } elseif ($p->thumbnail_video_path) {
+            $vidUrl = Str::startsWith($p->thumbnail_video_path, 'http') ? $p->thumbnail_video_path : asset('storage/'.$p->thumbnail_video_path);
+            if (Str::contains($vidUrl, 'res.cloudinary.com')) {
+                $thumbUrl = str_replace('/upload/', '/upload/w_100,h_100,c_fill,so_2/', preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidUrl));
+            }
+        } elseif ($p->main_media_type === 'video' && $p->main_video_path) {
+            $vidUrl = Str::startsWith($p->main_video_path, 'http') ? $p->main_video_path : asset('storage/'.$p->main_video_path);
+            if (Str::contains($vidUrl, 'res.cloudinary.com')) {
+                $thumbUrl = str_replace('/upload/', '/upload/w_100,h_100,c_fill,so_2/', preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidUrl));
+            }
+        } elseif ($p->main_media_type === 'image' && $p->main_image_path) {
+            $thumbUrl = Str::startsWith($p->main_image_path, 'http') ? $p->main_image_path : asset('storage/'.$p->main_image_path);
+        } elseif (!empty($p->thumbnail_images)) {
+            $firstImg = is_array($p->thumbnail_images) ? $p->thumbnail_images[0] : (is_string($p->thumbnail_images) ? json_decode($p->thumbnail_images)[0] ?? null : null);
+            if ($firstImg) {
+                $thumbUrl = Str::startsWith($firstImg, 'http') ? $firstImg : asset('storage/'.$firstImg);
+            }
+        }
+        
+        // Optimize cloudinary images to w_100,h_100 for admin performance
+        if ($thumbUrl && Str::contains($thumbUrl, 'res.cloudinary.com') && !Str::contains($thumbUrl, '/upload/w_')) {
+            $thumbUrl = str_replace('/upload/', '/upload/w_100,h_100,c_fill/', $thumbUrl);
+        }
+
+        return [
+            'id'             => $p->id,
+            'sort_order'     => $p->sort_order,
+            'title'          => $p->title,
+            'slug'           => $p->slug,
+            'medium'         => $p->medium,
+            'year'           => $p->year,
+            'tags'           => $p->tags,
+            'featured'       => $p->featured,
+            'is_top'         => $p->is_top,
+            'is_archived'    => $p->is_archived,
+            'updated_at'     => $p->updated_at ? $p->updated_at->toIso8601String() : null,
+            'thumbnail_url'  => $thumbUrl,
+            'edit_url'       => route('admin.projects.edit', $p->id),
+            'delete_url'     => route('admin.projects.delete', $p->id),
+            'view_url'       => route('portfolio.project.show', $p->slug),
+            'has_content'    => $p->hasBodyContent(),
+            'has_custom_thumbnail' => (bool)$p->use_custom_thumbnail
+        ];
+    })->toJson() }},
     get filtered() {
         let list = this.allProjects.filter(p => {
             const matchMedium = this.activeFilter === 'all' || p.medium === this.activeFilter;
@@ -730,13 +758,10 @@
                                         <div class="op-drag-handle" title="Drag to reorder" style="display:flex;align-items:center;padding:0.25rem;">
                                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 15h8"></path></svg>
                                         </div>
-                                        <template x-if="p.thumbnail_path">
-                                            <img :src="p.thumbnail_path" class="op-row-thumb" style="object-fit:cover;">
+                                        <template x-if="p.thumbnail_url">
+                                            <img :src="p.thumbnail_url" class="op-row-thumb" style="object-fit:cover;">
                                         </template>
-                                        <template x-if="!p.thumbnail_path && p.thumbnail_video_path">
-                                            <video :src="p.thumbnail_video_path + '#t=0.1'" class="op-row-thumb" style="object-fit:cover;" muted playsinline preload="metadata"></video>
-                                        </template>
-                                        <template x-if="!p.thumbnail_path && !p.thumbnail_video_path">
+                                        <template x-if="!p.thumbnail_url">
                                             <div class="op-row-thumb-ph">
                                                 <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                             </div>
@@ -747,6 +772,11 @@
                                                 <template x-if="p.has_content">
                                                     <svg title="Contains detailed body content" style="width:14px;height:14px;color:#0A8C5E;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                </template>
+                                                <template x-if="p.has_custom_thumbnail">
+                                                    <svg title="Uses custom thumbnail" style="width:14px;height:14px;color:#6829AA;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                     </svg>
                                                 </template>
                                             </div>

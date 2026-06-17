@@ -685,6 +685,36 @@
         });
     },
 
+    captureFromMainVideoForCustomThumb() {
+        let video = document.getElementById('main-video-player');
+        if (!video) return;
+        
+        let canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        
+        this.removeThumbnail = false;
+        this.thumbPreview = dataURL;
+        
+        this.$nextTick(() => {
+            let img = document.getElementById('thumb-crop-image');
+            img.src = dataURL;
+            if(this.cropper) { this.cropper.destroy(); }
+            this.cropper = new Cropper(img, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                crop: (event) => {
+                    let canvas = this.cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
+                    document.getElementById('custom_thumbnail_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+                }
+            });
+            document.getElementById('custom_thumbnail_upload').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    },
+
     removeFeaturedThumb() {
         this.removeFeaturedThumbnail = true;
         this.featuredThumbPreview = null;
@@ -994,6 +1024,11 @@
                 <div class="mu-dropzone-icon"><svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
                 <p class="mu-dropzone-title">Drop Custom Thumbnail Image</p>
                 <p class="mu-dropzone-tip">Replaces the default frame span on the grid.</p>
+            </div>
+            <div x-show="hasMainVideo" style="margin-top:1rem;" @click.stop>
+                <button type="button" @click="captureFromMainVideoForCustomThumb()" style="font-size:0.8rem; font-weight:700; padding:0.5rem 1rem; border-radius:0.5rem; background:#EEE6FF; color:#6829AA; border:1px solid #C4A8F0; cursor:pointer; transition:all 0.15s;">
+                    Or Capture from Main Video
+                </button>
             </div>
         </div>
 

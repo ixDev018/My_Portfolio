@@ -986,6 +986,8 @@
                 allItems: {{ $carouselItems }},
                 dimming: false,
                 hoverTimer: null,
+                mobileFocusId: null,
+                isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
                 get total() { return this.allItems.length; },
                 prev() { this.current = (this.current - 1 + this.total) % this.total; },
                 next() { this.current = (this.current + 1) % this.total; },
@@ -1003,8 +1005,9 @@
                     return target > this.maxOffset ? this.maxOffset : target;
                 }
             }" @resize.window="current = current"
-               @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
-               @mouseleave="clearTimeout(hoverTimer); dimming = false;">
+               @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
+               @mouseenter="if(!isMobile) { hoverTimer = setTimeout(() => { dimming = true; }, 5000); }"
+               @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }">
 
                 <!-- Brutalist Edge-to-Edge Header & Filters for UI/UX -->
                 @php
@@ -1072,9 +1075,13 @@
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
                                 <a href="{{ route('portfolio.project.show', $proj->slug) }}"
-                                   x-data="{ isDimmed: false, vidLoaded: false, intersecting: false }"
-                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100"
-                                   :class="(dimming ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')">
+                                   x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'best-{{$index}}' }"
+                                   @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
+                                   @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
+                                   @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; }"
+                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100 z-10"
+                                   :class="(dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')"
+                                   :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''">
 
                                     <!-- Image / placeholder -->
                                     <div class="relative w-full rounded-none overflow-hidden
@@ -1098,7 +1105,8 @@
                                                 // Auto-generate Cloudinary poster from video URL
                                                 $vidUrl = $proj->main_video_path;
                                                 if (empty($localImage) && $vidUrl && Str::contains($vidUrl, 'res.cloudinary.com')) {
-                                                    $localImage = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidUrl);
+                                                    $autoJpg = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidUrl);
+                                                    $localImage = str_replace('/upload/', '/upload/so_2/', $autoJpg);
                                                 }
                                             @endphp
                                             
@@ -1108,8 +1116,7 @@
                                                    @loadeddata="vidLoaded = true"
                                                    @canplay="vidLoaded = true"
                                                    muted playsinline loop preload="none"
-                                                   x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
-                                                   x-intersect:leave="intersecting = false; $el.pause();"
+                                                   x-effect="if ((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) { $el.play().catch(()=>{}) } else { $el.pause(); }"
                                                    class="w-full h-auto block pointer-events-none transition-all duration-700"
                                                    :class="!vidLoaded ? 'animate-pulse grayscale opacity-60' : 'opacity-100'"
                                                    x-init="
@@ -1129,6 +1136,12 @@
                                                            }
                                                        });
                                                    "></video>
+
+                                            @if($localImage)
+                                            <img src="{{ $localImage }}"
+                                                 class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 z-10"
+                                                 :class="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'opacity-0' : 'opacity-100'">
+                                            @endif
                                         @elseif($proj->main_media_type === 'image' && !empty($proj->main_images))
                                             <div x-data="{ currentSlide: 0, total: {{ count($proj->main_images) }} }"
                                                  class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
@@ -1282,18 +1295,16 @@
             </div>
 
             {{-- Pinterest masonry — seamless edge-to-edge layout --}}
-            <div class="w-full relative bg-black"
-                 x-data="{ dimming: false, hoverTimer: null }"
-                 @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
-                 @mouseleave="clearTimeout(hoverTimer); dimming = false;">
+            <div class="w-full relative bg-black">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
                 <div class="relative overflow-hidden" style="max-height: 150vh;">
                     
                     <div class="columns-2 md:columns-3 lg:columns-4 gap-0"
-                         x-data="{ dimming: false, hoverTimer: null }"
-                         @mouseenter="hoverTimer = setTimeout(() => { dimming = true; }, 5000)"
-                         @mouseleave="clearTimeout(hoverTimer); dimming = false;">
+                         x-data="{ dimming: false, hoverTimer: null, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
+                         @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
+                         @mouseenter="if(!isMobile) { hoverTimer = setTimeout(() => { dimming = true; }, 5000); }"
+                         @mouseleave="if(!isMobile) { clearTimeout(hoverTimer); dimming = false; }">
 
                         @forelse($visualProjects as $proj)
                             @php
@@ -1332,20 +1343,24 @@
                                 }
                             @endphp
                             {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
-                            <a href="{{ $cardHrefVis }}"
+                               <a href="{{ $cardHrefVis }}"
                                target="{{ $cardTargetVis }}"
                                {!! $onClickVis ? 'x-on:click="'.$onClickVis.'"' : '' !!}
                                @if($isFallbackVis && $hasAdminLinkVis) rel="noopener noreferrer" @endif
-                               x-data="{ isDimmed: false, vidLoaded: false, intersecting: false }"
+                               x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'item-{{$index}}' }"
                                x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
+                               @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
+                               @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
+                               @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; }"
                                x-transition:enter="transition-opacity duration-300"
                                x-transition:enter-start="opacity-0"
                                x-transition:enter-end="opacity-100"
                                x-transition:leave="transition-opacity duration-200"
                                x-transition:leave-start="opacity-100"
                                x-transition:leave-end="opacity-0"
-                               :class="dimming ? 'opacity-25' : 'opacity-100'"
-                               class="block w-full break-inside-avoid mb-0 rounded-none overflow-hidden relative group bg-black cursor-pointer transition-opacity duration-500 hover:!opacity-100">
+                               :class="dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25' : 'opacity-100'"
+                               class="block w-full break-inside-avoid mb-0 rounded-none overflow-hidden relative group bg-black cursor-pointer transition-opacity duration-500 hover:!opacity-100 z-10"
+                               :style="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''">
 
                                 <div class="relative w-full overflow-hidden flex items-center justify-center bg-black">
                                     @if(($proj->thumbnail_type === 'video' && $proj->thumbnail_video_path) || ($proj->main_media_type === 'video' && ($proj->main_video_path || $proj->video_url)))
@@ -1366,9 +1381,10 @@
                                                 $localImage = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : (Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])));
                                             }
                                             
-                                            // Auto-generate Cloudinary poster from video URL
+                                            // Auto-generate Cloudinary poster from video URL, grabbing the frame at 2 seconds to avoid black fade-ins
                                             if (empty($localImage) && $vidSrc && Str::contains($vidSrc, 'res.cloudinary.com')) {
-                                                $localImage = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidSrc);
+                                                $autoJpg = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidSrc);
+                                                $localImage = str_replace('/upload/', '/upload/so_2/', $autoJpg);
                                             }
                                         @endphp
                                         
@@ -1378,8 +1394,7 @@
                                                @loadeddata="vidLoaded = true"
                                                @canplay="vidLoaded = true"
                                                muted playsinline loop preload="none"
-                                               x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
-                                               x-intersect:leave="intersecting = false; $el.pause();"
+                                               x-effect="if ((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) { $el.play().catch(()=>{}) } else { $el.pause(); }"
                                                class="w-full h-auto block pointer-events-none transition-all duration-700"
                                                :class="!vidLoaded ? 'animate-pulse grayscale opacity-60' : 'opacity-100'"
                                                x-init="
@@ -1397,6 +1412,12 @@
                                                        if (loopEnd > 0 && vid.currentTime >= loopEnd) vid.currentTime = loopStart;
                                                    });
                                                "></video>
+                                        
+                                        @if($localImage)
+                                        <img src="{{ $localImage }}"
+                                             class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 z-10"
+                                             :class="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'opacity-0' : 'opacity-100'">
+                                        @endif
                                     @elseif(!empty($proj->thumbnail_images))
                                         <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
                                              class="relative w-full overflow-hidden">
@@ -1527,19 +1548,20 @@
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
 
-                    <!-- Story coming soon indicator -->
-                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-4 left-4 z-20 px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 pointer-events-none">
-                        <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
-                        <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
-                    </div>
-
-                    <!-- Title and Meta overlay -->
-                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-10">
-                        <div class="flex flex-wrap gap-2 mb-2">
+                    <!-- Top Info overlay: Title, Meta, and Story indicator -->
+                    <div x-show="modalVideoSrc || modalImageSrc" class="absolute top-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-b from-black/95 via-black/60 to-transparent flex flex-col items-start pointer-events-none z-20">
+                        <div class="flex flex-wrap items-center gap-3 mb-2">
+                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
+                            <!-- Story coming soon indicator -->
+                            <div class="px-3 py-1 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                                <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest">Story coming soon</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
                             <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalYear"></span>
                             <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/20 font-mono text-[10px] text-white/90 uppercase shadow-lg" x-text="modalMedium"></span>
                         </div>
-                        <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
                     </div>
 
                     <!-- Content -->

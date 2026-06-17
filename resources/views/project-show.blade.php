@@ -132,14 +132,21 @@
                             </video>
                         @endif
                     </div>
-                    @if($iframeUrl && str_contains($iframeUrl, 'youtube-nocookie.com'))
-                        <div class="mt-3 text-center text-xs font-poppins text-black/50 px-4">
-                            <svg class="inline-block w-3.5 h-3.5 mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Due to copyright restrictions, some videos cannot be played here. 
-                            <a href="https://www.youtube.com/watch?v={{ $ytM[1] ?? '' }}" target="_blank" class="underline hover:text-black transition-colors font-semibold">Watch directly on YouTube</a>.
-                        </div>
-                    @endif
-                @else
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="relative w-full max-w-4xl mx-auto px-6 z-10">
+            @if($embedUrl)
+                @if($iframeUrl && str_contains($iframeUrl, 'youtube-nocookie.com'))
+                    <div class="mt-3 text-center text-xs font-poppins text-black/50 px-4">
+                        <svg class="inline-block w-3.5 h-3.5 mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Due to copyright restrictions, some videos cannot be played here. 
+                        <a href="https://www.youtube.com/watch?v={{ $ytM[1] ?? '' }}" target="_blank" class="underline hover:text-black transition-colors font-semibold">Watch directly on YouTube</a>.
+                    </div>
+                @endif
+            @else
                     {{-- ── FALLBACK: Existing local media display ── --}}
                     <div x-data="{ isDimmed: false, timeoutStarted: false }" class="w-full aspect-video rounded-md overflow-hidden bg-black border border-black/10 shadow-sm relative group flex items-center justify-center">
                     @if($project->main_media_type === 'video' && $project->main_video_path)
@@ -218,8 +225,13 @@
                     @endif
                     </div>
                 @endif
+            </div>
+        </div>
 
-                {{-- ── META ROW — source, date, tags ── --}}
+        <div class="relative w-full max-w-4xl mx-auto px-6 z-10">
+            @endif
+
+            {{-- ── META ROW — source, date, tags ── --}}
                 <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-1">
                     <div class="flex items-center gap-4">
                         @if($project->client)

@@ -512,19 +512,6 @@
              @touchend="onTouchEnd($event)"
              style="touch-action: pan-y;">
 
-            <!-- Swipe Hint -->
-            <div x-show="showSwipeHint"
-                 x-transition:leave="transition ease-in duration-500"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="absolute inset-x-0 bottom-4 flex justify-center z-30 pointer-events-none">
-                <div class="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span class="font-mono text-[9px] uppercase tracking-widest text-white/80 whitespace-nowrap">Swipe to browse</span>
-                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </div>
-            </div>
-
             <!-- Stacked slides with scale+fade transitions -->
             <div class="relative w-full grid" style="grid-template-areas: 'slide';">
                 @foreach($introSlides as $index => $slideItem)
@@ -572,6 +559,21 @@
 
                 </div>
                 @endforeach
+            </div>
+
+            <!-- Swipe Hint with Horizontal Lines -->
+            <div x-show="showSwipeHint"
+                 x-transition:leave="transition ease-in duration-500"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="flex items-center gap-4 mt-8 pointer-events-none relative z-30">
+                <div class="flex-1 h-px bg-white/20"></div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span class="font-mono text-[9px] uppercase tracking-widest text-white/50 whitespace-nowrap">Swipe to browse</span>
+                    <svg class="w-3.5 h-3.5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+                <div class="flex-1 h-px bg-white/20"></div>
             </div>
         </div>
 

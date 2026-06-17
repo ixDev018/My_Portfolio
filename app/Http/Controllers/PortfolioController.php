@@ -71,7 +71,7 @@ class PortfolioController extends Controller
      */
     public function outputs()
     {
-        $visualProjects = Project::where('category', 'visual')
+        $visualProjects = Project::whereIn('category', ['visual', 'ui'])
                                  ->where('is_archived', false)
                                  ->orderBy('is_top', 'desc')
                                  ->orderBy('sort_order', 'asc')

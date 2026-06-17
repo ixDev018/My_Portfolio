@@ -40,9 +40,11 @@
     </div>
 
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
-        <div class="max-w-[1400px] mx-auto px-6 relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
+        <div class="w-full relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
              @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
              @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }">
+
+            <div class="max-w-[1400px] mx-auto px-6">
 
             <div class="mb-10 text-center">
                 <h1 class="font-display text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">All Outputs</h1>
@@ -71,7 +73,7 @@
             </div>
 
             {{-- Pinterest masonry — columns layout, natively sized by images --}}
-            <div class="columns-2 md:columns-3 lg:columns-4 gap-4">
+            <div class="columns-2 md:columns-3 lg:columns-4 gap-0">
 
                 @forelse($visualProjects as $index => $proj)
                     @php

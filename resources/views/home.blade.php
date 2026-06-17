@@ -1102,14 +1102,14 @@
                                                 }
                                             @endphp
                                             
-                                            {{-- Video: dynamically inject src only when visible to save memory --}}
-                                            <video :src="intersecting ? '{{ Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) }}' : ''"
+                                            {{-- Video: preload=none prevents fetching until play() is called --}}
+                                            <video src="{{ Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) }}"
                                                    @if($localImage) poster="{{ $localImage }}" @endif
                                                    @loadeddata="vidLoaded = true"
                                                    @canplay="vidLoaded = true"
                                                    muted playsinline loop preload="none"
-                                                   x-intersect:enter="intersecting = true; $nextTick(() => { $el.play().catch(()=>{}) })"
-                                                   x-intersect:leave="intersecting = false; $el.pause(); vidLoaded = false;"
+                                                   x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
+                                                   x-intersect:leave="intersecting = false; $el.pause();"
                                                    class="w-full h-auto block pointer-events-none transition-all duration-700"
                                                    :class="!vidLoaded ? 'animate-pulse grayscale opacity-60' : 'opacity-100'"
                                                    x-init="
@@ -1372,14 +1372,14 @@
                                             }
                                         @endphp
                                         
-                                        {{-- Video: dynamically inject src only when visible to save memory --}}
-                                        <video :src="intersecting ? '{{ $vidSrc }}' : ''"
+                                        {{-- Video: preload=none prevents fetching until play() is called --}}
+                                        <video src="{{ $vidSrc }}"
                                                @if($localImage) poster="{{ $localImage }}" @endif
                                                @loadeddata="vidLoaded = true"
                                                @canplay="vidLoaded = true"
                                                muted playsinline loop preload="none"
-                                               x-intersect:enter="intersecting = true; $nextTick(() => { $el.play().catch(()=>{}) })"
-                                               x-intersect:leave="intersecting = false; $el.pause(); vidLoaded = false;"
+                                               x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
+                                               x-intersect:leave="intersecting = false; $el.pause();"
                                                class="w-full h-auto block pointer-events-none transition-all duration-700"
                                                :class="!vidLoaded ? 'animate-pulse grayscale opacity-60' : 'opacity-100'"
                                                x-init="
@@ -1993,7 +1993,7 @@
                 <!-- Custom Global Media for Unselected State -->
                 <div x-show="activeIndex === null" x-transition.opacity.duration.1500ms class="absolute inset-0">
                     @if($profile->exp_default_bg_type === 'video' && $profile->exp_default_bg_media_path)
-                        <video :src="intersecting ? '{{ (Str::startsWith($profile->exp_default_bg_media_path, 'http') ? $profile->exp_default_bg_media_path : ((Str::startsWith($profile->exp_default_bg_media_path, 'images/') || Str::startsWith($profile->exp_default_bg_media_path, 'videos/')) ? asset($profile->exp_default_bg_media_path) : Storage::url($profile->exp_default_bg_media_path))) }}' : ''" loop muted playsinline preload="none" x-intersect:enter="intersecting = true; $nextTick(() => { $el.play().catch(()=>{}) })" x-intersect:leave="intersecting = false; $el.pause()" x-data="{ intersecting: false }" class="w-full h-full object-cover opacity-60"></video>
+                        <video src="{{ (Str::startsWith($profile->exp_default_bg_media_path, 'http') ? $profile->exp_default_bg_media_path : ((Str::startsWith($profile->exp_default_bg_media_path, 'images/') || Str::startsWith($profile->exp_default_bg_media_path, 'videos/')) ? asset($profile->exp_default_bg_media_path) : Storage::url($profile->exp_default_bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play().catch(()=>{})" x-intersect:leave="$el.pause()" class="w-full h-full object-cover opacity-60"></video>
                     @elseif($profile->exp_default_bg_type === 'slideshow' && !empty($profile->exp_default_bg_gallery_images))
                         <div x-data="{ sIndex: 0, sTotal: {{ count($profile->exp_default_bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === null) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                             @foreach($profile->exp_default_bg_gallery_images as $slideIndex => $sImage)

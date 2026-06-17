@@ -41,9 +41,10 @@ class AdminController extends Controller
                 // Determine resource_type based on file type
                 if (in_array($extension, ['mp4', 'mov', 'webm', 'ogg', 'avi']) || str_starts_with($mimeType, 'video/')) {
                     $resourceType = 'video';
-                } elseif (in_array($extension, ['pdf', 'doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($folder, 'documents')) {
+                } elseif (in_array($extension, ['doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($folder, 'documents') && $extension !== 'pdf') {
                     $resourceType = 'raw';
                 } else {
+                    // pdfs and images are uploaded as 'image' resource type so they can be delivered inline
                     $resourceType = 'image';
                 }
 

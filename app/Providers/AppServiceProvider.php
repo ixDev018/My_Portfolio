@@ -96,7 +96,7 @@ class AppServiceProvider extends ServiceProvider
                             $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                             if (in_array($extension, ['mp4', 'mov', 'webm', 'ogg', 'avi']) || str_contains($path, '/hero_videos/')) {
                                 return (string) cloudinary()->video($path);
-                            } elseif (in_array($extension, ['pdf', 'doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($path, '/documents/')) {
+                            } elseif (in_array($extension, ['doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($path, '/documents/') && $extension !== 'pdf') {
                                 return (string) cloudinary()->raw($path);
                             } else {
                                 return (string) cloudinary()->image($path);

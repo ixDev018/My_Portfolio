@@ -1400,7 +1400,7 @@
             </div>
 
             {{-- Pinterest masonry — seamless edge-to-edge layout --}}
-            <div class="w-full relative bg-[#020617]">
+            <div class="w-full relative bg-slate-950">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
                 <div class="relative overflow-hidden" style="max-height: 150vh;">
@@ -1642,13 +1642,13 @@
                     </div>
 
                     {{-- Gradient Overlay to blend into the black section so the white wave mask reveals the black background --}}
-                    <div class="absolute inset-x-0 bottom-0 h-[400px] bg-gradient-to-t from-[#020617] via-[#020617]/90 to-transparent pointer-events-none z-10"></div>
+                    <div class="absolute inset-x-0 bottom-0 h-[400px] bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent pointer-events-none z-10"></div>
                 </div>
 
                 {{-- See More Button --}}
                 <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20">
                     <a href="{{ route('portfolio.outputs') }}" 
-                       class="inline-block px-10 py-3 border-[1.5px] border-white bg-white text-[#020617] font-sans font-bold text-sm tracking-wider uppercase hover:bg-transparent hover:text-white transition-colors duration-300 shadow-lg backdrop-blur-sm rounded-full"
+                       class="inline-block px-10 py-3 border-[1.5px] border-white bg-white text-slate-950 font-sans font-bold text-sm tracking-wider uppercase hover:bg-transparent hover:text-white transition-colors duration-300 shadow-lg backdrop-blur-sm rounded-full"
                        style="font-family: 'Poppins', sans-serif;">
                         See More
                     </a>

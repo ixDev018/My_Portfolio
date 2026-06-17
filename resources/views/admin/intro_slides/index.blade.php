@@ -301,7 +301,7 @@
 
                             <input type="file" name="image" @change="fileSelected" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to replace image">
                             <template x-if="imagePreviewUrl || form.old_image">
-                                <img :src="imagePreviewUrl ? imagePreviewUrl : '{{ Storage::url('') }}/' + form.old_image" class="h-full w-auto object-cover opacity-90 group-hover:opacity-60 transition-opacity">
+                                <img :src="imagePreviewUrl ? imagePreviewUrl : (form.old_image.startsWith('http') ? form.old_image : '/' + form.old_image)" class="h-full w-auto object-cover opacity-90 group-hover:opacity-60 transition-opacity">
                             </template>
                             <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                 <span class="text-xs font-bold text-white uppercase tracking-wider" x-text="imagePreviewUrl ? 'Replace Selected Image' : 'Replace Image'"></span>
@@ -393,7 +393,7 @@
             startCrop() {
                 this.isCropping = true;
                 const img = document.getElementById('slide-cropper-image');
-                img.src = this.imagePreviewUrl ? this.imagePreviewUrl : ('/storage/' + this.form.old_image);
+                img.src = this.imagePreviewUrl ? this.imagePreviewUrl : (this.form.old_image.startsWith('http') ? this.form.old_image : '/' + this.form.old_image);
                 img.classList.remove('hidden');
                 
                 setTimeout(() => {

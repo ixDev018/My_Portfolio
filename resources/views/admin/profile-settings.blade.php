@@ -222,7 +222,7 @@
                 <div style="display:flex;align-items:center;gap:1rem;">
                     <div class="avatar-ring">
                         <img id="avatar-preview"
-                             src="{{ $profile && $profile->avatar_path ? Storage::url($profile->avatar_path) : Storage::url('images/intro/profile.png') }}"
+                             src="{{ $profile && $profile->avatar_path ? (Str::startsWith($profile->avatar_path, 'http') ? $profile->avatar_path : ((Str::startsWith($profile->avatar_path, 'images/') || Str::startsWith($profile->avatar_path, 'videos/')) ? asset($profile->avatar_path) : Storage::url($profile->avatar_path))) : asset('images/intro/profile.png') }}"
                              alt="Avatar">
                     </div>
                     <div>

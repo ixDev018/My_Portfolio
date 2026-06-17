@@ -621,8 +621,10 @@
                 if (this.cropper && this.imageSelected) {
                     const canvas = this.cropper.getCroppedCanvas({ maxHeight: 300, maxWidth: 600 });
                     this.croppedData = canvas.toDataURL('image/png');
+                    document.getElementById('image_data').value = this.croppedData;
                 } else {
                     this.croppedData = ''; // Ensure no empty crop string is sent
+                    document.getElementById('image_data').value = '';
                 }
             }
         }
@@ -715,8 +717,10 @@
                 if (this.skillCropper && this.skillImageSelected) {
                     const canvas = this.skillCropper.getCroppedCanvas({ maxHeight: 300, maxWidth: 300 });
                     this.skillCroppedData = canvas.toDataURL('image/png');
+                    document.getElementById('skill_image_data').value = this.skillCroppedData;
                 } else {
                     this.skillCroppedData = ''; // Ensure no empty crop string is sent
+                    document.getElementById('skill_image_data').value = '';
                 }
             }
         }

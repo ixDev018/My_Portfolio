@@ -71,6 +71,7 @@
                     </button>
                 @endforeach
             </div>
+            </div>
 
             {{-- Pinterest masonry — columns layout, natively sized by images --}}
             <div class="columns-2 md:columns-3 lg:columns-4 gap-0">
@@ -91,6 +92,8 @@
                             $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path));
                         } elseif (!empty($proj->thumbnail_images)) {
                             $localImage = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0]));
+                        } elseif (!empty($proj->main_images)) {
+                            $localImage = Str::startsWith($proj->main_images[0], 'http') ? $proj->main_images[0] : ((Str::startsWith($proj->main_images[0], 'images/') || Str::startsWith($proj->main_images[0], 'videos/')) ? asset($proj->main_images[0]) : Storage::url($proj->main_images[0]));
                         }
                         
                         $isFallback = !$hasBodyContent;
@@ -182,27 +185,33 @@
                                              class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 z-10"
                                              :class="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'opacity-0' : 'opacity-100'">
                                         @endif
-                            @elseif(!empty($proj->thumbnail_images))
-                                <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
+                            @elseif(!empty($proj->thumbnail_images) || !empty($proj->main_images))
+                                @php
+                                    $slideImages = !empty($proj->thumbnail_images) ? $proj->thumbnail_images : $proj->main_images;
+                                @endphp
+                                <div x-data="{ currentSlide: 0, total: {{ count($slideImages) }} }"
                                      class="relative w-full overflow-hidden">
-                                    <img src="{{ Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])) }}"
-                                         class="w-full h-auto object-cover invisible" loading="lazy">
-                                    @foreach($proj->thumbnail_images as $index => $img)
-                                        <img src="{{ Str::startsWith($img, 'http') ? $img : ((Str::startsWith($img, 'images/') || Str::startsWith($img, 'videos/')) ? asset($img) : Storage::url($img)) }}"
-                                             x-show="currentSlide === {{ $index }}"
-                                             x-transition.opacity.duration.700ms
-                                             loading="lazy"
-                                             class="absolute inset-0 w-full h-full object-cover">
-                                    @endforeach
-                                    <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
-                                        <template x-for="i in total" :key="i">
-                                            <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
-                                                 :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"></div>
-                                        </template>
-                                    </div>
-                                </div>
-                            @elseif($proj->thumbnail_path)
-                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path)) }}"
+                                     <img src="{{ Str::startsWith($slideImages[0], 'http') ? $slideImages[0] : ((Str::startsWith($slideImages[0], 'images/') || Str::startsWith($slideImages[0], 'videos/')) ? asset($slideImages[0]) : Storage::url($slideImages[0])) }}"
+                                          class="w-full h-auto object-cover invisible" loading="lazy">
+                                     @foreach($slideImages as $index => $img)
+                                         <img src="{{ Str::startsWith($img, 'http') ? $img : ((Str::startsWith($img, 'images/') || Str::startsWith($img, 'videos/')) ? asset($img) : Storage::url($img)) }}"
+                                              x-show="currentSlide === {{ $index }}"
+                                              x-transition.opacity.duration.700ms
+                                              loading="lazy"
+                                              class="absolute inset-0 w-full h-full object-cover">
+                                     @endforeach
+                                     <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                         <template x-for="i in total" :key="i">
+                                             <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm"
+                                                  :class="(i - 1) === currentSlide ? 'bg-white scale-125' : 'bg-white/40'"></div>
+                                         </template>
+                                     </div>
+                                 </div>
+                            @elseif($proj->thumbnail_path || $proj->main_image_path)
+                                @php
+                                    $singleImage = $proj->thumbnail_path ?: $proj->main_image_path;
+                                @endphp
+                                <img src="{{ Str::startsWith($singleImage, 'http') ? $singleImage : ((Str::startsWith($singleImage, 'images/') || Str::startsWith($singleImage, 'videos/')) ? asset($singleImage) : Storage::url($singleImage)) }}"
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto object-cover" loading="lazy">
                             @else

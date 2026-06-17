@@ -255,7 +255,12 @@
         $profile = \App\Models\Profile::first();
         $cvUrl = asset('resume.pdf');
         if ($profile && $profile->cv_path) {
-            $cvUrl = \Illuminate\Support\Str::startsWith($profile->cv_path, 'http') ? $profile->cv_path : \Illuminate\Support\Facades\Storage::url($profile->cv_path);
+            if (\Illuminate\Support\Str::startsWith($profile->cv_path, 'http')) {
+                $cvUrl = $profile->cv_path;
+            } else {
+                // Relative path = file in public folder, serve directly
+                $cvUrl = asset($profile->cv_path);
+            }
         }
     @endphp
     <div x-show="showResumeModal" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">

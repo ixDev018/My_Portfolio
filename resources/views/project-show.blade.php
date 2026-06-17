@@ -229,7 +229,6 @@
         </div>
 
         <div class="relative w-full max-w-4xl mx-auto px-6 z-10">
-            @endif
 
             {{-- ── META ROW — source, date, tags ── --}}
                 <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-1">

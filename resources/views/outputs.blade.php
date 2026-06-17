@@ -20,7 +20,7 @@
         <div class="bg-black w-full py-5 px-6 shadow-md border-b border-black/10">
             <div class="max-w-[1400px] mx-auto flex items-center">
                 <a href="{{ route('portfolio.index') }}" class="inline-block transition-transform hover:scale-105 active:scale-95" title="Back to Home">
-                    <span class="text-[#ff6b00] font-logo text-[24px] tracking-widest uppercase font-black leading-none mt-1">IX-MEDIA</span>
+                    <span class="text-3xl text-[#ff6b00] hover:text-white transition-colors duration-300 font-logo uppercase leading-none">IX-MEDIA</span>
                 </a>
             </div>
         </div>

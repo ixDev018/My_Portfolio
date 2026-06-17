@@ -1109,9 +1109,9 @@
                                                    @if($localImage) poster="{{ $localImage }}" @endif
                                                    @loadeddata="vidLoaded = true"
                                                    @canplay="vidLoaded = true"
-                                                   muted playsinline loop preload="metadata"
+                                                   muted playsinline loop preload="none"
                                                    x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
-                                                   x-intersect:leave="intersecting = false; $el.pause()"
+                                                   x-intersect:leave="intersecting = false; $el.pause(); $el.removeAttribute('src'); $el.load();"
                                                    class="w-full h-auto block pointer-events-none"
                                                    x-init="
                                                        let vid = $el;
@@ -1996,7 +1996,7 @@
                 <!-- Custom Global Media for Unselected State -->
                 <div x-show="activeIndex === null" x-transition.opacity.duration.1500ms class="absolute inset-0">
                     @if($profile->exp_default_bg_type === 'video' && $profile->exp_default_bg_media_path)
-                        <video src="{{ (Str::startsWith($profile->exp_default_bg_media_path, 'http') ? $profile->exp_default_bg_media_path : ((Str::startsWith($profile->exp_default_bg_media_path, 'images/') || Str::startsWith($profile->exp_default_bg_media_path, 'videos/')) ? asset($profile->exp_default_bg_media_path) : Storage::url($profile->exp_default_bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play()" x-intersect:leave="$el.pause()" class="w-full h-full object-cover opacity-60"></video>
+                        <video src="{{ (Str::startsWith($profile->exp_default_bg_media_path, 'http') ? $profile->exp_default_bg_media_path : ((Str::startsWith($profile->exp_default_bg_media_path, 'images/') || Str::startsWith($profile->exp_default_bg_media_path, 'videos/')) ? asset($profile->exp_default_bg_media_path) : Storage::url($profile->exp_default_bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play()" x-intersect:leave="$el.pause(); $el.removeAttribute('src'); $el.load();" class="w-full h-full object-cover opacity-60"></video>
                     @elseif($profile->exp_default_bg_type === 'slideshow' && !empty($profile->exp_default_bg_gallery_images))
                         <div x-data="{ sIndex: 0, sTotal: {{ count($profile->exp_default_bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === null) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                             @foreach($profile->exp_default_bg_gallery_images as $slideIndex => $sImage)
@@ -2014,7 +2014,7 @@
                          x-transition.opacity.duration.1500ms
                          class="absolute inset-0">
                          @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
-                             <video src="{{ (Str::startsWith($exp->bg_media_path, 'http') ? $exp->bg_media_path : ((Str::startsWith($exp->bg_media_path, 'images/') || Str::startsWith($exp->bg_media_path, 'videos/')) ? asset($exp->bg_media_path) : Storage::url($exp->bg_media_path))) }}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-60"></video>
+                             <video src="{{ (Str::startsWith($exp->bg_media_path, 'http') ? $exp->bg_media_path : ((Str::startsWith($exp->bg_media_path, 'images/') || Str::startsWith($exp->bg_media_path, 'videos/')) ? asset($exp->bg_media_path) : Storage::url($exp->bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play()" x-intersect:leave="$el.pause(); $el.removeAttribute('src'); $el.load();" class="w-full h-full object-cover opacity-60"></video>
                          @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
                              <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }}) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                                  @foreach($exp->bg_gallery_images as $slideIndex => $sImage)
@@ -2042,7 +2042,7 @@
                          x-transition.opacity.duration.1500ms
                          class="absolute inset-0">
                          @if($exp->bg_media_type === 'video' && $exp->bg_media_path)
-                             <video src="{{ (Str::startsWith($exp->bg_media_path, 'http') ? $exp->bg_media_path : ((Str::startsWith($exp->bg_media_path, 'images/') || Str::startsWith($exp->bg_media_path, 'videos/')) ? asset($exp->bg_media_path) : Storage::url($exp->bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play()" x-intersect:leave="$el.pause()" class="w-full h-full object-cover opacity-60"></video>
+                             <video src="{{ (Str::startsWith($exp->bg_media_path, 'http') ? $exp->bg_media_path : ((Str::startsWith($exp->bg_media_path, 'images/') || Str::startsWith($exp->bg_media_path, 'videos/')) ? asset($exp->bg_media_path) : Storage::url($exp->bg_media_path))) }}" loop muted playsinline preload="none" x-intersect:enter="$el.play()" x-intersect:leave="$el.pause(); $el.removeAttribute('src'); $el.load();" class="w-full h-full object-cover opacity-60"></video>
                          @elseif($exp->bg_media_type === 'slideshow' && !empty($exp->bg_gallery_images))
                              <div x-data="{ sIndex: 0, sTotal: {{ count($exp->bg_gallery_images) }} }" x-init="setInterval(() => { if (activeIndex === {{ $i }} || (activeIndex === null && bgIndex === {{ $i }})) sIndex = (sIndex + 1) % sTotal }, 4000)" class="w-full h-full">
                                  @foreach($exp->bg_gallery_images as $slideIndex => $sImage)

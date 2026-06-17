@@ -47,12 +47,22 @@ class AdminController extends Controller
                     $resourceType = 'image';
                 }
 
-                $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), [
-                    'folder'          => "portfolio/{$folder}",
-                    'resource_type'   => $resourceType,
-                    'use_filename'    => true,       // preserve original filename (keeps .pdf extension in URL)
-                    'unique_filename' => true,       // append a unique suffix to avoid collisions
-                ]);
+                $options = [
+                    'folder'        => "portfolio/{$folder}",
+                    'resource_type' => $resourceType,
+                ];
+
+                if ($resourceType === 'raw') {
+                    $originalName = pathinfo($data->getClientOriginalName(), PATHINFO_FILENAME);
+                    $slugifiedName = \Illuminate\Support\Str::slug($originalName);
+                    // Cloudinary requires raw files to have the extension in their public_id to be served with it
+                    $options['public_id'] = $slugifiedName . '_' . \Illuminate\Support\Str::random(6) . '.' . $extension;
+                } else {
+                    $options['use_filename'] = true;
+                    $options['unique_filename'] = true;
+                }
+
+                $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), $options);
                 return $uploaded['secure_url'];
             } else if (is_string($data) && preg_match('/^data:image\/(\w+);base64,/', $data)) {
                 $uploaded = cloudinary()->uploadApi()->upload($data, ['folder' => "portfolio/{$folder}"]);

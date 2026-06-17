@@ -48,8 +48,10 @@ class AdminController extends Controller
                 }
 
                 $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), [
-                    'folder' => "portfolio/{$folder}",
-                    'resource_type' => $resourceType,
+                    'folder'          => "portfolio/{$folder}",
+                    'resource_type'   => $resourceType,
+                    'use_filename'    => true,       // preserve original filename (keeps .pdf extension in URL)
+                    'unique_filename' => true,       // append a unique suffix to avoid collisions
                 ]);
                 return $uploaded['secure_url'];
             } else if (is_string($data) && preg_match('/^data:image\/(\w+);base64,/', $data)) {

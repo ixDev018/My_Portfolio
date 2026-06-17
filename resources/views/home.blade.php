@@ -1094,6 +1094,12 @@
                                                 } elseif (!empty($proj->thumbnail_images)) {
                                                     $localImage = (Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])));
                                                 }
+                                                
+                                                // Auto-generate Cloudinary poster from video URL
+                                                $vidUrl = $proj->main_video_path;
+                                                if (empty($localImage) && $vidUrl && Str::contains($vidUrl, 'res.cloudinary.com')) {
+                                                    $localImage = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidUrl);
+                                                }
                                             @endphp
                                             
                                             {{-- Loading Indicator --}}
@@ -1365,6 +1371,11 @@
                                                 $localImage = Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : (Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path)));
                                             } elseif (!empty($proj->thumbnail_images)) {
                                                 $localImage = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : (Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])));
+                                            }
+                                            
+                                            // Auto-generate Cloudinary poster from video URL
+                                            if (empty($localImage) && $vidSrc && Str::contains($vidSrc, 'res.cloudinary.com')) {
+                                                $localImage = preg_replace('/\.[a-zA-Z0-9]+$/i', '.jpg', $vidSrc);
                                             }
                                         @endphp
                                         

@@ -225,7 +225,7 @@
                             {{-- Play button for motion/video types --}}
                             @if(in_array($proj->medium, $playTypes) || $proj->thumbnail_type === 'video')
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                    <div class="w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <div class="w-11 h-11 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg">
                                         <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M8 5v14l11-7z"/>
                                         </svg>
@@ -238,16 +238,6 @@
                                  :class="(isMobile && mobileFocusId === itemId) ? 'opacity-100' : 'opacity-0 xl:group-hover:opacity-100'">
                                 <div class="transition-all duration-250"
                                      :class="(isMobile && mobileFocusId === itemId) ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 xl:group-hover:translate-y-0 xl:group-hover:opacity-100'">
-                                    
-                                    <!-- Mobile Focus Indicator -->
-                                    <div x-show="isMobile && mobileFocusId === itemId" 
-                                         x-transition.opacity.duration.300ms
-                                         class="mb-1.5 flex items-center gap-1.5 text-white">
-                                        <span class="font-mono text-[9px] uppercase tracking-widest text-white/90">click to preview project</span>
-                                        <svg class="w-3 h-3 text-white/80 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                                        </svg>
-                                    </div>
 
                                     @if($proj->medium)
                                         <span class="font-mono text-[9px] text-white/70 uppercase tracking-widest">{{ $proj->medium }}</span>

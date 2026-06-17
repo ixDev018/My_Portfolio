@@ -386,20 +386,109 @@ class AdminController extends Controller
         if ($validated['use_custom_thumbnail'] && $request->input('custom_thumbnail_base64')) {
             $base64 = $request->input('custom_thumbnail_base64');
             if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $validated['thumbnail_path'] = $this->uploadMedia($base64, 'projects/thumbnails');
+            }
+        }
+
+        // Featured Thumbnail Processing (Cropper Base64)
+        if ($request->input('featured_thumbnail_base64')) {
+            $base64 = $request->input('featured_thumbnail_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $validated['featured_thumbnail'] = $this->uploadMedia($base64, 'projects/featured_thumbnails');
+            }
+        }
+
+        $currentGallery = [];
+
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $image) {
+                $url = $this->uploadMedia($image, 'projects/gallery');
+                if ($url) $currentGallery[] = $url;
+            }
+        }
+
+        $validated['gallery_images'] = $currentGallery;
+
+        Project::create($validated);
+
+        return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
+    }
+
+    public function projectsEdit($id)
+    {
+        $project = Project::findOrFail($id);
+        return view('admin.projects.edit', compact('project'));
+    }
+
+    public function projectsUpdate(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+
+        $validated = $request->validate([
+            'title'               => 'required|string|max:255',
+            'subtitle'            => 'nullable|string|max:255',
+            'category'            => 'nullable|string|max:100',
+            'client'              => 'nullable|string|max:255',
+            'role'                => 'nullable|string|max:255',
+            'year'                => 'nullable|string|max:100',
+            'date_published'      => 'nullable|string|max:100',
+            'medium'              => 'nullable|string|max:255',
+            'collaborators'       => 'nullable|string',
+            'body_content'        => 'nullable|string',
+            'tags'                => 'nullable|string',
+            'demo_url'            => 'nullable|url',
+            'github_url'          => 'nullable|url',
+            'video_url'           => 'nullable|url',
+            'full_video_url'      => 'nullable|url',
+            'embed_url'           => 'nullable|string|max:500',
+            'featured'            => 'nullable|boolean',
+            'is_best_work'        => 'nullable|boolean',
+            'is_archived'         => 'nullable|boolean',
+            'is_top'              => 'nullable|boolean',
+            'main_media_type'     => 'nullable|string|in:image,video',
+            'main_media_upload.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,mp4,mov,webm|max:102400',
+            'video_loop_start'    => 'nullable|numeric|min:0',
+            'video_loop_end'      => 'nullable|numeric|min:0',
+            'main_media_base64'   => 'nullable|string',
+            'use_custom_thumbnail'=> 'nullable|boolean',
+            'custom_thumbnail_base64' => 'nullable|string',
+            'featured_thumbnail_base64' => 'nullable|string',
+            'gallery.*'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        ]);
+
+        if (isset($validated['title'])) {
+            $validated['slug'] = Str::slug($validated['title']);
+        }
+        $validated['featured'] = $request->input('featured') == '1';
+        $validated['is_best_work'] = $request->input('is_best_work') == '1';
+        $validated['is_archived'] = $request->input('is_archived') == '1';
+        $validated['is_top'] = $request->input('is_top') == '1';
+        $validated['main_media_type'] = $request->input('main_media_type', 'image');
+        $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
+        
+        // Add description mapping since frontend removed the field
+        $validated['description']  = $validated['subtitle'] ?? '';
+
+        // Main Media Processing
+        if ($validated['main_media_type'] === 'image' && $request->input('main_media_base64')) {
+            $base64 = $request->input('main_media_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                if ($project->main_image_path && !Str::startsWith($project->main_image_path, 'http')) { $this->deleteMedia($project->main_image_path); }
+                if ($project->main_images) {
+                    foreach ($project->main_images as $oldImg) {
+                        if (!Str::startsWith($oldImg, 'http')) { $this->deleteMedia($oldImg); }
+                    }
+                }
                 $validated['main_image_path'] = $this->uploadMedia($base64, 'projects/main_images');
                 $validated['main_images'] = null;
             }
         } elseif ($request->hasFile('main_media_upload')) {
             $files = $request->file('main_media_upload');
             if ($validated['main_media_type'] === 'video') {
-                if ($project->main_video_path) {
-                    if (!Str::startsWith($project->main_video_path, 'http')) { $this->deleteMedia($project->main_video_path); }
-                }
+                if ($project->main_video_path && !Str::startsWith($project->main_video_path, 'http')) { $this->deleteMedia($project->main_video_path); }
                 $validated['main_video_path'] = $this->uploadMedia($files[0], 'projects/main_videos');
             } else {
-                if ($project->main_image_path) {
-                    if (!Str::startsWith($project->main_image_path, 'http')) { $this->deleteMedia($project->main_image_path); }
-                }
+                if ($project->main_image_path && !Str::startsWith($project->main_image_path, 'http')) { $this->deleteMedia($project->main_image_path); }
                 if ($project->main_images) {
                     foreach ($project->main_images as $oldImg) {
                         if (!Str::startsWith($oldImg, 'http')) { $this->deleteMedia($oldImg); }
@@ -415,7 +504,7 @@ class AdminController extends Controller
                         $paths[] = $this->uploadMedia($f, 'projects/main_images');
                     }
                     $validated['main_images'] = $paths;
-                    $validated['main_image_path'] = $paths[0];
+                    $validated['main_image_path'] = $paths[0]; // fallback cover
                 }
             }
         }
@@ -424,10 +513,16 @@ class AdminController extends Controller
         if ($validated['use_custom_thumbnail'] && $request->input('custom_thumbnail_base64')) {
             $base64 = $request->input('custom_thumbnail_base64');
             if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
-                
-                // delete old custom thumbnail if it exists
-                if ($project->thumbnail_path) if (!Str::startsWith($project->thumbnail_path, 'http')) { $this->deleteMedia($project->thumbnail_path); }
-                
+                if ($project->thumbnail_path && !Str::startsWith($project->thumbnail_path, 'http')) { $this->deleteMedia($project->thumbnail_path); }
+                $validated['thumbnail_path'] = $this->uploadMedia($base64, 'projects/thumbnails');
+            }
+        }
+
+        // Featured Thumbnail Processing (Cropper Base64)
+        if ($request->input('featured_thumbnail_base64')) {
+            $base64 = $request->input('featured_thumbnail_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                if ($project->featured_thumbnail && !Str::startsWith($project->featured_thumbnail, 'http')) { $this->deleteMedia($project->featured_thumbnail); }
                 $validated['featured_thumbnail'] = $this->uploadMedia($base64, 'projects/featured_thumbnails');
             }
         }

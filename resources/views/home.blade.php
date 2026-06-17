@@ -1381,9 +1381,9 @@
                                                @if($localImage) poster="{{ $localImage }}" @endif
                                                @loadeddata="vidLoaded = true"
                                                @canplay="vidLoaded = true"
-                                               muted playsinline loop preload="metadata"
+                                               muted playsinline loop preload="none"
                                                x-intersect:enter="intersecting = true; $el.play().catch(()=>{})"
-                                               x-intersect:leave="intersecting = false; $el.pause()"
+                                               x-intersect:leave="intersecting = false; $el.pause(); $el.removeAttribute('src'); $el.load();"
                                                class="w-full h-auto block pointer-events-none"
                                                x-init="
                                                    let vid = $el;

@@ -35,10 +35,31 @@ class AdminController extends Controller
     protected function uploadMedia($data, $folder) {
         try {
             if ($data instanceof \Illuminate\Http\UploadedFile) {
-                $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), ['folder' => "portfolio/{$folder}"]);
+                $mimeType = $data->getMimeType();
+                $extension = strtolower($data->getClientOriginalExtension());
+
+                // Determine resource_type based on file type
+                if (in_array($extension, ['mp4', 'mov', 'webm', 'ogg', 'avi']) || str_starts_with($mimeType, 'video/')) {
+                    $resourceType = 'video';
+                } elseif (in_array($extension, ['pdf', 'doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($folder, 'documents')) {
+                    $resourceType = 'raw';
+                } else {
+                    $resourceType = 'image';
+                }
+
+                $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), [
+                    'folder' => "portfolio/{$folder}",
+                    'resource_type' => $resourceType,
+                ]);
                 return $uploaded['secure_url'];
             } else if (is_string($data) && preg_match('/^data:image\/(\w+);base64,/', $data)) {
                 $uploaded = cloudinary()->uploadApi()->upload($data, ['folder' => "portfolio/{$folder}"]);
+                return $uploaded['secure_url'];
+            } else if (is_string($data) && preg_match('/^data:video\/(\w+);base64,/', $data)) {
+                $uploaded = cloudinary()->uploadApi()->upload($data, [
+                    'folder' => "portfolio/{$folder}",
+                    'resource_type' => 'video',
+                ]);
                 return $uploaded['secure_url'];
             } else {
                 return "";

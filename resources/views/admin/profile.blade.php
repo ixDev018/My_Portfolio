@@ -42,7 +42,7 @@
     $heroHtml   = $profile->hero_html_content ?? $defaultHeroHtml;
     $blurAmount = $profile->hero_blur_amount ?? 35;
     $videoSrc   = $profile && $profile->hero_video_path
-                    ? Storage::url($profile->hero_video_path)
+                    ? (Str::startsWith($profile->hero_video_path, 'http') ? $profile->hero_video_path : ((Str::startsWith($profile->hero_video_path, 'images/') || Str::startsWith($profile->hero_video_path, 'videos/')) ? asset($profile->hero_video_path) : Storage::url($profile->hero_video_path)))
                     : asset('videos/bg_showreel_loop.mp4');
     $videoFilename = $profile && $profile->hero_video_path
                     ? basename($profile->hero_video_path)

@@ -259,7 +259,7 @@
             <div class="ps-body">
                 <div class="cv-box">
                     @if($profile && $profile->cv_path)
-                        <iframe src="{{ Storage::url($profile->cv_path) }}"></iframe>
+                        <iframe src="{{ Str::startsWith($profile->cv_path, 'http') ? $profile->cv_path : Storage::url($profile->cv_path) }}"></iframe>
                     @else
                         <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;opacity:0.5;">
                             <svg style="width:2.5rem;height:2.5rem;color:#C4BDB2;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>

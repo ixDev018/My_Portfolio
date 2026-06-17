@@ -66,5 +66,49 @@ class AppServiceProvider extends ServiceProvider
         } catch(\Exception $e) {
             // fail silently or log
         }
+
+        try {
+            \Illuminate\Support\Facades\Storage::extend('cloudinary', function ($app, $config) {
+                if (isset($config['url'])) {
+                    $cloudinary = new \Cloudinary\Cloudinary($config['url']);
+                } else {
+                    $cloudinary = new \Cloudinary\Cloudinary([
+                        'cloud' => [
+                            'cloud_name' => $config['cloud'] ?? null,
+                            'api_key' => $config['key'] ?? null,
+                            'api_secret' => $config['secret'] ?? null,
+                        ],
+                        'url' => [
+                            'secure' => $config['secure'] ?? true,
+                        ],
+                    ]);
+                }
+
+                $adapter = new \CloudinaryLabs\CloudinaryLaravel\CloudinaryStorageAdapter($cloudinary, null, $config['prefix'] ?? null);
+
+                return new class(new \League\Flysystem\Filesystem($adapter, $config), $adapter, $config) extends \Illuminate\Filesystem\FilesystemAdapter {
+                    public function url($path)
+                    {
+                        if (empty($path)) return '';
+                        if (str_starts_with($path, 'http')) return $path;
+                        
+                        try {
+                            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                            if (in_array($extension, ['mp4', 'mov', 'webm', 'ogg', 'avi']) || str_contains($path, '/hero_videos/')) {
+                                return (string) cloudinary()->video($path);
+                            } elseif (in_array($extension, ['pdf', 'doc', 'docx', 'txt', 'zip', 'rar']) || str_contains($path, '/documents/')) {
+                                return (string) cloudinary()->raw($path);
+                            } else {
+                                return (string) cloudinary()->image($path);
+                            }
+                        } catch (\Throwable $e) {
+                            return '';
+                        }
+                    }
+                };
+            });
+        } catch (\Exception $e) {
+            // fail silently or log
+        }
     }
 }

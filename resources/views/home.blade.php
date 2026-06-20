@@ -2189,6 +2189,10 @@
             #experience ::-webkit-scrollbar-track { background: transparent; }
             #experience ::-webkit-scrollbar-thumb { background: rgba(255,133,27,0.25); border-radius: 2px; }
             #experience ::-webkit-scrollbar-button { display: none; height: 0; }
+            @keyframes marquee-exp {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
         </style>
 
         <!-- ── Background media ── -->
@@ -2266,7 +2270,7 @@
 
 
         <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24"
-             style="flex: 1;">
+             :style="(isMobile && activeIndex !== null) ? 'transform: none !important; transition: none !important; flex: 1;' : 'flex: 1;'">
 
             <!-- Section header -->
             <div class="text-center mb-16">
@@ -2335,6 +2339,7 @@
 
                     @foreach($experiences as $i => $exp)
                         <div x-show="activeIndex === {{ $i }} && !isLoading"
+                             x-data="{ scrolled: false }"
                              x-transition:enter="transition ease-out duration-400"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100"
@@ -2343,9 +2348,34 @@
                              x-transition:leave-end="opacity-0"
                              class="absolute inset-0 flex flex-col" style="min-height: 0;">
 
-                            <!-- STICKY: Year Banner -->
-                            <div class="flex-shrink-0 pt-4 pb-2">
-                                <div class="block w-full border border-white/10 rounded-xl px-5 py-4 backdrop-blur-md" style="background: rgba(255,255,255,0.05);">
+                            <!-- MARQUEE TITLE (Appears when scrolled) -->
+                            <div x-show="scrolled"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-200"
+                                 x-transition:leave-start="opacity-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 -translate-y-2"
+                                 class="absolute top-0 left-0 w-full z-[60] bg-[#0d0d0d]/90 backdrop-blur-md border-b border-white/5 py-3 overflow-hidden flex items-center pointer-events-none">
+                                 <div class="flex whitespace-nowrap min-w-max" style="animation: marquee-exp 35s linear infinite;">
+                                     <div class="flex items-center">
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                     </div>
+                                     <div class="flex items-center">
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                         <span class="text-[#FF851B] font-poppins font-bold text-xs uppercase tracking-widest px-4">{{ $exp->role }} <span class="text-white/30 px-3">•</span> {{ $exp->company }} <span class="text-white/30 px-3">•</span></span>
+                                     </div>
+                                 </div>
+                            </div>
+
+                            <!-- SCROLLABLE: Description + Image -->
+                            <div class="flex-1 overflow-y-auto overscroll-contain pr-2 pb-5 pt-4 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;" @scroll="scrolled = $el.scrollTop > 60">
+                                
+                                <!-- NON-STICKY: Year Banner -->
+                                <div class="block w-full border border-white/10 rounded-xl px-5 py-4 backdrop-blur-md mb-8" style="background: rgba(255,255,255,0.05);">
                                     <div class="font-poppins font-black text-[1.4rem] sm:text-[1.8rem] text-[#FF851B] leading-none tracking-wide">{{ $exp->role }}</div>
                                     <div class="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 mt-2 flex items-center gap-2 flex-wrap">
                                         <span class="text-white">{{ $exp->company }}</span>
@@ -2357,10 +2387,7 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- SCROLLABLE: Description + Image -->
-                            <div class="flex-1 overflow-y-auto overscroll-contain pr-2 pb-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
                                 <div class="prose prose-invert max-w-none text-white/80">
                                     @php
                                         $blocks = is_string($exp->body_content) ? json_decode($exp->body_content, true) : $exp->body_content;

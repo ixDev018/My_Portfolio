@@ -193,31 +193,31 @@
 
     <!-- Global Loader -->
     <div id="global-loader" class="overflow-hidden">
-        <!-- Floating Visual Elements (Reused from Intro) -->
-        <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-60 mix-blend-multiply">
-            <!-- Half Circle (Orange) -->
-            <div class="absolute text-[#FF851B] w-[140px] h-[140px] md:w-[200px] md:h-[200px]" style="top: 15%; left: 10%; animation: loader-float-1 8s ease-in-out infinite;">
+        <!-- Floating Bauhaus Visual Elements -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-100">
+            <!-- Half Circle (Modern Tangerine) -->
+            <div class="absolute text-[#ff7b30] w-[110px] h-[110px] md:w-[200px] md:h-[200px] top-[5%] left-[-10%] md:top-[12%] md:left-[10%]" style="animation: loader-float-1 8s ease-in-out infinite;">
                 <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
                     <path d="M 0 50 A 50 50 0 0 1 100 50 Z" />
                 </svg>
             </div>
             
-            <!-- Right Triangle (Lime) -->
-            <div class="absolute text-[#d0f69a] w-[120px] h-[120px] md:w-[180px] md:h-[180px]" style="top: 25%; right: 15%; animation: loader-float-2 10s ease-in-out infinite;">
+            <!-- Right Triangle (Minimalist Herbs) -->
+            <div class="absolute text-[#09a953] w-[100px] h-[100px] md:w-[180px] md:h-[180px] top-[10%] right-[-5%] md:top-[15%] md:right-[12%]" style="animation: loader-float-2 10s ease-in-out infinite;">
                 <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
                     <polygon points="0,0 100,100 0,100" />
                 </svg>
             </div>
             
-            <!-- Cross (Cyan) -->
-            <div class="absolute text-[#4dd9f0] w-[100px] h-[100px] md:w-[140px] md:h-[140px]" style="bottom: 20%; left: 20%; animation: loader-float-3 12s ease-in-out infinite;">
+            <!-- Cross (Hexagonal Flamingo) -->
+            <div class="absolute text-[#ff5aa9] w-[80px] h-[80px] md:w-[140px] md:h-[140px] bottom-[10%] left-[5%] md:bottom-[15%] md:left-[15%]" style="animation: loader-float-3 12s ease-in-out infinite;">
                 <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
                     <path d="M 35 0 H 65 V 35 H 100 V 65 H 65 V 100 H 35 V 65 H 0 V 35 H 35 Z" />
                 </svg>
             </div>
 
-            <!-- Pill (Orange/Cyan mix) -->
-            <div class="absolute text-[#4dd9f0] w-[130px] h-[130px] md:w-[160px] md:h-[160px]" style="bottom: 25%; right: 10%; animation: loader-float-4 9s ease-in-out infinite;">
+            <!-- Pill (Abstract Blueprint) -->
+            <div class="absolute text-[#0019ff] w-[100px] h-[100px] md:w-[160px] md:h-[160px] bottom-[15%] right-[-10%] md:bottom-[20%] md:right-[15%]" style="animation: loader-float-4 9s ease-in-out infinite;">
                 <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
                     <rect x="10" y="25" width="80" height="50" rx="25" ry="25" />
                 </svg>
@@ -225,12 +225,12 @@
         </div>
 
         <div class="loader-boxes relative z-10">
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
+            <div class="box drop-shadow-sm"></div>
+            <div class="box drop-shadow-sm"></div>
+            <div class="box drop-shadow-sm"></div>
+            <div class="box drop-shadow-sm"></div>
         </div>
-        <div class="text-[#1a1a1a] text-[13px] uppercase tracking-[0.15em] ml-1.5 font-display">LOADING</div>
+        <div class="text-black font-bold text-[13px] uppercase tracking-[0.15em] ml-1.5 font-display relative z-10">LOADING</div>
     </div>
     <script>
         (function() {

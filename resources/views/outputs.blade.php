@@ -122,7 +122,7 @@
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); $el.style.transform='scale(1.018)'; }"
                        @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; $el.style.transform='scale(1)'; }"
-                       @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isFallback && !{{ $hasAdminLink ? 'true' : 'false' }}) { $event.preventDefault(); $dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear }); } else if(isMobile) { $el.style.transform='scale(1)'; }"
+                       @click="if(isMobile && mobileFocusId !== itemId && $el.getAttribute('href') === '#') { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isFallback && !{{ $hasAdminLink ? 'true' : 'false' }}) { $event.preventDefault(); $dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear }); } else if(isMobile) { $el.style.transform='scale(1)'; }"
                        x-transition:enter="transition-opacity duration-300"
                        x-transition:enter-start="opacity-0"
                        x-transition:enter-end="opacity-100"

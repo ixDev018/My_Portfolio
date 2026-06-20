@@ -303,16 +303,13 @@
                 }
             }
 
-            // 1. Hide smoothly when page finishes loading or parsing
+            // 1. Hide smoothly when page finishes loading or is shown (handles initial load & back/forward navigation)
+            window.addEventListener('pageshow', function() {
+                setTimeout(hideLoader, 200);
+            });
+
             if (document.readyState === 'complete' || document.readyState === 'interactive') {
                 setTimeout(hideLoader, 200);
-            } else {
-                window.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(hideLoader, 200);
-                });
-                window.addEventListener('load', function() {
-                    setTimeout(hideLoader, 200);
-                });
             }
 
             // Safety timeout: never keep loader up for more than 2.5 seconds (prevents hangs on slow connections/assets)
@@ -350,15 +347,6 @@
                         }, 50);
                     }
                 } catch (err) {}
-            });
-
-            // 4. BFCache fix (user presses back button)
-            window.addEventListener('pageshow', function(e) {
-                if (e.persisted && loader) {
-                    loader.style.opacity = '0';
-                    loader.style.pointerEvents = 'none';
-                    loader.style.display = 'none';
-                }
             });
         })();
     </script>

@@ -188,13 +188,13 @@
             var loader = document.getElementById('global-loader');
             var isLoaded = false;
             
-            // 1. Initial Load: show if taking more than 150ms
+            // 1. Initial Load: show only if taking more than 400ms
             var loaderTimeout = setTimeout(function() {
                 if (!isLoaded && loader) {
                     loader.style.pointerEvents = 'all';
                     loader.style.opacity = '1';
                 }
-            }, 150); 
+            }, 400); 
             
             // 2. Hide smoothly when page finishes loading
             window.addEventListener('load', function() {
@@ -208,7 +208,7 @@
                 }
             });
 
-            // 3. Instant feedback when clicking links (prevents hanging)
+            // 3. Delayed feedback when clicking links (only show if Vercel is slow)
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 if (!link) return;
@@ -223,12 +223,17 @@
                     var isAnchorOnly = isSamePage && url.hash;
                     
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
-                        if (loader) {
-                            loader.style.transition = 'none'; // pop instantly
-                            loader.style.display = 'flex';
-                            loader.style.opacity = '1';
-                            loader.style.pointerEvents = 'all';
-                        }
+                        // Only show loader if the next page takes more than 400ms to respond
+                        setTimeout(function() {
+                            if (loader) {
+                                loader.style.transition = 'opacity 0.2s ease';
+                                loader.style.display = 'flex';
+                                setTimeout(function() { 
+                                    loader.style.opacity = '1'; 
+                                    loader.style.pointerEvents = 'all'; 
+                                }, 10);
+                            }
+                        }, 400);
                     }
                 } catch (err) {}
             });

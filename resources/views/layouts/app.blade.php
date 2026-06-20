@@ -333,17 +333,21 @@
                     var isAnchorOnly = isSamePage && url.hash;
                     
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
-                        // Show loader instantly on link navigation
-                        if (loader) {
-                            loader.style.display = 'flex';
-                            void loader.offsetWidth; // Force reflow
-                            loader.style.transition = 'opacity 0.15s ease';
-                            loader.style.opacity = '1';
-                            loader.style.pointerEvents = 'all';
-                            
-                            // Safety timeout on navigation trigger (e.g. slow network or cancelled navigation)
-                            setTimeout(hideLoader, 6000);
-                        }
+                        // Delay showing the loader slightly (50ms) to let the browser process the touch/click event
+                        // and register the navigation first. Otherwise, showing a full-screen pointer-events overlay
+                        // instantly can cancel the navigation on mobile devices (e.g. iOS Safari).
+                        setTimeout(function() {
+                            if (loader) {
+                                loader.style.display = 'flex';
+                                void loader.offsetWidth; // Force reflow
+                                loader.style.transition = 'opacity 0.15s ease';
+                                loader.style.opacity = '1';
+                                loader.style.pointerEvents = 'all';
+                                
+                                // Safety timeout on navigation trigger (e.g. slow network or cancelled navigation)
+                                setTimeout(hideLoader, 6000);
+                            }
+                        }, 50);
                     }
                 } catch (err) {}
             });

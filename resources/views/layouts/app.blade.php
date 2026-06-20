@@ -294,18 +294,29 @@
         (function() {
             var loader = document.getElementById('global-loader');
             
-            // 1. Hide smoothly when page finishes loading
-            window.addEventListener('load', function() {
+            function hideLoader() {
                 if (loader) {
-                    // Slight delay to ensure the cool loader is seen briefly even on fast loads
-                    setTimeout(function() {
-                        loader.style.transition = 'opacity 0.3s ease';
-                        loader.style.opacity = '0';
-                        loader.style.pointerEvents = 'none';
-                        setTimeout(function() { loader.style.display = 'none'; }, 300);
-                    }, 200);
+                    loader.style.transition = 'opacity 0.3s ease';
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                    setTimeout(function() { loader.style.display = 'none'; }, 300);
                 }
-            });
+            }
+
+            // 1. Hide smoothly when page finishes loading or parsing
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(hideLoader, 200);
+            } else {
+                window.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(hideLoader, 200);
+                });
+                window.addEventListener('load', function() {
+                    setTimeout(hideLoader, 200);
+                });
+            }
+
+            // Safety timeout: never keep loader up for more than 2.5 seconds (prevents hangs on slow connections/assets)
+            setTimeout(hideLoader, 2500);
 
             // 2. Instant feedback when clicking links
             document.addEventListener('click', function(e) {

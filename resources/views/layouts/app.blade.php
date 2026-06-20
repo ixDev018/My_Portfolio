@@ -169,13 +169,62 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-15px); }
         }
+
+        /* ── Floating Visuals for Loader ── */
+        @keyframes loader-float-1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(25px, -30px) rotate(15deg) scale(1.05); }
+        }
+        @keyframes loader-float-2 {
+            0%, 100% { transform: translate(0, 0) rotate(45deg) scale(1); }
+            50% { transform: translate(-30px, 25px) rotate(25deg) scale(0.95); }
+        }
+        @keyframes loader-float-3 {
+            0%, 100% { transform: translate(0, 0) rotate(-15deg) scale(1); }
+            50% { transform: translate(20px, 35px) rotate(5deg) scale(1.1); }
+        }
+        @keyframes loader-float-4 {
+            0%, 100% { transform: translate(0, 0) rotate(90deg) scale(1); }
+            50% { transform: translate(-15px, -20px) rotate(75deg) scale(1.05); }
+        }
     </style>
 </head>
 <body x-data="{ showResumeModal: false }" class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- Global Loader -->
-    <div id="global-loader">
-        <div class="loader-boxes">
+    <div id="global-loader" class="overflow-hidden">
+        <!-- Floating Visual Elements (Reused from Intro) -->
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-60 mix-blend-multiply">
+            <!-- Half Circle (Orange) -->
+            <div class="absolute text-[#FF851B] w-[140px] h-[140px] md:w-[200px] md:h-[200px]" style="top: 15%; left: 10%; animation: loader-float-1 8s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M 0 50 A 50 50 0 0 1 100 50 Z" />
+                </svg>
+            </div>
+            
+            <!-- Right Triangle (Lime) -->
+            <div class="absolute text-[#d0f69a] w-[120px] h-[120px] md:w-[180px] md:h-[180px]" style="top: 25%; right: 15%; animation: loader-float-2 10s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
+                    <polygon points="0,0 100,100 0,100" />
+                </svg>
+            </div>
+            
+            <!-- Cross (Cyan) -->
+            <div class="absolute text-[#4dd9f0] w-[100px] h-[100px] md:w-[140px] md:h-[140px]" style="bottom: 20%; left: 20%; animation: loader-float-3 12s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M 35 0 H 65 V 35 H 100 V 65 H 65 V 100 H 35 V 65 H 0 V 35 H 35 Z" />
+                </svg>
+            </div>
+
+            <!-- Pill (Orange/Cyan mix) -->
+            <div class="absolute text-[#4dd9f0] w-[130px] h-[130px] md:w-[160px] md:h-[160px]" style="bottom: 25%; right: 10%; animation: loader-float-4 9s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
+                    <rect x="10" y="25" width="80" height="50" rx="25" ry="25" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="loader-boxes relative z-10">
             <div class="box"></div>
             <div class="box"></div>
             <div class="box"></div>

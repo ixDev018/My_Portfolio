@@ -340,6 +340,9 @@
                             loader.style.transition = 'opacity 0.15s ease';
                             loader.style.opacity = '1';
                             loader.style.pointerEvents = 'all';
+                            
+                            // Safety timeout on navigation trigger (e.g. slow network or cancelled navigation)
+                            setTimeout(hideLoader, 6000);
                         }
                     }
                 } catch (err) {}

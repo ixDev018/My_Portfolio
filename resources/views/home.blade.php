@@ -2183,7 +2183,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0), select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }" x-effect="if (isMobile) { document.body.classList.toggle('overflow-hidden', activeIndex !== null); }">
+    <section id="experience" :class="(isMobile && activeIndex !== null) ? 'z-[9999]' : 'z-10'" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0), select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }" x-effect="if (isMobile) { document.body.classList.toggle('overflow-hidden', activeIndex !== null); }">
         <style>
             #experience ::-webkit-scrollbar { width: 4px; }
             #experience ::-webkit-scrollbar-track { background: transparent; }
@@ -2285,8 +2285,8 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100 translate-x-0 translate-y-0"
                      x-transition:leave-end="opacity-0 md:-translate-x-8 translate-y-8 md:translate-y-0"
-                     class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex flex-col p-6 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28"
-                     :style="isMobile ? 'display: none; padding-top: 6.5rem;' : 'display: none;'">
+                     class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-8 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28"
+                     style="display: none;">
                      
                     <!-- Back to Timeline Button -->
                     <button @click="activeIndex = null" class="group flex items-center gap-2 text-[#FF851B] hover:text-[#ff9c45] transition-colors mb-4 md:mb-0 md:absolute md:-top-12 md:left-0 z-[110] text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] shrink-0 w-fit">

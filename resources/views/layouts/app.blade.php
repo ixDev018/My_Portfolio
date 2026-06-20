@@ -313,7 +313,7 @@
                 if (!link) return;
                 
                 var href = link.getAttribute('href');
-                if (!href || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                if (!href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
                 if (link.target === '_blank' || link.hasAttribute('download')) return;
                 
                 try {

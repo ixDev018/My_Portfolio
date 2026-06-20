@@ -147,7 +147,7 @@
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.2s ease;
         }
         .loader-boxes {
             display: flex;
@@ -188,21 +188,57 @@
             var loader = document.getElementById('global-loader');
             var isLoaded = false;
             
-            // Show loader only if page takes more than 500ms to load
+            // 1. Initial Load: show if taking more than 150ms
             var loaderTimeout = setTimeout(function() {
                 if (!isLoaded && loader) {
                     loader.style.pointerEvents = 'all';
                     loader.style.opacity = '1';
                 }
-            }, 500); 
+            }, 150); 
             
+            // 2. Hide smoothly when page finishes loading
             window.addEventListener('load', function() {
                 isLoaded = true;
                 clearTimeout(loaderTimeout);
                 if (loader) {
+                    loader.style.transition = 'opacity 0.25s ease';
                     loader.style.opacity = '0';
                     loader.style.pointerEvents = 'none';
-                    setTimeout(function() { loader.style.display = 'none'; }, 400);
+                    setTimeout(function() { loader.style.display = 'none'; }, 250);
+                }
+            });
+
+            // 3. Instant feedback when clicking links (prevents hanging)
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+                if (!link) return;
+                
+                var href = link.getAttribute('href');
+                if (!href || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                if (link.target === '_blank' || link.hasAttribute('download')) return;
+                
+                try {
+                    var url = new URL(link.href, window.location.href);
+                    var isSamePage = (url.pathname === window.location.pathname && url.search === window.location.search);
+                    var isAnchorOnly = isSamePage && url.hash;
+                    
+                    if (!isAnchorOnly && url.hostname === window.location.hostname) {
+                        if (loader) {
+                            loader.style.transition = 'none'; // pop instantly
+                            loader.style.display = 'flex';
+                            loader.style.opacity = '1';
+                            loader.style.pointerEvents = 'all';
+                        }
+                    }
+                } catch (err) {}
+            });
+
+            // 4. BFCache fix (user presses back button)
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted && loader) {
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                    loader.style.display = 'none';
                 }
             });
         })();

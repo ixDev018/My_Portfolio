@@ -270,8 +270,10 @@
                             </div>
 
                             @if($isFallback)
-                                <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                                    <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Story Coming soon...</span>
+                                <div class="absolute z-30 flex flex-col gap-1.5 transition-all duration-300"
+                                     style="bottom: 1rem; right: 1rem; align-items: flex-end;"
+                                     :class="(isMobile && mobileFocusId === itemId) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 xl:group-hover:opacity-100 xl:group-hover:translate-y-0'">
+                                    <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest text-right">Story Coming soon...</span>
                                     <div @click.prevent.stop="$dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear })" class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
                                         {{ $isVideoProject ? 'See full video' : 'See full image' }}
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

@@ -488,8 +488,8 @@
                 $cvUrl = asset($profile->cv_path);
             }
         }
-        // Use Google Docs Viewer to embed — bypasses X-Frame-Options from Vercel/Cloudinary
-        $cvEmbedUrl = 'https://docs.google.com/viewer?url=' . urlencode($cvUrl) . '&embedded=true';
+        // Use the direct PDF URL to render same-origin/public PDFs cleanly in browser without Google Docs Viewer failing and triggering automatic downloads
+        $cvEmbedUrl = $cvUrl;
     @endphp
     <div x-show="showResumeModal" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background dimming -->

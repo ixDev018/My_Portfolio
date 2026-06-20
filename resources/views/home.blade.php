@@ -178,7 +178,7 @@
     </section>
 
     <!-- SELF INTRO SECTION -->
-    <section id="self-intro" class="text-white relative flex flex-col min-h-[90vh] -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20 max-w-full overflow-hidden">
+    <section id="self-intro" class="text-white relative flex flex-col min-h-[90vh] -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] pb-12 z-20 max-w-full overflow-x-clip overflow-y-visible">
 
         <!-- Floating 2D Visualizers -->
         <style>
@@ -578,8 +578,8 @@
         </div>
 
         <!-- Navigation: divider + dots + arrows (Desktop only) -->
-        <hr class="hidden md:block border-white/25 mx-0 mt-2 md:mt-0 relative z-10">
-        <div class="hidden md:flex py-4 md:py-5 items-center justify-center gap-6 relative z-10">
+        <hr class="hidden md:block border-white/25 mx-0 mt-4 relative z-50">
+        <div class="hidden md:flex py-4 md:py-6 items-center justify-center gap-6 relative z-50 overflow-visible">
 
             <!-- Prev Arrow -->
             <button @click="prev()" class="w-8 h-8 flex items-center justify-center border border-white/50 rounded-full hover:bg-white/10 transition-colors duration-200">

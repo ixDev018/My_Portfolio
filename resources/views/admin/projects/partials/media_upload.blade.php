@@ -881,7 +881,7 @@
         </label>
         <input type="text" name="embed_url"
                class="pe-field-input"
-               value="{{ old('embed_url', isset($project) ? $project->embed_url : '') }}"
+               value="{{ old('embed_url', isset($project->embed_url) ? $project->embed_url : '') }}"
                placeholder="https://youtu.be/... or https://vimeo.com/..."
                style="background:#fff; border-color:#C4A8F0; font-size:0.78rem;">
         <p style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#9B9589; margin-top:0.35rem; line-height:1.5;">

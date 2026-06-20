@@ -42,7 +42,8 @@
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
         <div class="w-full relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
              @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
-             @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }">
+             @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }"
+             x-on:show-outputs-preview.window="comingSoonModal = true; modalVideoSrc = $event.detail.v; modalImageSrc = $event.detail.i; modalTitle = $event.detail.t; modalMedium = $event.detail.m; modalYear = $event.detail.y;">
 
             <div class="max-w-[1400px] mx-auto px-6">
 
@@ -106,24 +107,22 @@
                             } else {
                                 $cardHref = '#';
                                 $cardTarget = '_self';
-                                $onClick = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideo}'; modalImageSrc = '{$localImage}'; modalTitle = '".addslashes($proj->title)."'; modalMedium = '".addslashes($proj->medium)."'; modalYear = '".addslashes($proj->year)."';";
+                                $onClick = "\$event.preventDefault(); \$dispatch('show-outputs-preview', { v: '{$localVideo}', i: '{$localImage}', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."' });";
                             }
                         } else {
                             $cardHref = route('portfolio.project.show', $proj->slug);
                             $cardTarget = '_self';
-                            $onClick = '';
                         }
                     @endphp
                     {{-- By removing padding-top and absolute positioning, the img tag naturally defines the box height, perfect for masonry! --}}
                     <a href="{{ $cardHref }}"
                        target="{{ $cardTarget }}"
-                       {!! $onClick ? 'x-on:click="'.$onClick.'"' : '' !!}
                        @if($isFallback && $hasAdminLink) rel="noopener noreferrer" @endif
-                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}', intersecting: false }"
+                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}', isFallback: {{ ($isFallback && !$hasAdminLink) ? 'true' : 'false' }}, fVideo: '{{ $localVideo }}', fImage: '{{ $localImage }}', fTitle: '{{ addslashes($proj->title) }}', fMedium: '{{ addslashes($proj->medium) }}', fYear: '{{ addslashes($proj->year) }}' }"
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); $el.style.transform='scale(1.018)'; }"
                        @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; $el.style.transform='scale(1)'; }"
-                       @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isMobile) { $el.style.transform='scale(1)'; }"
+                       @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isFallback && !{{ $hasAdminLink ? 'true' : 'false' }}) { $event.preventDefault(); $dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear }); } else if(isMobile) { $el.style.transform='scale(1)'; }"
                        x-transition:enter="transition-opacity duration-300"
                        x-transition:enter-start="opacity-0"
                        x-transition:enter-end="opacity-100"
@@ -273,7 +272,7 @@
                             @if($isFallback)
                                 <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                                     <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Story Coming soon...</span>
-                                    <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                    <div @click.prevent.stop="$dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear })" class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
                                         {{ $isVideoProject ? 'See full video' : 'See full image' }}
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                     </div>
@@ -301,56 +300,7 @@
 
             </div>
 
-            <!-- Coming Soon / Video Modal -->
-            <div x-show="comingSoonModal" 
-                 style="display: none;"
-                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
-                 x-transition.opacity>
-                
-                <!-- Adapt width to content -->
-                <div @click.away="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();"
-                     class="bg-[#0A0A0A] w-auto min-w-[300px] max-w-[95vw] md:max-w-5xl rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
-                     x-transition.scale.95>
-                    
-                    <!-- Top Center: Story coming soon indicator -->
-                    <div class="absolute top-4 left-1/2 -translate-x-1/2 md:top-6 z-50">
-                        <div class="px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 shadow-sm">
-                            <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
-                            <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest whitespace-nowrap">Story coming soon</span>
-                        </div>
-                    </div>
 
-                    <!-- Close button on top right -->
-                    <button @click="comingSoonModal = false; if($refs.modalVid) $refs.modalVid.pause();" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 shrink-0 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-
-                    <!-- Content Area (Center Row) -->
-                    <div class="relative bg-black flex items-center justify-center p-4 md:p-8 pt-20 md:pt-20">
-                        <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
-                        <video x-show="modalVideoSrc" x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
-                        
-                        <img x-show="!modalVideoSrc && modalImageSrc" :src="comingSoonModal ? modalImageSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
-                        
-                        <div x-show="!modalVideoSrc && !modalImageSrc" class="py-24 px-6 flex flex-col items-center text-center">
-                            <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
-                            <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
-                        </div>
-                    </div>
-
-                    <!-- Footer: Title and Badges (Bottom Row) -->
-                    <div class="p-6 md:p-8 flex flex-col gap-2 bg-[#1A1A1A] border-t border-white/5">
-                        <div class="flex flex-wrap items-center gap-3">
-                            <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="modalTitle"></h3>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <span x-show="modalYear" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalYear"></span>
-                            <span x-show="modalMedium" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="modalMedium"></span>
-                        </div>
-                    </div>
-
-                </div>
             </div>
 
         </div>

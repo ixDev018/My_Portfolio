@@ -1170,11 +1170,50 @@
 
                             {{-- Blade renders the real cards — each is a real <a> link --}}
                             @forelse($uiProjects as $index => $proj)
-                                <a href="{{ route('portfolio.project.show', $proj->slug) }}"
+                                @php
+                                    $hasBodyContentUi = $proj->hasBodyContent();
+                                    $hasAdminLinkUi = !empty($proj->full_video_url) || !empty($proj->embed_url) || !empty($proj->video_url);
+                                    $adminLinkUrlUi = $proj->full_video_url ?: $proj->embed_url ?: $proj->video_url;
+                                    $isVideoProjectUi = $proj->main_media_type === 'video' || !empty($proj->main_video_path) || $hasAdminLinkUi;
+                                    
+                                    $localVideoUi = $proj->main_video_path ? (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) : ($proj->thumbnail_video_path ? (Str::startsWith($proj->thumbnail_video_path, 'http') ? $proj->thumbnail_video_path : ((Str::startsWith($proj->thumbnail_video_path, 'images/') || Str::startsWith($proj->thumbnail_video_path, 'videos/')) ? asset($proj->thumbnail_video_path) : Storage::url($proj->thumbnail_video_path))) : '');
+                                    
+                                    $localImageUi = '';
+                                    if ($proj->main_image_path) {
+                                        $localImageUi = (Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path)));
+                                    } elseif ($proj->thumbnail_path) {
+                                        $localImageUi = (Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path)));
+                                    } elseif (!empty($proj->thumbnail_images)) {
+                                        $localImageUi = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0]));
+                                    } elseif (!empty($proj->main_images)) {
+                                        $localImageUi = Str::startsWith($proj->main_images[0], 'http') ? $proj->main_images[0] : ((Str::startsWith($proj->main_images[0], 'images/') || Str::startsWith($proj->main_images[0], 'videos/')) ? asset($proj->main_images[0]) : Storage::url($proj->main_images[0]));
+                                    }
+                                    
+                                    $isFallbackUi = !$hasBodyContentUi;
+                                    
+                                    if ($isFallbackUi) {
+                                        if ($hasAdminLinkUi) {
+                                            $cardHrefUi = $adminLinkUrlUi;
+                                            $cardTargetUi = '_blank';
+                                            $onClickUi = '';
+                                        } else {
+                                            $cardHrefUi = '#';
+                                            $cardTargetUi = '_self';
+                                            $onClickUi = "\$event.preventDefault(); window.dispatchEvent(new CustomEvent('open-global-preview', { detail: { v: '".addslashes($localVideoUi)."', i: '".addslashes($localImageUi)."', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."' } }));";
+                                        }
+                                    } else {
+                                        $cardHrefUi = route('portfolio.project.show', $proj->slug);
+                                        $cardTargetUi = '_self';
+                                        $onClickUi = '';
+                                    }
+                                @endphp
+                                <a href="{{ $cardHrefUi }}"
+                                   target="{{ $cardTargetUi }}"
+                                   @if($isFallbackUi && $hasAdminLinkUi) rel="noopener noreferrer" @endif
                                    x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'best-{{$index}}' }"
                                    @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
                                    @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
-                                   @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); }"
+                                   @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } @if($onClickUi) else { {!! $onClickUi !!} } @endif"
                                    class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100 z-10"
                                    style="scroll-snap-align: start;"
                                    :class="(dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')"
@@ -1287,12 +1326,24 @@
                                                 {{ $proj->medium ?? 'Project' }}
                                             </span>
                                             <p class="text-white font-display text-lg uppercase leading-tight">{{ $proj->title }}</p>
-                                            <span class="mt-3 inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest">
-                                                View Case Study
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                                            </span>
+                                            @if(!$isFallbackUi)
+                                                <span class="mt-3 inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest">
+                                                    View Case Study
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
+
+                                    @if($isFallbackUi)
+                                        <div class="absolute bottom-5 right-5 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                                            <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Case study coming soon...</span>
+                                            <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                                {{ $isVideoProjectUi ? 'See full video' : 'See full image' }}
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     <!-- Medium badge -->
                                     <div class="absolute top-3.5 left-3.5 z-20 px-2.5 py-0.5 rounded-full bg-white/80 backdrop-blur-sm border border-black/10 font-mono text-[9px] uppercase tracking-widest text-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

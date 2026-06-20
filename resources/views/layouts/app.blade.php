@@ -325,5 +325,59 @@
         </div>
     </div>
 
+    <!-- Global Preview Modal -->
+    <div x-data="{
+        show: false, v: '', i: '', t: '', m: '', y: ''
+    }" @open-global-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y"
+       @open-ui-modal.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y"
+       @show-outputs-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y">
+        
+        <div x-show="show"
+             style="display: none;"
+             class="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md"
+             x-transition.opacity>
+
+            <div @click.away="show = false; if($refs.globalModalVid) $refs.globalModalVid.pause();"
+                 class="bg-[#0A0A0A] w-auto min-w-[300px] max-w-[95vw] md:max-w-5xl rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden relative"
+                 x-transition.scale.95>
+
+                <!-- Top Center: Story coming soon pill -->
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 md:top-6 z-50">
+                    <div class="px-3 py-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full flex items-center gap-2 shadow-sm">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#6829AA] animate-pulse"></div>
+                        <span class="font-mono text-[10px] text-white/80 uppercase tracking-widest whitespace-nowrap">Story coming soon</span>
+                    </div>
+                </div>
+
+                <!-- Close button -->
+                <button @click="show = false; if($refs.globalModalVid) $refs.globalModalVid.pause();" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 shrink-0 w-10 h-10 bg-black/50 hover:bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+
+                <!-- Media Area -->
+                <div class="relative bg-black flex items-center justify-center p-4 md:p-8 pt-20 md:pt-20">
+                    <video x-show="v" x-ref="globalModalVid" :src="show ? v : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
+                    <img x-show="!v && i" :src="show ? i : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
+                    <div x-show="!v && !i" class="py-24 px-6 flex flex-col items-center text-center">
+                        <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="t"></h3>
+                        <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>
+                    </div>
+                </div>
+
+                <!-- Footer: Title & Badges -->
+                <div class="p-6 md:p-8 flex flex-col gap-2 bg-[#1A1A1A] border-t border-white/5">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <h3 class="font-logo text-2xl md:text-3xl text-white tracking-widest uppercase drop-shadow-xl" x-text="t"></h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span x-show="y" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="y"></span>
+                        <span x-show="m" class="px-2 py-0.5 rounded bg-black/40 backdrop-blur-md border border-white/10 font-mono text-[10px] text-white/90 uppercase shadow-sm" x-text="m"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </body>
 </html>

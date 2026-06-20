@@ -2285,7 +2285,7 @@
                      x-transition:leave="transition ease-in duration-300"
                      x-transition:leave-start="opacity-100 translate-x-0 translate-y-0"
                      x-transition:leave-end="opacity-0 md:-translate-x-8 translate-y-8 md:translate-y-0"
-                     class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-8 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28"
+                     class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex flex-col p-6 pt-24 h-[100dvh] md:relative md:inset-auto md:z-auto md:bg-transparent md:backdrop-blur-none md:p-0 md:flex-1 md:h-[calc(100vh-12rem)] md:pr-8 md:sticky md:top-28"
                      style="display: none;">
                      
                     <!-- Back to Timeline Button -->

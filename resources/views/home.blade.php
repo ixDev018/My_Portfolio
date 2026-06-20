@@ -2183,7 +2183,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }">
+    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }" x-effect="if (isMobile) { document.body.classList.toggle('overflow-hidden', activeIndex !== null); }">
         <style>
             #experience ::-webkit-scrollbar { width: 4px; }
             #experience ::-webkit-scrollbar-track { background: transparent; }

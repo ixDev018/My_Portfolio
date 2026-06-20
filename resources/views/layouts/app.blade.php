@@ -187,6 +187,22 @@
             0%, 100% { transform: translate(0, 0) rotate(90deg) scale(1); }
             50% { transform: translate(-15px, -20px) rotate(75deg) scale(1.05); }
         }
+        @keyframes loader-float-5 {
+            0%, 100% { transform: translate(0, 0) rotate(-10deg) scale(1); }
+            50% { transform: translate(-20px, -15px) rotate(-25deg) scale(1.05); }
+        }
+        @keyframes loader-float-6 {
+            0%, 100% { transform: translate(0, 0) rotate(5deg) scale(1); }
+            50% { transform: translate(15px, 20px) rotate(15deg) scale(0.95); }
+        }
+        @keyframes loader-float-7 {
+            0%, 100% { transform: translate(0, 0) rotate(90deg) scale(1); }
+            50% { transform: translate(-25px, 10px) rotate(70deg) scale(1.1); }
+        }
+        @keyframes loader-float-8 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(20px, -25px) rotate(20deg) scale(0.95); }
+        }
     </style>
 </head>
 <body x-data="{ showResumeModal: false }" class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
@@ -221,6 +237,34 @@
                 <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
                     <rect x="10" y="25" width="80" height="50" rx="25" ry="25" />
                 </svg>
+            </div>
+
+            <!-- Zigzag (Bauhaus Crimson) - Top Center -->
+            <div class="absolute" style="color: #f40220; top: -2%; left: 42%; width: clamp(80px, 15vw, 140px); height: clamp(80px, 15vw, 140px); animation: loader-float-5 9s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
+                    <polyline points="0,20 25,80 50,20 75,80 100,20" stroke-linejoin="round" />
+                </svg>
+            </div>
+            
+            <!-- Dots (Geometry Saffron) - Bottom Center -->
+            <div class="absolute" style="color: #e0b617; bottom: 2%; left: 45%; width: clamp(70px, 12vw, 120px); height: clamp(70px, 12vw, 120px); animation: loader-float-6 11s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="currentColor">
+                    <circle cx="20" cy="20" r="8" /><circle cx="50" cy="20" r="8" /><circle cx="80" cy="20" r="8" />
+                    <circle cx="20" cy="50" r="8" /><circle cx="50" cy="50" r="8" /><circle cx="80" cy="50" r="8" />
+                    <circle cx="20" cy="80" r="8" /><circle cx="50" cy="80" r="8" /><circle cx="80" cy="80" r="8" />
+                </svg>
+            </div>
+
+            <!-- Wave (Minimalist Herbs) - Left Center -->
+            <div class="absolute" style="color: #09a953; top: 40%; left: -2%; width: clamp(80px, 14vw, 130px); height: clamp(80px, 14vw, 130px); animation: loader-float-7 13s ease-in-out infinite;">
+                <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
+                    <path d="M 0 50 Q 25 0, 50 50 T 100 50" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+
+            <!-- Circle (Modern Tangerine) - Right Center -->
+            <div class="absolute" style="color: #ff7b30; top: 45%; right: 2%; width: clamp(60px, 10vw, 100px); height: clamp(60px, 10vw, 100px); animation: loader-float-8 10s ease-in-out infinite;">
+                <div class="w-full h-full rounded-full bg-current drop-shadow-md"></div>
             </div>
         </div>
 

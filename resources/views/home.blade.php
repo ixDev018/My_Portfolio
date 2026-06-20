@@ -1336,8 +1336,8 @@
                                     </div>
 
                                     @if($isFallbackUi)
-                                        <div class="absolute bottom-5 right-5 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                                            <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Case study coming soon...</span>
+                                        <div class="absolute z-30 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0" style="bottom: 1.25rem; right: 1.25rem; align-items: flex-end;">
+                                            <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest text-right">Case study coming soon...</span>
                                             <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
                                                 {{ $isVideoProjectUi ? 'See full video' : 'See full image' }}
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

@@ -178,7 +178,7 @@
     </section>
 
     <!-- SELF INTRO SECTION -->
-    <section id="self-intro" class="text-white relative flex flex-col min-h-[90vh] -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20">
+    <section id="self-intro" class="text-white relative flex flex-col min-h-[90vh] -mt-[40px] md:-mt-[60px] pt-[40px] md:pt-[60px] z-20 max-w-full overflow-hidden">
 
         <!-- Floating 2D Visualizers -->
         <style>
@@ -616,7 +616,7 @@
     </section>
 
     <!-- SKILLS SECTION -->
-    <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-4 md:pt-8 relative">
+    <section id="skills" x-data="{ skillModal: { show: false, name: '', category: '', desc: '', proficiency: 5, image: '' } }" class="w-full bg-[#512b81] text-black pt-4 md:pt-8 relative max-w-full overflow-hidden">
         
         <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out w-full flex flex-col border-t border-black relative z-10 opacity-0 translate-y-12">
             
@@ -1043,7 +1043,7 @@
 
 
     <!-- WORKS AND OUTPUTS SECTION -->
-    <section id="works" class="w-full text-black pt-0 pb-0 relative">
+    <section id="works" class="w-full max-w-full overflow-hidden text-black pt-0 pb-0 relative">
         <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out w-full relative z-10 pb-0 opacity-0 translate-y-12">
 
             {{-- ══════════════════════════════════════════════════
@@ -1127,7 +1127,7 @@
                 </div>
 
                 <!-- Carousel Viewport -->
-                <div class="relative w-full bg-black">
+                <div class="relative w-full bg-black overflow-hidden max-w-full">
 
                     <!-- Desktop-only Left Arrow -->
                     <button @click="prev()"

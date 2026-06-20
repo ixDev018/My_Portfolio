@@ -2183,7 +2183,7 @@
     </section>
 
     <!-- WORK EXPERIENCE SECTION -->
-    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }" x-effect="if (isMobile) { document.body.classList.toggle('overflow-hidden', activeIndex !== null); }">
+    <section id="experience" class="relative overflow-hidden flex flex-col" style="background:#0d0d0d; min-height: 100vh;" x-data="{ activeIndex: null, bgIndex: 0, isLoading: false, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0), select(i) { if (this.activeIndex === i) { this.activeIndex = null; } else if (this.activeIndex !== null) { this.isLoading = true; this.activeIndex = i; setTimeout(() => { this.isLoading = false; }, 600); } else { this.activeIndex = i; } } }" x-effect="if (isMobile) { document.body.classList.toggle('overflow-hidden', activeIndex !== null); }">
         <style>
             #experience ::-webkit-scrollbar { width: 4px; }
             #experience ::-webkit-scrollbar-track { background: transparent; }
@@ -2360,7 +2360,7 @@
                             </div>
 
                             <!-- SCROLLABLE: Description + Image -->
-                            <div class="flex-1 overflow-y-auto pr-2 pb-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
+                            <div class="flex-1 overflow-y-auto overscroll-contain pr-2 pb-5 space-y-5" style="scrollbar-width: thin; scrollbar-color: rgba(255,133,27,0.15) transparent;">
                                 <div class="prose prose-invert max-w-none text-white/80">
                                     @php
                                         $blocks = is_string($exp->body_content) ? json_decode($exp->body_content, true) : $exp->body_content;

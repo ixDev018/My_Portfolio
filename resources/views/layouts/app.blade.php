@@ -273,12 +273,12 @@
 
             <!-- Morphing Shape 1 (Modern Tangerine) - Left Center -->
             <div class="absolute" style="color: #ff7b30; top: 40%; left: 2%; width: clamp(80px, 14vw, 130px); height: clamp(80px, 14vw, 130px); animation: loader-float-7 13s ease-in-out infinite;">
-                <div class="w-full h-full bg-current border-[2px] border-black shadow-[6px_6px_0_rgba(0,0,0,1)]" style="animation: loader-morph 4s ease-in-out infinite alternate;"></div>
+                <div class="w-full h-full bg-current" style="border: 2px solid #000; box-shadow: 5px 5px 0 #000; animation: loader-morph 4s ease-in-out infinite alternate;"></div>
             </div>
 
             <!-- Morphing Shape 2 (Hexagonal Flamingo) - Right Center -->
             <div class="absolute" style="color: #ff5aa9; top: 45%; right: 2%; width: clamp(60px, 10vw, 100px); height: clamp(60px, 10vw, 100px); animation: loader-float-8 10s ease-in-out infinite;">
-                <div class="w-full h-full bg-current border-[2px] border-black shadow-[6px_6px_0_rgba(0,0,0,1)]" style="animation: loader-morph 5s ease-in-out infinite alternate-reverse;"></div>
+                <div class="w-full h-full bg-current" style="border: 2px solid #000; box-shadow: 5px 5px 0 #000; animation: loader-morph 5s ease-in-out infinite alternate-reverse;"></div>
             </div>
         </div>
 

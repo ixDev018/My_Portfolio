@@ -134,9 +134,80 @@
         .success-progress-bar {
             animation: progressShrink linear forwards;
         }
+
+        /* ── Global Wave Loader ── */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background-color: #cfd0d1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .loader-boxes {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .loader-boxes .box {
+            width: 18px;
+            height: 18px;
+            background-color: #595959;
+            animation: wave-boxes 1.2s ease-in-out infinite;
+        }
+        .loader-boxes .box:nth-child(1) { animation-delay: 0s; }
+        .loader-boxes .box:nth-child(2) { animation-delay: 0.15s; }
+        .loader-boxes .box:nth-child(3) { animation-delay: 0.3s; }
+        .loader-boxes .box:nth-child(4) { animation-delay: 0.45s; }
+
+        @keyframes wave-boxes {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
     </style>
 </head>
 <body x-data="{ showResumeModal: false }" class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Global Loader -->
+    <div id="global-loader">
+        <div class="loader-boxes">
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </div>
+        <div class="text-[#1a1a1a] text-[13px] uppercase tracking-[0.15em] ml-1.5" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 500;">LOADING</div>
+    </div>
+    <script>
+        (function() {
+            var loader = document.getElementById('global-loader');
+            var isLoaded = false;
+            
+            // Show loader only if page takes more than 500ms to load
+            var loaderTimeout = setTimeout(function() {
+                if (!isLoaded && loader) {
+                    loader.style.pointerEvents = 'all';
+                    loader.style.opacity = '1';
+                }
+            }, 500); 
+            
+            window.addEventListener('load', function() {
+                isLoaded = true;
+                clearTimeout(loaderTimeout);
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                    setTimeout(function() { loader.style.display = 'none'; }, 400);
+                }
+            });
+        })();
+    </script>
+
 
     <!-- Glowing Background blobs for modern premium aesthetic -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">

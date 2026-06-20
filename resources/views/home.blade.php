@@ -2265,7 +2265,7 @@
         @endif
 
 
-        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24 opacity-0 translate-y-12"
+        <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out relative z-20 flex flex-col max-w-[1200px] mx-auto w-full px-6 pt-28 pb-24"
              style="flex: 1;">
 
             <!-- Section header -->
@@ -2429,10 +2429,10 @@
             </div>
 
             <!-- RIGHT / CENTER: Timeline — centered when nothing active, right-aligned when active -->
-                <div class="flex flex-col relative transition-all duration-500 ease-in-out pb-20"
+                <div class="relative transition-all duration-500 ease-in-out pb-20"
                      :class="activeIndex !== null
-                        ? 'w-full md:w-[320px] lg:w-[380px] shrink-0 pl-4 md:pl-8 py-4'
-                        : 'w-full max-w-[500px] mx-auto px-6 py-4'"
+                        ? 'hidden md:flex md:w-[320px] lg:w-[380px] shrink-0 pl-4 md:pl-8 py-4'
+                        : 'flex w-full max-w-[500px] mx-auto px-6 py-4'"
                      style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.05) transparent;">
 
                     <!-- Timeline entries -->

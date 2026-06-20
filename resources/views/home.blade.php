@@ -1214,19 +1214,19 @@
                                    @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
                                    @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
                                    @click="if(isMobile && mobileFocusId !== itemId) { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } @if($onClickUi) else { {!! $onClickUi !!} } @endif"
-                                   class="shrink-0 w-[82vw] md:w-[560px] rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100 z-10"
+                                   class="shrink-0 w-[82vw] md:w-[560px] aspect-video rounded-none relative group bg-black transition-opacity duration-500 hover:!opacity-100 z-10 overflow-hidden"
                                    style="scroll-snap-align: start;"
                                    :class="(dimming && (!isMobile ? !isHovered : mobileFocusId !== itemId) ? 'opacity-25 ' : 'opacity-100 ') + ({{ $index }} === current ? '' : '')"
                                    :style="`scroll-snap-align: start; ${((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'z-index: 20;' : ''}`">
 
                                     <!-- Image / placeholder -->
-                                    <div class="relative w-full rounded-none overflow-hidden
+                                    <div class="absolute inset-0 w-full h-full rounded-none overflow-hidden
                                                 @if(($proj->use_custom_thumbnail && $proj->thumbnail_path) || $proj->main_video_path) bg-black @else bg-black @endif
                                                 flex items-center justify-center">
                                         @if($proj->use_custom_thumbnail && $proj->thumbnail_path)
                                             <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : (Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path))) }}"
                                                  alt="{{ $proj->title }}"
-                                                 class="w-full h-auto object-cover">
+                                                 class="w-full h-full object-cover">
                                         @elseif($proj->main_media_type === 'video' && $proj->main_video_path)
                                             @php
                                                 $localImage = '';
@@ -1253,7 +1253,7 @@
                                                    @canplay="vidLoaded = true"
                                                    muted playsinline loop preload="none"
                                                    x-effect="if ((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) { $el.play().catch(()=>{}) } else { $el.pause(); }"
-                                                   class="w-full h-auto block pointer-events-none transition-all duration-700"
+                                                   class="w-full h-full object-cover block pointer-events-none transition-all duration-700"
                                                    :class="!vidLoaded ? 'animate-pulse grayscale opacity-60' : 'opacity-100'"
                                                    x-init="
                                                        let vid = $el;
@@ -1280,7 +1280,7 @@
                                             @endif
                                         @elseif($proj->main_media_type === 'image' && !empty($proj->main_images))
                                             <div x-data="{ currentSlide: 0, total: {{ count($proj->main_images) }} }"
-                                                 class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                                                 class="relative w-full h-full overflow-hidden">
                                                 @foreach($proj->main_images as $index => $img)
                                                     <img src="{{ Str::startsWith($img, 'http') ? $img : (Str::startsWith($img, 'http') ? $img : ((Str::startsWith($img, 'images/') || Str::startsWith($img, 'videos/')) ? asset($img) : Storage::url($img))) }}"
                                                          x-show="currentSlide === {{ $index }}"
@@ -1300,9 +1300,9 @@
                                             <img src="{{ Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : (Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path))) }}"
                                                  alt="{{ $proj->title }}"
                                                  loading="lazy"
-                                                 class="w-full h-auto object-cover">
+                                                 class="w-full h-full object-cover">
                                         @else
-                                            <div class="w-full" style="padding-top: 56.25%;"></div>
+                                            <div class="w-full h-full"></div>
                                             <svg class="w-12 h-12 text-black/15 absolute" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                             </svg>

@@ -181,7 +181,7 @@
             <div class="box"></div>
             <div class="box"></div>
         </div>
-        <div class="text-[#1a1a1a] text-[13px] uppercase tracking-[0.15em] ml-1.5" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 500;">LOADING</div>
+        <div class="text-[#1a1a1a] text-[13px] uppercase tracking-[0.15em] ml-1.5 font-display">LOADING</div>
     </div>
     <script>
         (function() {

@@ -145,8 +145,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 1;
+            pointer-events: all;
             transition: opacity 0.2s ease;
         }
         .loader-boxes {
@@ -293,29 +293,21 @@
     <script>
         (function() {
             var loader = document.getElementById('global-loader');
-            var isLoaded = false;
             
-            // 1. Initial Load: show only if taking more than 400ms
-            var loaderTimeout = setTimeout(function() {
-                if (!isLoaded && loader) {
-                    loader.style.pointerEvents = 'all';
-                    loader.style.opacity = '1';
-                }
-            }, 400); 
-            
-            // 2. Hide smoothly when page finishes loading
+            // 1. Hide smoothly when page finishes loading
             window.addEventListener('load', function() {
-                isLoaded = true;
-                clearTimeout(loaderTimeout);
                 if (loader) {
-                    loader.style.transition = 'opacity 0.25s ease';
-                    loader.style.opacity = '0';
-                    loader.style.pointerEvents = 'none';
-                    setTimeout(function() { loader.style.display = 'none'; }, 250);
+                    // Slight delay to ensure the cool loader is seen briefly even on fast loads
+                    setTimeout(function() {
+                        loader.style.transition = 'opacity 0.3s ease';
+                        loader.style.opacity = '0';
+                        loader.style.pointerEvents = 'none';
+                        setTimeout(function() { loader.style.display = 'none'; }, 300);
+                    }, 200);
                 }
             });
 
-            // 3. Delayed feedback when clicking links (only show if Vercel is slow)
+            // 2. Instant feedback when clicking links
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 if (!link) return;
@@ -330,17 +322,14 @@
                     var isAnchorOnly = isSamePage && url.hash;
                     
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
-                        // Only show loader if the next page takes more than 400ms to respond
-                        setTimeout(function() {
-                            if (loader) {
-                                loader.style.transition = 'opacity 0.2s ease';
-                                loader.style.display = 'flex';
-                                setTimeout(function() { 
-                                    loader.style.opacity = '1'; 
-                                    loader.style.pointerEvents = 'all'; 
-                                }, 10);
-                            }
-                        }, 400);
+                        // Show loader instantly on link navigation
+                        if (loader) {
+                            loader.style.display = 'flex';
+                            void loader.offsetWidth; // Force reflow
+                            loader.style.transition = 'opacity 0.15s ease';
+                            loader.style.opacity = '1';
+                            loader.style.pointerEvents = 'all';
+                        }
                     }
                 } catch (err) {}
             });

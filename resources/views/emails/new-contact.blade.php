@@ -112,7 +112,7 @@
 <body style="font-family: 'Space Grotesk', 'Trebuchet MS', Arial, sans-serif; background-color: #09090b; color: #fafafa; padding: 40px 20px; margin: 0;">
     <div class="container" style="max-width: 600px; margin: 0 auto; background: #18181b; border: 1px solid #27272a; padding: 40px; border-radius: 12px; font-family: 'Space Grotesk', 'Trebuchet MS', Arial, sans-serif;">
         <div class="header" style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #27272a;">
-            <img src="{{ asset('images/IX-MEDIA-mailer-icon.png') }}" alt="IX Media" style="max-height: 40px; width: auto; margin: 0 auto; display: block;">
+            <img src="https://ix-media-portfolio.vercel.app/images/IX-MEDIA-mailer-icon.png" alt="IX Media" style="max-height: 40px; width: auto; margin: 0 auto; display: block;">
             <h2 class="title" style="margin-top: 15px; margin-bottom: 5px; font-size: 20px; font-weight: 700; color: #fafafa; font-family: 'Space Grotesk', 'Trebuchet MS', Arial, sans-serif;">New Inquiry Received</h2>
             <p class="subtitle" style="margin: 0; color: #a1a1aa; font-size: 14px; font-family: 'Space Grotesk', 'Trebuchet MS', Arial, sans-serif;">A visitor has sent a message via your portfolio contact form.</p>
         </div>

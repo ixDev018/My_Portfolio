@@ -561,7 +561,7 @@
                     <!-- PDF embed via Google Docs Viewer (bypasses X-Frame-Options) -->
                     <div style="aspect-ratio: 210/297; overflow:hidden; background:#525659; flex-shrink:0;">
                         <iframe
-                            src="{{ $cvEmbedUrl }}"
+                            :src="showResumeModal ? '{{ $cvEmbedUrl }}' : ''"
                             style="width:100%; height:100%; border:none; display:block;"
                             title="Resume PDF">
                         </iframe>

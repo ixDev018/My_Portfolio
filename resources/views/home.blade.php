@@ -297,8 +297,8 @@
                     { type: 'pill', desktopOnly: true, color: 'text-[#4dd9f0]', top: '-5%', left: '65%', size: '140px', anim: 'anim-travel-left', delay: '-5s', rotation: '-10deg' },
 
                     // --- BOTTOM EDGE (Fully visible pop shapes, positioned safely on the sides) ---
-                    { type: 'circle', color: 'text-[#d0f69a]', top: '75%', left: '12%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
-                    { type: 'diamond', color: 'text-[#4dd9f0]', top: '75%', left: '82%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
+                    { type: 'circle', color: 'text-[#d0f69a]', top: '86%', left: '4%', size: '140px', anim: 'anim-travel-right', delay: '-7s', rotation: '30deg', lowOpMobile: true },
+                    { type: 'diamond', color: 'text-[#4dd9f0]', top: '86%', left: '88%', size: '120px', anim: 'anim-travel-up', delay: '-1s', rotation: '60deg', lowOpMobile: true },
 
                     // --- LEFT EDGE (Always visible, responsive size) ---
                     { type: 'circle', color: 'text-[#4dd9f0]', top: '27%', left: '-2%', size: '140px', anim: 'anim-travel-left', delay: '-3s', rotation: '-20deg' },

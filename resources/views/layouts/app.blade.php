@@ -250,9 +250,14 @@
                     var isAnchorOnly = isSamePage && url.hash;
 
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
+                        e.preventDefault(); // Delay actual navigation
                         navigating = true;
                         startLoader();
-                        setTimeout(function() { navigating = false; hideLoader(false); }, 10000);
+                        
+                        // Wait 300ms for the loader to visually appear, then navigate
+                        setTimeout(function() {
+                            window.location.href = link.href;
+                        }, 300);
                     }
                 } catch (err) {}
             });

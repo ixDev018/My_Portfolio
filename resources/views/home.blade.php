@@ -2424,10 +2424,10 @@
                                             @endphp
                                             @switch($type)
                                                 @case('heading2')
-                                                    <h2 class="mt-8 mb-4 font-display text-xl font-bold text-white tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">{!! $block['content'] ?? '' !!}</h2>
+                                                    <h2 class="mt-8 mb-4 font-display text-xl font-bold text-white tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h2>
                                                     @break
                                                 @case('heading3')
-                                                    <h3 class="mt-6 mb-3 font-display text-lg font-bold text-white/90 tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">{!! $block['content'] ?? '' !!}</h3>
+                                                    <h3 class="mt-6 mb-3 font-display text-lg font-bold text-white/90 tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h3>
                                                     @break
                                                 @case('paragraph')
                                                     <p class="font-poppins text-sm leading-[1.8] mb-5">{!! $block['content'] ?? '' !!}</p>

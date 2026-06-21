@@ -65,7 +65,7 @@
      PROJECT OUTPUT — SPA-STYLE DETAIL PAGE
      Layout: sticky marquee bg → playback hero → CMS body
 ═══════════════════════════════════════════════════════════ --}}
-<div class="bg-[#fdfaf0] grid-bg-section text-black min-h-screen" style="font-family: 'Space Grotesk', sans-serif;">
+<div class="bg-[#fdfaf0] grid-bg-section text-black min-h-screen" style="font-family: 'Bitcount Single', monospace;">
 
     {{-- ── HERO BLOCK ── --}}
     <div class="relative w-full pt-16 pb-6">
@@ -319,10 +319,10 @@
                             
                             @switch($type)
                                 @case('heading2')
-                                    <h2 class="mt-12 mb-6 font-display text-2xl font-bold text-black tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">{!! $block['content'] ?? '' !!}</h2>
+                                    <h2 class="mt-12 mb-6 font-display text-2xl font-bold text-black tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h2>
                                     @break
                                 @case('heading3')
-                                    <h3 class="mt-8 mb-4 font-display text-xl font-bold text-black tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">{!! $block['content'] ?? '' !!}</h3>
+                                    <h3 class="mt-8 mb-4 font-display text-xl font-bold text-black tracking-wide" style="font-family: 'Bitcount Single', monospace;">{!! $block['content'] ?? '' !!}</h3>
                                     @break
                                 @case('paragraph')
                                     <p class="font-poppins text-sm sm:text-base leading-[1.85] mb-6">{!! $block['content'] ?? '' !!}</p>
@@ -482,8 +482,8 @@
             <style>
                 /* TipTap Markdown Styles (For legacy HTML fallback) */
                 .cms-tiptap-content p { margin-bottom: 1.5em; line-height: 1.85; font-size: 15px; }
-                .cms-tiptap-content h2 { font-size: 1.5rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; margin-top: 2em; margin-bottom: 1em; color: black; }
-                .cms-tiptap-content h3 { font-size: 1.25rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif; margin-top: 1.5em; margin-bottom: 0.75em; color: black; }
+                .cms-tiptap-content h2 { font-size: 1.5rem; font-weight: 700; font-family: 'Bitcount Single', monospace; margin-top: 2em; margin-bottom: 1em; color: black; }
+                .cms-tiptap-content h3 { font-size: 1.25rem; font-weight: 600; font-family: 'Bitcount Single', monospace; margin-top: 1.5em; margin-bottom: 0.75em; color: black; }
                 .cms-tiptap-content strong { font-weight: 700; color: black; }
                 .cms-tiptap-content blockquote { border-left: 3px solid #512b81; padding-left: 1.5rem; font-style: italic; color: rgba(0,0,0,0.6); margin: 2em 0; }
                 .cms-tiptap-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5em; }

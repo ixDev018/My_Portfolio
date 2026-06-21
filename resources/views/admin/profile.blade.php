@@ -116,7 +116,7 @@
         background: linear-gradient(to bottom,rgba(0,0,0,0.4) 0%,transparent 40%,transparent 70%,rgba(0,0,0,0.2) 100%);
     }
     .preview-top-text {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Bitcount Single', monospace;
         font-size: clamp(7px, 1.8vw, 16px);
         text-transform: uppercase; opacity: 1;
         margin-bottom: 0;
@@ -134,7 +134,7 @@
         -webkit-text-stroke: 1px black;
     }
     .preview-subtitle {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Bitcount Single', monospace;
         font-size: clamp(5px, 1vw, 10px);
         letter-spacing: 0.4em; text-transform: uppercase;
         opacity: 0.7; margin-top: 0.5rem; margin-bottom: 0.7rem;
@@ -145,7 +145,7 @@
         border: 1px solid rgba(255,255,255,0.7);
         font-size: clamp(4px, 0.8vw, 8px);
         letter-spacing: 0.15em; text-transform: uppercase;
-        font-family: 'Space Grotesk', sans-serif; color: #fff; opacity: 1;
+        font-family: 'Bitcount Single', monospace; color: #fff; opacity: 1;
         font-weight: 700;
     }
     .preview-typography-container {

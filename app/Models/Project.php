@@ -43,6 +43,9 @@ class Project extends Model
         'gallery_images',
         'is_archived',
         'is_top',
+        'show_story',
+        'coming_soon_gallery',
+        'coming_soon_gallery_ratio',
     ];
 
     protected $casts = [
@@ -56,6 +59,8 @@ class Project extends Model
         'main_images'     => 'array',
         'video_loop_start'=> 'float',
         'video_loop_end'  => 'float',
+        'show_story'      => 'boolean',
+        'coming_soon_gallery' => 'array',
     ];
 
     /**

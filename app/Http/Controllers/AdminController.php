@@ -384,6 +384,9 @@ class AdminController extends Controller
         $validated['is_best_work'] = $request->input('is_best_work') == '1';
         $validated['is_archived'] = $request->input('is_archived') == '1';
         $validated['is_top'] = $request->input('is_top') == '1';
+        $validated['show_story'] = $request->input('show_story', '1') == '1';
+        $validated['coming_soon_gallery_ratio'] = $request->input('coming_soon_gallery_ratio', '16:9');
+        $validated['coming_soon_gallery'] = json_decode($request->input('coming_soon_gallery_json'), true) ?: [];
         $validated['main_media_type'] = $request->input('main_media_type', 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
         
@@ -497,6 +500,9 @@ class AdminController extends Controller
         $validated['is_best_work'] = $request->input('is_best_work') == '1';
         $validated['is_archived'] = $request->input('is_archived') == '1';
         $validated['is_top'] = $request->input('is_top') == '1';
+        $validated['show_story'] = $request->input('show_story', '1') == '1';
+        $validated['coming_soon_gallery_ratio'] = $request->input('coming_soon_gallery_ratio', '16:9');
+        $validated['coming_soon_gallery'] = json_decode($request->input('coming_soon_gallery_json'), true) ?: [];
         $validated['main_media_type'] = $request->input('main_media_type', 'image');
         $validated['use_custom_thumbnail'] = $request->input('use_custom_thumbnail') == '1';
         

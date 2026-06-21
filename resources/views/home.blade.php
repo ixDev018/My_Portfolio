@@ -1189,7 +1189,7 @@
                                         $localImageUi = Str::startsWith($proj->main_images[0], 'http') ? $proj->main_images[0] : ((Str::startsWith($proj->main_images[0], 'images/') || Str::startsWith($proj->main_images[0], 'videos/')) ? asset($proj->main_images[0]) : Storage::url($proj->main_images[0]));
                                     }
                                     
-                                    $isFallbackUi = !$hasBodyContentUi;
+                                    $isFallbackUi = !$hasBodyContentUi || !$proj->show_story;
                                     
                                     if ($isFallbackUi) {
                                         if ($hasAdminLinkUi) {
@@ -1199,7 +1199,8 @@
                                         } else {
                                             $cardHrefUi = '#';
                                             $cardTargetUi = '_self';
-                                            $onClickUi = "\$event.preventDefault(); window.dispatchEvent(new CustomEvent('open-global-preview', { detail: { v: '".addslashes($localVideoUi)."', i: '".addslashes($localImageUi)."', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."' } }));";
+                                            $encodedGalleryUi = htmlspecialchars(json_encode($proj->coming_soon_gallery ?? []), ENT_QUOTES, 'UTF-8');
+                                            $onClickUi = "\$event.preventDefault(); window.dispatchEvent(new CustomEvent('open-global-preview', { detail: { v: '".addslashes($localVideoUi)."', i: '".addslashes($localImageUi)."', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."', g: {$encodedGalleryUi}, r: '".addslashes($proj->coming_soon_gallery_ratio ?? '16:9')."' } }));";
                                         }
                                     } else {
                                         $cardHrefUi = route('portfolio.project.show', $proj->slug);
@@ -1338,7 +1339,7 @@
                                     @if($isFallbackUi)
                                         <div class="absolute z-30 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0" style="bottom: 1.25rem; right: 1.25rem; align-items: flex-end;">
                                             <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest text-right">Case study coming soon...</span>
-                                            <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                            <div @if($onClickUi) @click.prevent.stop="{!! $onClickUi !!}" @endif class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
                                                 {{ $isVideoProjectUi ? 'See full video' : 'See full image' }}
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                             </div>
@@ -1426,7 +1427,7 @@
         @endphp
 
         <div class="w-full pt-0 pb-20"
-             x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '' }">
+             x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', modalGallery: [], modalGalleryRatio: '16:9', modalCurrentSlide: 0 }">
 
             <!-- Brutalist Edge-to-Edge Header & Filters -->
             <div class="w-full bg-[#D4D4D4] border-t border-black flex flex-col border-b sticky top-[72px] z-40">
@@ -1483,7 +1484,7 @@
                                     $localImageVis = (Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])));
                                 }
                                 
-                                $isFallbackVis = !$hasBodyContentVis;
+                                $isFallbackVis = !$hasBodyContentVis || !$proj->show_story;
 
                                 if ($isFallbackVis) {
                                     if ($hasAdminLinkVis) {
@@ -1493,7 +1494,8 @@
                                     } else {
                                         $cardHrefVis = '#';
                                         $cardTargetVis = '_self';
-                                        $onClickVis = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideoVis}'; modalImageSrc = '{$localImageVis}'; modalTitle = '".addslashes($proj->title)."'; modalMedium = '".addslashes($proj->medium)."'; modalYear = '".addslashes($proj->year)."';";
+                                        $encodedGalleryVis = htmlspecialchars(json_encode($proj->coming_soon_gallery ?? []), ENT_QUOTES, 'UTF-8');
+                                        $onClickVis = "\$event.preventDefault(); comingSoonModal = true; modalVideoSrc = '{$localVideoVis}'; modalImageSrc = '{$localImageVis}'; modalTitle = '".addslashes($proj->title)."'; modalMedium = '".addslashes($proj->medium)."'; modalYear = '".addslashes($proj->year)."'; modalGallery = {$encodedGalleryVis}; modalGalleryRatio = '".addslashes($proj->coming_soon_gallery_ratio ?? '16:9')."'; modalCurrentSlide = 0;";
                                     }
                                 } else {
                                     $cardHrefVis = route('portfolio.project.show', $proj->slug);
@@ -1666,7 +1668,7 @@
                                     @if($isFallbackVis)
                                         <div class="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                                             <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest">Story Coming soon...</span>
-                                            <div class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg">
+                                            <div @if($onClickVis) @click.prevent.stop="{!! $onClickVis !!}" @endif class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
                                                 {{ $isVideoProjectVis ? 'See full video' : 'See full image' }}
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                             </div>
@@ -1741,9 +1743,32 @@
                         <!-- We re-bind src on modal open via Alpine so it only loads/plays when opened -->
                         <video x-show="modalVideoSrc" x-ref="modalVid" :src="comingSoonModal ? modalVideoSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
                         
-                        <img x-show="!modalVideoSrc && modalImageSrc" :src="comingSoonModal ? modalImageSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
+                        <div x-show="!modalVideoSrc && modalGallery.length > 0" class="relative w-full flex items-center justify-center" style="max-height: 65vh;">
+                            <div class="relative rounded-xl overflow-hidden shadow-2xl flex items-center justify-center" :style="`aspect-ratio: ${modalGalleryRatio.replace(':', '/')}; height: 65vh; max-height: 65vh; max-width: 100%; width: auto;`">
+                                <template x-for="(img, idx) in modalGallery" :key="idx">
+                                    <img :src="img" x-show="modalCurrentSlide === idx" loading="lazy" class="absolute inset-0 w-full h-full object-contain transition-opacity duration-500" :class="modalCurrentSlide === idx ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                                </template>
+                                
+                                <!-- Gallery Dots -->
+                                <div x-show="modalGallery.length > 1" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                                    <template x-for="(img, idx) in modalGallery" :key="idx">
+                                        <button @click="modalCurrentSlide = idx" class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all shadow-sm" :class="modalCurrentSlide === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/60'"></button>
+                                    </template>
+                                </div>
+                                
+                                <!-- Prev/Next -->
+                                <button x-show="modalGallery.length > 1" @click="modalCurrentSlide = modalCurrentSlide === 0 ? modalGallery.length - 1 : modalCurrentSlide - 1" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/80 border border-white/10 text-white flex items-center justify-center transition-all z-20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                </button>
+                                <button x-show="modalGallery.length > 1" @click="modalCurrentSlide = modalCurrentSlide === modalGallery.length - 1 ? 0 : modalCurrentSlide + 1" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/80 border border-white/10 text-white flex items-center justify-center transition-all z-20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <img x-show="!modalVideoSrc && modalGallery.length === 0 && modalImageSrc" :src="comingSoonModal ? modalImageSrc : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
                         
-                        <div x-show="!modalVideoSrc && !modalImageSrc" class="py-24 px-6 flex flex-col items-center text-center">
+                        <div x-show="!modalVideoSrc && modalGallery.length === 0 && !modalImageSrc" class="py-24 px-6 flex flex-col items-center text-center">
                             <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="modalTitle"></h3>
                             <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>

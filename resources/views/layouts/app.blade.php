@@ -573,10 +573,10 @@
 
     <!-- Global Preview Modal -->
     <div x-data="{
-        show: false, v: '', i: '', t: '', m: '', y: ''
-    }" @open-global-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y"
-       @open-ui-modal.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y"
-       @show-outputs-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y">
+        show: false, v: '', i: '', t: '', m: '', y: '', gallery: [], galleryRatio: '16/9', currentSlide: 0
+    }" @open-global-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y; gallery = $event.detail.g || []; galleryRatio = $event.detail.r || '16/9'; currentSlide = 0"
+       @open-ui-modal.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y; gallery = $event.detail.g || []; galleryRatio = $event.detail.r || '16/9'; currentSlide = 0"
+       @show-outputs-preview.window="show = true; v = $event.detail.v; i = $event.detail.i; t = $event.detail.t; m = $event.detail.m; y = $event.detail.y; gallery = $event.detail.g || []; galleryRatio = $event.detail.r || '16/9'; currentSlide = 0">
         
         <div x-show="show"
              style="display: none;"
@@ -603,8 +603,33 @@
                 <!-- Media Area -->
                 <div class="relative bg-black flex items-center justify-center p-4 md:p-8 pt-20 md:pt-20">
                     <video x-show="v" x-ref="globalModalVid" :src="show ? v : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;" controls autoplay playsinline></video>
-                    <img x-show="!v && i" :src="show ? i : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
-                    <div x-show="!v && !i" class="py-24 px-6 flex flex-col items-center text-center">
+                    
+                    <div x-show="!v && gallery.length > 0" class="relative w-full flex items-center justify-center" style="max-height: 65vh;">
+                        <div class="relative rounded-xl overflow-hidden shadow-2xl flex items-center justify-center" :style="`aspect-ratio: ${galleryRatio.replace(':', '/')}; height: 65vh; max-height: 65vh; max-width: 100%; width: auto;`">
+                            <template x-for="(img, idx) in gallery" :key="idx">
+                                <img :src="img" x-show="currentSlide === idx" loading="lazy" class="absolute inset-0 w-full h-full object-contain transition-opacity duration-500" :class="currentSlide === idx ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                            </template>
+                            
+                            <!-- Gallery Dots -->
+                            <div x-show="gallery.length > 1" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                                <template x-for="(img, idx) in gallery" :key="idx">
+                                    <button @click="currentSlide = idx" class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all shadow-sm" :class="currentSlide === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/60'"></button>
+                                </template>
+                            </div>
+                            
+                            <!-- Prev/Next -->
+                            <button x-show="gallery.length > 1" @click="currentSlide = currentSlide === 0 ? gallery.length - 1 : currentSlide - 1" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/80 border border-white/10 text-white flex items-center justify-center transition-all z-20">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <button x-show="gallery.length > 1" @click="currentSlide = currentSlide === gallery.length - 1 ? 0 : currentSlide + 1" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/80 border border-white/10 text-white flex items-center justify-center transition-all z-20">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <img x-show="!v && gallery.length === 0 && i" :src="show ? i : ''" class="rounded-xl shadow-2xl object-contain" style="max-width: 100%; max-height: 65vh;">
+                    
+                    <div x-show="!v && gallery.length === 0 && !i" class="py-24 px-6 flex flex-col items-center text-center">
                         <svg class="w-16 h-16 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         <h3 class="font-logo text-3xl md:text-4xl text-white tracking-widest uppercase mb-2" x-text="t"></h3>
                         <p class="font-mono text-sm text-white/50 uppercase tracking-widest">Story coming soon</p>

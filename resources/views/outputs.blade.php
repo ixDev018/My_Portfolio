@@ -40,10 +40,10 @@
     </div>
 
     <section class="pt-6 pb-20 bg-[#fdfaf0] grid-bg-section min-h-screen">
-        <div class="w-full relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
+        <div class="w-full relative" x-data="{ activeFilter: 'all', comingSoonModal: false, modalVideoSrc: '', modalImageSrc: '', modalTitle: '', modalMedium: '', modalYear: '', modalGallery: [], modalGalleryRatio: '16:9', modalCurrentSlide: 0, dimming: false, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
              @click.outside="if(isMobile) { mobileFocusId = null; dimming = false; }"
              @mobile-focus-reset.window="if ($event.detail.id !== mobileFocusId) { mobileFocusId = null; dimming = false; }"
-             x-on:show-outputs-preview.window="comingSoonModal = true; modalVideoSrc = $event.detail.v; modalImageSrc = $event.detail.i; modalTitle = $event.detail.t; modalMedium = $event.detail.m; modalYear = $event.detail.y;">
+             x-on:show-outputs-preview.window="comingSoonModal = true; modalVideoSrc = $event.detail.v; modalImageSrc = $event.detail.i; modalTitle = $event.detail.t; modalMedium = $event.detail.m; modalYear = $event.detail.y; modalGallery = $event.detail.g || []; modalGalleryRatio = $event.detail.r || '16:9'; modalCurrentSlide = 0;">
 
             <div class="max-w-[1400px] mx-auto px-6">
 
@@ -97,7 +97,7 @@
                             $localImage = Str::startsWith($proj->main_images[0], 'http') ? $proj->main_images[0] : ((Str::startsWith($proj->main_images[0], 'images/') || Str::startsWith($proj->main_images[0], 'videos/')) ? asset($proj->main_images[0]) : Storage::url($proj->main_images[0]));
                         }
                         
-                        $isFallback = !$hasBodyContent;
+                        $isFallback = !$hasBodyContent || !$proj->show_story;
 
                         if ($isFallback) {
                             if ($hasAdminLink) {
@@ -107,7 +107,7 @@
                             } else {
                                 $cardHref = '#';
                                 $cardTarget = '_self';
-                                $onClick = "\$event.preventDefault(); \$dispatch('show-outputs-preview', { v: '{$localVideo}', i: '{$localImage}', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."' });";
+                                $onClick = "\$event.preventDefault(); \$dispatch('show-outputs-preview', { v: '{$localVideo}', i: '{$localImage}', t: '".addslashes($proj->title)."', m: '".addslashes($proj->medium)."', y: '".addslashes($proj->year)."', g: ".json_encode($proj->coming_soon_gallery ?? []).", r: '".addslashes($proj->coming_soon_gallery_ratio ?? '16:9')."' });";
                             }
                         } else {
                             $cardHref = route('portfolio.project.show', $proj->slug);
@@ -118,11 +118,11 @@
                     <a href="{{ $cardHref }}"
                        target="{{ $cardTarget }}"
                        @if($isFallback && $hasAdminLink) rel="noopener noreferrer" @endif
-                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}', isFallback: {{ ($isFallback && !$hasAdminLink) ? 'true' : 'false' }}, fVideo: '{{ $localVideo }}', fImage: '{{ $localImage }}', fTitle: '{{ addslashes($proj->title) }}', fMedium: '{{ addslashes($proj->medium) }}', fYear: '{{ addslashes($proj->year) }}' }"
+                       x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}', isFallback: {{ ($isFallback && !$hasAdminLink) ? 'true' : 'false' }}, fVideo: '{{ $localVideo }}', fImage: '{{ $localImage }}', fTitle: '{{ addslashes($proj->title) }}', fMedium: '{{ addslashes($proj->medium) }}', fYear: '{{ addslashes($proj->year) }}', fGallery: {{ json_encode($proj->coming_soon_gallery ?? []) }}, fGalleryRatio: '{{ addslashes($proj->coming_soon_gallery_ratio ?? '16:9') }}' }"
                        x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
                        @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); $el.style.transform='scale(1.018)'; }"
                        @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; $el.style.transform='scale(1)'; }"
-                       @click="if(isMobile && mobileFocusId !== itemId && $el.getAttribute('href') === '#') { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isFallback && !{{ $hasAdminLink ? 'true' : 'false' }}) { $event.preventDefault(); $dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear }); } else if(isMobile) { $el.style.transform='scale(1)'; }"
+                       @click="if(isMobile && mobileFocusId !== itemId && $el.getAttribute('href') === '#') { $event.preventDefault(); mobileFocusId = itemId; dimming = true; $el.style.transform='scale(1.018)'; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); } else if(isFallback && !{{ $hasAdminLink ? 'true' : 'false' }}) { $event.preventDefault(); $dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear, g: fGallery, r: fGalleryRatio }); } else if(isMobile) { $el.style.transform='scale(1)'; }"
                        x-transition:enter="transition-opacity duration-300"
                        x-transition:enter-start="opacity-0"
                        x-transition:enter-end="opacity-100"
@@ -274,7 +274,7 @@
                                      style="bottom: 1rem; right: 1rem; align-items: flex-end;"
                                      :class="(isMobile && mobileFocusId === itemId) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 xl:group-hover:opacity-100 xl:group-hover:translate-y-0'">
                                     <span class="font-logo text-[12px] md:text-sm text-white/80 uppercase tracking-widest text-right">Story Coming soon...</span>
-                                    <div @click.prevent.stop="$dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear })" class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
+                                    <div @click.prevent.stop="$dispatch('show-outputs-preview', { v: fVideo, i: fImage, t: fTitle, m: fMedium, y: fYear, g: fGallery, r: fGalleryRatio })" class="inline-flex items-center gap-2 px-4 py-2 border border-white bg-[#6829AA] text-white font-logo text-[11px] md:text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg cursor-pointer">
                                         {{ $isVideoProject ? 'See full video' : 'See full image' }}
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                     </div>

@@ -794,11 +794,74 @@
                     </div>
                 @endif
 
+                {{-- COMING SOON GALLERY --}}
+                <div x-data="comingSoonGallery()" style="margin-top: 1rem; border-top:1px solid #E2DDD3; padding-top:1rem;">
+                    <input type="hidden" name="coming_soon_gallery_json" :value="JSON.stringify(images)">
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.75rem;">
+                        <div>
+                            <span class="pe-field-label" style="margin-bottom:0.15rem; color:#1a1207;">Coming Soon Gallery</span>
+                            <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:#7A7267; margin:0;">Images shown in the Coming Soon modal when "Show Story" is off. If none uploaded, fallback is used.</p>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <select name="coming_soon_gallery_ratio" x-model="ratio" style="font-size:0.75rem; padding:0.25rem 0.5rem; border:1px solid #E2DDD3; border-radius:0.35rem; font-family:'Space Mono',monospace; outline:none;">
+                                <option value="16:9">16:9 Ratio</option>
+                                <option value="3:4">3:4 Ratio</option>
+                                <option value="1:1">1:1 Ratio</option>
+                            </select>
+                            <button type="button" @click="triggerUpload" class="pe-btn-cancel" style="padding:0.35rem 0.75rem;">
+                                + Add Image
+                            </button>
+                            <input type="file" id="coming-soon-gallery-upload" accept="image/*" multiple style="display:none;" @change="handleFiles">
+                        </div>
+                    </div>
+
+                    <div x-show="isUploading" style="font-family:'Space Mono',monospace; font-size:0.7rem; color:#6829AA; margin-bottom:0.5rem;" x-cloak>
+                        Compressing and uploading images... Please wait.
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:0.5rem;">
+                        <template x-for="(img, index) in images" :key="index">
+                            <div style="position:relative; border-radius:0.4rem; overflow:hidden; border:1px solid #E2DDD3; aspect-ratio:16/9; background:#f0f0f0;"
+                                 draggable="true" 
+                                 @dragstart="dragStart(index, $event)"
+                                 @dragover.prevent="dragOver(index)"
+                                 @drop.prevent="drop(index)"
+                                 @dragenter.prevent
+                                 :style="dragIndex === index ? 'opacity: 0.5' : ''">
+                                <img :src="img" style="width:100%; height:100%; object-fit:cover;">
+                                
+                                <div style="position:absolute; top:4px; right:4px; display:flex; gap:4px; background:rgba(0,0,0,0.5); padding:2px; border-radius:4px; backdrop-filter:blur(2px);">
+                                    <button type="button" @click="removeImage(index)" style="background:transparent; border:none; color:#ff6b6b; font-size:0.6rem; cursor:pointer; font-weight:bold; font-family:'Space Mono',monospace; padding:0 4px;">x</button>
+                                </div>
+                                <div style="position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); padding:2px 4px; border-radius:4px; color:white; font-size:0.55rem; font-family:'Space Mono',monospace;" x-text="index + 1"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
                 </div>
 
                 {{-- META DATA TAB --}}
                 <div x-show="tab === 'meta'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
                     
+                    {{-- Show Story Toggle --}}
+                    <div class="pe-field-row" style="margin-bottom: 1.25rem;">
+                        <div class="pe-field" style="flex-direction:row; align-items:center; justify-content:space-between; background:#F7F5EE; padding:0.85rem 1rem; border-radius:0.5rem; border:1px solid #E2DDD3;">
+                            <div>
+                                <label style="font-family:'Outfit',sans-serif; font-weight:700; font-size:0.85rem; color:#1a1207; display:block; margin-bottom:0.15rem;">Show Story / Case Study</label>
+                                <span style="font-family:'Inter',sans-serif; font-size:0.7rem; color:#7A7267;">If disabled, a "Coming Soon" modal will be shown instead of navigating to the project page.</span>
+                            </div>
+                            <input type="hidden" name="show_story" value="0">
+                            <label style="position:relative; display:inline-block; width:36px; height:20px;">
+                                <input type="checkbox" name="show_story" value="1" {{ old('show_story', $project->show_story ?? true) ? 'checked' : '' }} style="opacity:0; width:0; height:0;" onchange="this.nextElementSibling.style.background = this.checked ? '#6829AA' : '#C4BDB2'; this.nextElementSibling.firstElementChild.style.transform = this.checked ? 'translateX(16px)' : 'translateX(0)';">
+                                <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:{{ old('show_story', $project->show_story ?? true) ? '#6829AA' : '#C4BDB2' }}; transition:.2s; border-radius:20px;">
+                                    <span style="position:absolute; content:''; height:16px; width:16px; left:2px; bottom:2px; background-color:white; transition:.2s; border-radius:50%; transform:{{ old('show_story', $project->show_story ?? true) ? 'translateX(16px)' : 'translateX(0)' }}"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
                     {{-- Category & Medium --}}
                 <div class="pe-field-row">
                     <div class="pe-field">
@@ -1894,8 +1957,93 @@ function notionEditor() {
             // Submit the form natively
             event.target.submit();
         }
-    };
+    }
+}
+
+function comingSoonGallery() {
+    return {
+        images: @json(old('coming_soon_gallery', $project->coming_soon_gallery ?? [])),
+        ratio: '{{ old('coming_soon_gallery_ratio', $project->coming_soon_gallery_ratio ?? '16:9') }}',
+        isUploading: false,
+        dragIndex: null,
+
+        triggerUpload() {
+            document.getElementById('coming-soon-gallery-upload').click();
+        },
+
+        async handleFiles(event) {
+            let files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            this.isUploading = true;
+            try {
+                for (let file of files) {
+                    let img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    await new Promise(r => img.onload = r);
+                    
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+                    
+                    // Standard max width/height compress
+                    let MAX_WIDTH = 1920;
+                    let MAX_HEIGHT = 1080;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    let blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+                    let formData = new FormData();
+                    formData.append('file', blob, 'gallery_img.jpg');
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
+                        method: 'POST', body: formData
+                    });
+                    let data = await resp.json();
+                    if (data.url) {
+                        this.images.push(data.url);
+                    }
+                }
+            } catch (err) {
+                alert('Gallery upload failed.');
+            } finally {
+                this.isUploading = false;
+                event.target.value = '';
+            }
+        },
+
+        removeImage(index) {
+            this.images.splice(index, 1);
+        },
+
+        dragStart(index, event) {
+            this.dragIndex = index;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        dragOver(index) {
+            // Needed to allow drop
+        },
+
+        drop(index) {
+            if (this.dragIndex !== null && this.dragIndex !== index) {
+                // Move item in array
+                const item = this.images.splice(this.dragIndex, 1)[0];
+                this.images.splice(index, 0, item);
+            }
+            this.dragIndex = null;
+        }
+    }
 }
 </script>
-
 @endsection

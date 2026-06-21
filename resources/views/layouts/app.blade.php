@@ -293,21 +293,11 @@
     <script>
         (function() {
             var loader = document.getElementById('global-loader');
-            // Flag: once the user has clicked a navigation link, block any auto-hide
-            // until the new page fully takes over. This prevents the double-flash where
-            // the loader shows, then hides (because readyState/pageshow fires on the
-            // current page), then shows again when the new page loads.
+            // Flag: once a navigation is committed, block auto-hide on this page so
+            // stale pageshow/readyState callbacks don't prematurely clear the loader
+            // on the incoming page.
             var navigating = false;
 
-            function showLoader() {
-                if (loader) {
-                    loader.style.display = 'flex';
-                    void loader.offsetWidth; // Force reflow
-                    loader.style.transition = 'opacity 0.15s ease';
-                    loader.style.opacity = '1';
-                    loader.style.pointerEvents = 'all';
-                }
-            }
 
             function hideLoader(instant) {
                 // If a navigation was committed, don't hide — let the next page hide it
@@ -357,7 +347,11 @@
             // Safety timeout: never keep loader up for more than 3 seconds
             setTimeout(function() { navigating = false; hideLoader(); }, 3000);
 
-            // 2. Show loader on link-click navigation
+            // 2. On link-click: mark navigating=true to block stale hideLoader calls.
+            //    We do NOT call showLoader() here — showing the loader on the SOURCE page
+            //    causes a redundant flash on the page you are leaving. Every DESTINATION
+            //    page already starts with the loader visible by default in its HTML, so
+            //    the destination's loader is the only one the user needs to see.
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 if (!link) return;
@@ -369,25 +363,20 @@
                 try {
                     var url = new URL(link.href, window.location.href);
                     var isSamePage = (url.pathname === window.location.pathname && url.search === window.location.search);
-                    // Anchor-only: same page + just a hash change — no loader needed
+                    // Anchor-only jump (same page, different hash) — no navigation, skip.
                     var isAnchorOnly = isSamePage && url.hash;
 
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
                         navigating = true;
-                        // Slight delay on mobile to let the browser register the tap before
-                        // a full-screen overlay is placed (prevents iOS Safari cancelling the nav).
-                        setTimeout(showLoader, 50);
-                        // Safety: if navigation never happens (e.g. cancelled), reset after 6s
+                        // Safety: reset if navigation never completes (e.g. cancelled).
                         setTimeout(function() { navigating = false; hideLoader(); }, 6000);
                     }
                 } catch (err) {}
             });
 
-            // 3. Signal on unload — but do NOT show the loader here.
-            // Showing the loader in beforeunload causes it to be frozen into BFCache state,
-            // so when the user hits Back, the page restores with a visible loader.
-            // The click handler (above) already shows the loader with a 50ms delay which
-            // is enough visual feedback. beforeunload just locks in the navigating flag.
+            // 3. Lock navigating=true on actual page unload.
+            //    Prevents BFCache-restored source pages from prematurely hiding the loader
+            //    via stale pageshow/readyState callbacks after restoration.
             window.addEventListener('beforeunload', function() {
                 navigating = true;
             });

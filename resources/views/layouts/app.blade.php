@@ -508,8 +508,8 @@
                 $cvUrl = asset($profile->cv_path);
             }
         }
-        // Use the direct PDF URL to render same-origin/public PDFs cleanly in browser without Google Docs Viewer failing and triggering automatic downloads
-        $cvEmbedUrl = $cvUrl;
+        // Use the direct PDF URL and append fragments to control the browser's native viewer
+        $cvEmbedUrl = $cvUrl . '#navpanes=0&view=FitH&scrollbar=0';
     @endphp
     <div x-show="showResumeModal" style="display: none;" class="relative z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background dimming -->
@@ -534,7 +534,7 @@
                      x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
                      @click.away="showResumeModal = false"
                      class="relative flex flex-col shadow-[0_32px_80px_rgba(0,0,0,0.7)] transition-all w-full"
-                     style="max-height: 96vh; width: min(640px, calc((96vh - 40px) * (210/297)));">
+                     style="max-height: 96vh; width: min(900px, calc((96vh - 40px) * (210/297)));">
 
                     <!-- Slim dark header bar -->
                     <div class="flex items-center justify-between px-4 flex-shrink-0"

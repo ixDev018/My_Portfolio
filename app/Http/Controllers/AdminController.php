@@ -19,14 +19,34 @@ class AdminController extends Controller
         if (empty($path)) return;
         if (Str::startsWith($path, 'http')) {
             $parts = explode('/', $path);
-            $publicId = explode('.', end($parts))[0];
+            $publicIdWithExt = end($parts);
+            $publicId = explode('.', $publicIdWithExt)[0];
             
-            // For now, determining folder dynamically or deleting directly by ID
+            // Extract the cloud name from the URL
+            // Cloudinary URL format: https://res.cloudinary.com/<cloud_name>/image/upload/v12345/folder/file.jpg
+            $cloudName = count($parts) > 3 ? $parts[3] : '';
+            
             try {
-                cloudinary()->uploadApi()->destroy("portfolio/skills/" . $publicId);
-                cloudinary()->uploadApi()->destroy("portfolio/projects/" . $publicId);
-                cloudinary()->uploadApi()->destroy("portfolio/tools/" . $publicId);
-            } catch (\Exception $e) {}
+                // If the URL cloud name matches the video account, use the video SDK instance
+                $videoUrl = env('CLOUDINARY_VIDEO_URL', '');
+                if ($videoUrl && str_contains($videoUrl, '@' . $cloudName)) {
+                    $cloudinaryVideo = new \Cloudinary\Cloudinary($videoUrl);
+                    $cloudinaryVideo->uploadApi()->destroy("portfolio/skills/" . $publicId);
+                    $cloudinaryVideo->uploadApi()->destroy("portfolio/projects/" . $publicId);
+                    $cloudinaryVideo->uploadApi()->destroy("portfolio/tools/" . $publicId);
+                    $cloudinaryVideo->uploadApi()->destroy("portfolio/projects/gallery/" . $publicId);
+                    $cloudinaryVideo->uploadApi()->destroy("portfolio/projects/body/" . $publicId);
+                } else {
+                    // Default fallback to the main account
+                    cloudinary()->uploadApi()->destroy("portfolio/skills/" . $publicId);
+                    cloudinary()->uploadApi()->destroy("portfolio/projects/" . $publicId);
+                    cloudinary()->uploadApi()->destroy("portfolio/tools/" . $publicId);
+                    cloudinary()->uploadApi()->destroy("portfolio/projects/gallery/" . $publicId);
+                    cloudinary()->uploadApi()->destroy("portfolio/projects/body/" . $publicId);
+                }
+            } catch (\Exception $e) {
+                \Log::error("Cloudinary delete failed: " . $e->getMessage());
+            }
             return;
         }
         Storage::disk(config('filesystems.default'))->delete($path);
@@ -56,20 +76,26 @@ class AdminController extends Controller
                 if ($resourceType === 'raw') {
                     $originalName = pathinfo($data->getClientOriginalName(), PATHINFO_FILENAME);
                     $slugifiedName = \Illuminate\Support\Str::slug($originalName);
-                    // Cloudinary requires raw files to have the extension in their public_id to be served with it
                     $options['public_id'] = $slugifiedName . '_' . \Illuminate\Support\Str::random(6) . '.' . $extension;
                 } else {
                     $options['use_filename'] = true;
                     $options['unique_filename'] = true;
                 }
 
-                $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), $options);
+                if ($resourceType === 'video') {
+                    $cloudinaryVideo = new \Cloudinary\Cloudinary(env('CLOUDINARY_VIDEO_URL'));
+                    $uploaded = $cloudinaryVideo->uploadApi()->upload($data->getRealPath(), $options);
+                } else {
+                    $uploaded = cloudinary()->uploadApi()->upload($data->getRealPath(), $options);
+                }
+                
                 return $uploaded['secure_url'];
             } else if (is_string($data) && preg_match('/^data:image\/(\w+);base64,/', $data)) {
                 $uploaded = cloudinary()->uploadApi()->upload($data, ['folder' => "portfolio/{$folder}"]);
                 return $uploaded['secure_url'];
             } else if (is_string($data) && preg_match('/^data:video\/(\w+);base64,/', $data)) {
-                $uploaded = cloudinary()->uploadApi()->upload($data, [
+                $cloudinaryVideo = new \Cloudinary\Cloudinary(env('CLOUDINARY_VIDEO_URL'));
+                $uploaded = $cloudinaryVideo->uploadApi()->upload($data, [
                     'folder' => "portfolio/{$folder}",
                     'resource_type' => 'video',
                 ]);

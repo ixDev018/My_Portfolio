@@ -309,29 +309,41 @@
                 }
             }
 
-            function hideLoader() {
+            function hideLoader(instant) {
                 // If a navigation was committed, don't hide — let the next page hide it
                 if (navigating) return;
                 if (loader) {
-                    loader.style.transition = 'opacity 0.3s ease';
-                    loader.style.opacity = '0';
-                    loader.style.pointerEvents = 'none';
-                    setTimeout(function() {
-                        if (!navigating) loader.style.display = 'none';
-                    }, 300);
+                    if (instant) {
+                        // Hard-reset with no transition — used on BFCache restores to
+                        // immediately clear any loader state frozen when the page was cached
+                        loader.style.transition = 'none';
+                        loader.style.opacity = '0';
+                        loader.style.pointerEvents = 'none';
+                        loader.style.display = 'none';
+                    } else {
+                        loader.style.transition = 'opacity 0.3s ease';
+                        loader.style.opacity = '0';
+                        loader.style.pointerEvents = 'none';
+                        setTimeout(function() {
+                            if (!navigating) loader.style.display = 'none';
+                        }, 300);
+                    }
                 }
             }
 
-            // 1. Hide smoothly when page finishes loading or is shown (handles initial load & back/forward navigation)
-            //    On the *new* page navigating is false (fresh script), so this correctly hides the loader.
+            // 1. Hide when page finishes loading or is restored from BFCache (back/forward)
             window.addEventListener('pageshow', function(e) {
-                // pageshow fires on BFCache restore too; always hide on the incoming page
                 navigating = false;
-                setTimeout(hideLoader, 150);
+                if (e.persisted) {
+                    // BFCache restore: the page was frozen mid-navigation with loader possibly
+                    // visible and navigating=true. Force an instant hide to avoid any flash.
+                    hideLoader(true);
+                } else {
+                    setTimeout(hideLoader, 150);
+                }
             });
 
             if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                // Current page is already loaded — hide loader (covers the very first page visit)
                 setTimeout(hideLoader, 150);
             } else {
                 window.addEventListener('DOMContentLoaded', function() {
@@ -354,27 +366,27 @@
                 try {
                     var url = new URL(link.href, window.location.href);
                     var isSamePage = (url.pathname === window.location.pathname && url.search === window.location.search);
+                    // Anchor-only: same page + just a hash change — no loader needed
                     var isAnchorOnly = isSamePage && url.hash;
 
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
-                        // Mark navigating immediately so any stray pageshow/readyState callbacks
-                        // on this page don't prematurely hide the loader.
                         navigating = true;
-
                         // Slight delay on mobile to let the browser register the tap before
                         // a full-screen overlay is placed (prevents iOS Safari cancelling the nav).
                         setTimeout(showLoader, 50);
-
                         // Safety: if navigation never happens (e.g. cancelled), reset after 6s
                         setTimeout(function() { navigating = false; hideLoader(); }, 6000);
                     }
                 } catch (err) {}
             });
 
-            // 3. Also show loader immediately on actual page unload (most reliable signal)
+            // 3. Signal on unload — but do NOT show the loader here.
+            // Showing the loader in beforeunload causes it to be frozen into BFCache state,
+            // so when the user hits Back, the page restores with a visible loader.
+            // The click handler (above) already shows the loader with a 50ms delay which
+            // is enough visual feedback. beforeunload just locks in the navigating flag.
             window.addEventListener('beforeunload', function() {
                 navigating = true;
-                showLoader();
             });
         })();
     </script>

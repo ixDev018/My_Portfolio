@@ -30,8 +30,11 @@ class NewContactMessage extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address(config('mail.from.address', 'brixcura3@gmail.com'), 'Portfolio Inquiry Alert!'),
             subject: 'New Portfolio Message: ' . ($this->contactData['subject'] ?? '(No Subject)'),
-            replyTo: [$this->contactData['email']]
+            replyTo: [
+                new \Illuminate\Mail\Mailables\Address($this->contactData['email'], $this->contactData['name'])
+            ]
         );
     }
 

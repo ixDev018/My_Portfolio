@@ -77,7 +77,8 @@
     @endif
 </div>
 
-<div style="background:#fff;border:1px solid #D8D4C8;border-radius:1rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);flex: 1;">
+<div style="background:#fff;border:1px solid #D8D4C8;border-radius:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.05); flex: 1; display: flex; flex-direction: column; min-height: calc(100vh - 7.5rem);">
+    <div style="overflow-y: auto; flex: 1;">
     <table class="inbox-table">
         <thead>
             <tr>
@@ -172,6 +173,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 </div>
 
 @endsection

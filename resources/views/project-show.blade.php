@@ -363,22 +363,39 @@
                                             $isVimeo = !$isYouTube && preg_match('/vimeo\.com\/(\d+)/', $videoSrc, $vmMatch);
                                             $isEmbed = $isYouTube || $isVimeo;
                                         @endphp
-                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}">
+                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}" x-data="{ playing: false }">
+                                            @if(!empty($block['posterSrc']))
+                                                <div x-show="!playing" class="absolute inset-0 w-full h-full cursor-pointer group z-10" @click="playing = true">
+                                                    <img src="{{ $block['posterSrc'] }}" class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                                                        <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                            <svg class="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+
                                             @if($isEmbed)
                                                 @php
                                                     $ytParams = http_build_query(array_filter([
-                                                        'autoplay' => 0,
+                                                        'autoplay' => !empty($block['posterSrc']) ? 1 : 0,
                                                         'rel'      => 0,
                                                         'start'    => isset($block['startTime']) && $block['startTime'] !== null ? (int)$block['startTime'] : null,
                                                         'end'      => isset($block['endTime'])   && $block['endTime']   !== null ? (int)$block['endTime']   : null,
                                                     ], fn($v) => $v !== null));
                                                     $embedUrl = $isYouTube
                                                         ? 'https://www.youtube-nocookie.com/embed/' . $ytMatch[1] . '?' . $ytParams
-                                                        : 'https://player.vimeo.com/video/' . $vmMatch[1];
+                                                        : 'https://player.vimeo.com/video/' . $vmMatch[1] . (!empty($block['posterSrc']) ? '?autoplay=1' : '');
                                                 @endphp
-                                                <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                                                @if(!empty($block['posterSrc']))
+                                                    <template x-if="playing">
+                                                        <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                                                    </template>
+                                                @else
+                                                    <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                                                @endif
                                             @else
-                                                <video src="{{ $videoSrc }}" class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
+                                                <video src="{{ $videoSrc }}" {{ !empty($block['posterSrc']) ? 'poster='.$block['posterSrc'] : '' }} class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
                                             @endif
                                         </div>
                                         @if($isYouTube ?? false)

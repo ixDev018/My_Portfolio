@@ -583,14 +583,31 @@
                                     <div style="position:relative;">
                                         <div style="position:relative;width:100%;border-radius:0.5rem;overflow:hidden;border:1px solid #E2DDD3;" 
                                              :style="(block.ratio === '3:4') ? 'aspect-ratio: 3/4;' : 'aspect-ratio: 16/9;'">
-                                            <template x-if="isEmbedUrl(block.src)">
-                                                <iframe :src="getEmbedUrl(block.src, block)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
+                                            <template x-if="!block.posterSrc">
+                                                <template x-if="isEmbedUrl(block.src)">
+                                                    <iframe :src="getEmbedUrl(block.src, block)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
+                                                </template>
                                             </template>
-                                            <template x-if="!isEmbedUrl(block.src)">
-                                                <video :src="block.src" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;" controls playsinline></video>
+                                            <template x-if="!block.posterSrc">
+                                                <template x-if="!isEmbedUrl(block.src)">
+                                                    <video :src="block.src" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;" controls playsinline></video>
+                                                </template>
+                                            </template>
+                                            <template x-if="block.posterSrc">
+                                                <div style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                                    <img :src="block.posterSrc" style="width:100%;height:100%;object-fit:cover;">
+                                                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+                                                        <svg style="width:3rem;height:3rem;color:white;opacity:0.8;" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                                    </div>
+                                                </div>
                                             </template>
                                         </div>
-                                        <div style="position:absolute; top:0.5rem; right:0.5rem; display:flex; gap:0.25rem; background:rgba(0,0,0,0.5); padding:0.25rem; border-radius:0.5rem; backdrop-filter:blur(4px);">
+                                        <div style="position:absolute; top:0.5rem; right:0.5rem; display:flex; gap:0.25rem; background:rgba(0,0,0,0.5); padding:0.25rem; border-radius:0.5rem; backdrop-filter:blur(4px); z-index:10;">
+                                            <button type="button" @click="triggerPosterUpload(block.id)" style="color:#fff; font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">Poster</button>
+                                            <template x-if="block.posterSrc">
+                                                <button type="button" @click="removePoster(block.id)" style="color:#ff6b6b; font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">x</button>
+                                            </template>
+                                            <div style="width:1px; background:rgba(255,255,255,0.2); margin:0 2px;"></div>
                                             <button type="button" @click="block.ratio = '16:9'" :style="(!block.ratio || block.ratio === '16:9') ? 'background:#fff; color:#000;' : 'color:#fff;'" style="font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">16:9</button>
                                             <button type="button" @click="block.ratio = '3:4'" :style="block.ratio === '3:4' ? 'background:#fff; color:#000;' : 'color:#fff;'" style="font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">3:4</button>
                                         </div>
@@ -939,6 +956,8 @@
 <input type="file" id="block-image-upload" accept="image/*" style="display:none;">
 {{-- Hidden file input for video blocks --}}
 <input type="file" id="block-video-upload" accept="video/mp4,video/webm,video/mov,video/quicktime" style="display:none;">
+{{-- Hidden file input for poster images --}}
+<input type="file" id="block-poster-upload" accept="image/*" style="display:none;">
 
 <script>
 function notionEditor() {
@@ -988,6 +1007,7 @@ function notionEditor() {
             this.setupFmtToolbar();
             document.getElementById('block-image-upload').addEventListener('change', (e) => this.handleImageFile(e));
             document.getElementById('block-video-upload').addEventListener('change', (e) => this.handleVideoFile(e));
+            document.getElementById('block-poster-upload').addEventListener('change', (e) => this.handlePosterFile(e));
         },
 
         generateId() {
@@ -1496,6 +1516,66 @@ function notionEditor() {
             event.target.value = '';
             this._pendingVideoBlockId = null;
         },
+
+        // ── Poster upload & embed ──
+        _pendingPosterBlockId: null,
+        triggerPosterUpload(blockId) {
+            this._pendingPosterBlockId = blockId;
+            document.getElementById('block-poster-upload').click();
+        },
+        async handlePosterFile(event) {
+            let file = event.target.files[0];
+            if (!file || !this._pendingPosterBlockId) return;
+            let block = this.blocks.find(b => b.id === this._pendingPosterBlockId);
+            if (!block) return;
+
+            block.isUploading = true;
+            try {
+                let img = new Image();
+                img.src = URL.createObjectURL(file);
+                await new Promise(r => img.onload = r);
+                
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+                let MAX_WIDTH = 1920;
+                let MAX_HEIGHT = 1080;
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                let blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+                let formData = new FormData();
+                formData.append('file', blob, 'poster.jpg');
+                formData.append('_token', '{{ csrf_token() }}');
+
+                let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
+                    method: 'POST', body: formData
+                });
+                let data = await resp.json();
+                if (data.url) {
+                    block.posterSrc = data.url;
+                }
+            } catch(err) {
+                alert('Poster upload failed.');
+            } finally {
+                block.isUploading = false;
+                event.target.value = '';
+                this._pendingPosterBlockId = null;
+            }
+        },
+        removePoster(blockId) {
+            let block = this.blocks.find(b => b.id === blockId);
+            if (block) block.posterSrc = null;
+        },
+
         promptVideoUrl(blockId) {
             let url = prompt('Enter YouTube or Vimeo URL:');
             if (!url) return;
@@ -1805,6 +1885,7 @@ function notionEditor() {
                 if (b.posY !== undefined) clean.posY = b.posY;
                 if (b.startTime != null) clean.startTime = b.startTime;
                 if (b.endTime   != null) clean.endTime   = b.endTime;
+                if (b.posterSrc) clean.posterSrc = b.posterSrc;
                 return clean;
             });
 

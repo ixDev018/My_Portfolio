@@ -171,54 +171,61 @@
             var loader = document.getElementById('global-loader');
             var progressLine = loader.querySelector('.progress-line');
             var navigating = false;
-            var trickleInterval;
-            var currentProgress = 0;
 
             function startLoader() {
                 if (!loader || !progressLine) return;
+                // Prevent restarting the animation if already running
+                if (navigating && progressLine.style.width !== '' && progressLine.style.width !== '0%') return;
+                
                 loader.style.display = 'block';
                 loader.style.opacity = '1';
-                progressLine.style.transition = 'width 0.2s ease-out';
-                currentProgress = 15;
-                progressLine.style.width = currentProgress + '%';
+                loader.style.transition = 'none';
                 
-                clearInterval(trickleInterval);
-                trickleInterval = setInterval(function() {
-                    if (currentProgress >= 95) return;
-                    var remaining = 100 - currentProgress;
-                    var inc = Math.random() * (remaining * 0.1);
-                    currentProgress += inc;
-                    progressLine.style.width = currentProgress + '%';
-                }, 300);
+                // Snap to 0% without transition
+                progressLine.style.transition = 'none';
+                progressLine.style.width = '0%';
+                
+                // Force reflow
+                void progressLine.offsetWidth;
+                
+                // Slow crawl to 95% over 10 seconds
+                progressLine.style.transition = 'width 10s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                progressLine.style.width = '95%';
             }
 
             function hideLoader(instant) {
                 if (navigating) return;
-                clearInterval(trickleInterval);
-                if (loader && progressLine) {
-                    if (instant) {
+                if (!loader || !progressLine) return;
+                
+                if (instant) {
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                    loader.style.display = 'none';
+                    progressLine.style.transition = 'none';
+                    progressLine.style.width = '0%';
+                } else {
+                    // Fast zip to 100%
+                    progressLine.style.transition = 'width 0.3s ease-out';
+                    progressLine.style.width = '100%';
+                    
+                    // Wait for the zip to finish, then fade out
+                    setTimeout(function() {
+                        loader.style.transition = 'opacity 0.4s ease';
                         loader.style.opacity = '0';
                         loader.style.pointerEvents = 'none';
-                        loader.style.display = 'none';
-                        progressLine.style.transition = 'none';
-                        progressLine.style.width = '0%';
-                    } else {
-                        progressLine.style.width = '100%';
+                        
                         setTimeout(function() {
-                            loader.style.opacity = '0';
-                            loader.style.pointerEvents = 'none';
-                            setTimeout(function() {
-                                if (!navigating) {
-                                    loader.style.display = 'none';
-                                    progressLine.style.transition = 'none';
-                                    progressLine.style.width = '0%';
-                                }
-                            }, 300);
-                        }, 250);
-                    }
+                            if (!navigating) {
+                                loader.style.display = 'none';
+                                progressLine.style.transition = 'none';
+                                progressLine.style.width = '0%';
+                            }
+                        }, 400);
+                    }, 300);
                 }
             }
 
+            // Fire on initial load
             startLoader();
 
             window.addEventListener('pageshow', function(e) {
@@ -230,11 +237,19 @@
                 }
             });
 
+            // Fallback for document load
             if (document.readyState === 'complete') {
+                navigating = false;
                 hideLoader(false);
+            } else {
+                window.addEventListener('load', function() {
+                    navigating = false;
+                    hideLoader(false);
+                });
             }
 
-            setTimeout(function() { navigating = false; hideLoader(false); }, 10000);
+            // Maximum timeout failsafe
+            setTimeout(function() { navigating = false; hideLoader(false); }, 15000);
 
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');

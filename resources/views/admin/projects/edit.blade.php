@@ -6,6 +6,13 @@
 <link href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
 
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<!-- Cropper.js for Image Cropping -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
 <style>
     .cms-main { background: #EDEAE0; }
 
@@ -563,6 +570,9 @@
                                             </div>
                                         </div>
                                         <div style="position:absolute; top:0.5rem; right:0.5rem; display:flex; gap:0.25rem; background:rgba(0,0,0,0.5); padding:0.25rem; border-radius:0.5rem; backdrop-filter:blur(4px);">
+                                            <button type="button" @click="openCropper(block.id)" style="color:#fff; font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;" title="Crop Image">
+                                                <svg fill="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z"/></svg>
+                                            </button>
                                             <button type="button" @click="block.ratio = 'auto'" :style="(!block.ratio || block.ratio === 'auto') ? 'background:#fff; color:#000;' : 'color:#fff;'" style="font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">AUTO</button>
                                             <button type="button" @click="block.ratio = '16:9'" :style="block.ratio === '16:9' ? 'background:#fff; color:#000;' : 'color:#fff;'" style="font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">16:9</button>
                                             <button type="button" @click="block.ratio = '3:4'" :style="block.ratio === '3:4' ? 'background:#fff; color:#000;' : 'color:#fff;'" style="font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:0.25rem; font-family:'Space Mono',monospace; font-weight:bold;">3:4</button>
@@ -633,6 +643,69 @@
                                         </div>
                                     </div>
                                 </template>
+                            </div>
+                        </template>
+
+                        {{-- Slideshow block --}}
+                        <template x-if="block.type === 'slideshow'">
+                            <div style="width:100%;" class="pe-block-slideshow-wrap">
+                                {{-- Settings Header --}}
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:#F7F5EE; padding:0.5rem; border-radius:0.4rem; margin-bottom:0.5rem; border:1px solid #E2DDD3;">
+                                    <div style="font-family:'Space Mono',monospace; font-size:0.6rem; color:#6829AA; font-weight:700;">SLIDESHOW</div>
+                                    <div style="display:flex; gap:1rem; align-items:center;">
+                                        <label style="font-size:0.65rem; display:flex; align-items:center; gap:0.3rem;">
+                                            <input type="checkbox" x-model="block.autoplay" @change="debouncedUpdateField()"> Autoplay
+                                        </label>
+                                        <select x-model="block.aspectRatio" @change="debouncedUpdateField()" style="font-size:0.65rem; padding:0.1rem 0.3rem; border-radius:0.2rem; border:1px solid #D8D4C8;">
+                                            <option value="auto">Auto (Original)</option>
+                                            <option value="16:9">16:9 (Widescreen)</option>
+                                            <option value="1:1">1:1 (Square)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {{-- Image Grid --}}
+                                <div x-show="block.images && block.images.length > 0" :id="'slideshow-sortable-' + block.id" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.5rem;" x-effect="initSlideshowSortable(block.id)">
+                                    <template x-for="(img, idx) in block.images" :key="idx + '-' + img.src">
+                                        <div class="slide-item" style="display:flex; align-items:center; gap:0.75rem; background:#fff; padding:0.4rem; border-radius:0.4rem; border:1px solid #D8D4C8; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                                            
+                                            <div class="slideshow-drag-handle" style="cursor:grab; padding:0.2rem; color:#C4BDB2;" title="Drag to reorder">
+                                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 3h2v2H9V3zm4 0h2v2h-2V3zM9 7h2v2H9V7zm4 0h2v2h-2V7zM9 11h2v2H9v-2zm4 0h2v2h-2v-2zM9 15h2v2H9v-2zm4 0h2v2h-2v-2zM9 19h2v2H9v-2zm4 0h2v2h-2v-2z"/></svg>
+                                            </div>
+                                            
+                                            <div style="font-family:'Space Mono', monospace; font-size:0.65rem; font-weight:bold; color:#9B9589; width:1.2rem; text-align:center;">
+                                                <span x-text="'#' + (idx + 1)"></span>
+                                            </div>
+                                            
+                                            <div style="width:4.8rem; height:2.7rem; border-radius:0.25rem; overflow:hidden; background:#eee; flex-shrink:0; border:1px solid rgba(0,0,0,0.1); position:relative;" class="media-preview-container">
+                                                <img :src="img.src" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                                <div class="media-overlay-actions" style="top:0; right:0; bottom:0; left:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); gap:0.25rem;">
+                                                    <button type="button" class="media-action-btn" style="padding:0.2rem; transform:scale(0.85);" @click.stop="openCropper(block.id, idx)" title="Crop Image">
+                                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div style="flex:1; min-width:0;">
+                                                <p style="font-size:0.75rem; font-weight:600; color:#333; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Slideshow Image</p>
+                                                <p style="font-size:0.6rem; font-family:'Space Mono', monospace; color:#6829AA; margin:0; font-weight:600;">Saved Image</p>
+                                            </div>
+
+                                            <div class="slide-actions" style="display:flex; gap:0.25rem;">
+                                                <button type="button" @click.stop="removeSlideshowImage(block.id, idx)" title="Delete Image" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.35rem; border-radius:0.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;" onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEE2E2'">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                {{-- Upload Area --}}
+                                <div class="pe-block-image-upload" @click="!block.isUploading && triggerSlideshowUpload(block.id)" :style="block.isUploading ? 'opacity:0.7; pointer-events:none; min-height:60px;' : 'min-height:60px;'">
+                                    <svg x-show="!block.isUploading" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <svg x-show="block.isUploading" class="animate-spin" style="width:1.5rem; height:1.5rem; color:#6829AA;" fill="none" viewBox="0 0 24 24" x-cloak><circle style="opacity:0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span x-text="block.isUploading ? 'Uploading Images...' : 'Click to add images to slideshow'"></span>
+                                </div>
                             </div>
                         </template>
 
@@ -795,21 +868,21 @@
                 @endif
 
                 {{-- COMING SOON GALLERY --}}
-                <div x-data="comingSoonGallery()" style="margin-top: 1rem; border-top:1px solid #E2DDD3; padding-top:1rem;">
+                <div x-data="comingSoonGallery()" x-init="initSortable()" style="margin-top: 1rem; border-top:1px solid #E2DDD3; padding-top:1rem;">
                     <input type="hidden" name="coming_soon_gallery_json" :value="JSON.stringify(images)">
                     
-                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.75rem;">
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
                         <div>
-                            <span class="pe-field-label" style="margin-bottom:0.15rem; color:#1a1207;">Coming Soon Gallery</span>
-                            <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:#7A7267; margin:0;">Images shown in the Coming Soon modal when "Show Story" is off. If none uploaded, fallback is used.</p>
+                            <span class="pe-field-label" style="margin-bottom:0.15rem; color:#1a1207; display:block;">Coming Soon Gallery</span>
+                            <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:#7A7267; margin:0; line-height:1.4;">Images shown in the Coming Soon modal when "Show Story" is off. If none uploaded, fallback is used.</p>
                         </div>
-                        <div style="display:flex; gap:0.5rem;">
-                            <select name="coming_soon_gallery_ratio" x-model="ratio" style="font-size:0.75rem; padding:0.25rem 0.5rem; border:1px solid #E2DDD3; border-radius:0.35rem; font-family:'Space Mono',monospace; outline:none;">
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <select name="coming_soon_gallery_ratio" x-model="ratio" style="font-size:0.75rem; padding:0.35rem 0.5rem; border:1px solid #E2DDD3; border-radius:0.35rem; font-family:'Space Mono',monospace; outline:none; flex:1; cursor:pointer;">
                                 <option value="16:9">16:9 Ratio</option>
                                 <option value="3:4">3:4 Ratio</option>
                                 <option value="1:1">1:1 Ratio</option>
                             </select>
-                            <button type="button" @click="triggerUpload" class="pe-btn-cancel" style="padding:0.35rem 0.75rem;">
+                            <button type="button" @click="triggerUpload" class="pe-btn-cancel" style="padding:0.35rem 0.75rem; white-space:nowrap;">
                                 + Add Image
                             </button>
                             <input type="file" id="coming-soon-gallery-upload" accept="image/*" multiple style="display:none;" @change="handleFiles">
@@ -820,23 +893,60 @@
                         Compressing and uploading images... Please wait.
                     </div>
 
-                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:0.5rem;">
-                        <template x-for="(img, index) in images" :key="index">
-                            <div style="position:relative; border-radius:0.4rem; overflow:hidden; border:1px solid #E2DDD3; aspect-ratio:16/9; background:#f0f0f0;"
-                                 draggable="true" 
-                                 @dragstart="dragStart(index, $event)"
-                                 @dragover.prevent="dragOver(index)"
-                                 @drop.prevent="drop(index)"
-                                 @dragenter.prevent
-                                 :style="dragIndex === index ? 'opacity: 0.5' : ''">
-                                <img :src="img" style="width:100%; height:100%; object-fit:cover;">
+                    <!-- unified gallery container -->
+                    <div id="comingsoon-sortable" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem;" x-show="images.length > 0">
+                        <template x-for="(img, index) in images" :key="index + '-' + img">
+                            <div class="slide-item" style="display:flex; align-items:center; gap:0.75rem; background:#fff; padding:0.4rem; border-radius:0.4rem; border:1px solid #D8D4C8; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
                                 
-                                <div style="position:absolute; top:4px; right:4px; display:flex; gap:4px; background:rgba(0,0,0,0.5); padding:2px; border-radius:4px; backdrop-filter:blur(2px);">
-                                    <button type="button" @click="removeImage(index)" style="background:transparent; border:none; color:#ff6b6b; font-size:0.6rem; cursor:pointer; font-weight:bold; font-family:'Space Mono',monospace; padding:0 4px;">x</button>
+                                <div class="comingsoon-drag-handle" style="cursor:grab; padding:0.2rem; color:#C4BDB2;" title="Drag to reorder">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 3h2v2H9V3zm4 0h2v2h-2V3zM9 7h2v2H9V7zm4 0h2v2h-2V7zM9 11h2v2H9v-2zm4 0h2v2h-2v-2zM9 15h2v2H9v-2zm4 0h2v2h-2v-2zM9 19h2v2H9v-2zm4 0h2v2h-2v-2z"/></svg>
                                 </div>
-                                <div style="position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); padding:2px 4px; border-radius:4px; color:white; font-size:0.55rem; font-family:'Space Mono',monospace;" x-text="index + 1"></div>
+                                
+                                <div style="font-family:'Space Mono', monospace; font-size:0.65rem; font-weight:bold; color:#9B9589; width:1.2rem; text-align:center;">
+                                    <span x-text="'#' + (index + 1)"></span>
+                                </div>
+                                
+                                <div style="width:4.8rem; height:2.7rem; border-radius:0.25rem; overflow:hidden; background:#eee; flex-shrink:0; border:1px solid rgba(0,0,0,0.1); position:relative;" class="media-preview-container">
+                                    <img :src="img" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    <div class="media-overlay-actions" style="top:0; right:0; bottom:0; left:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); gap:0.25rem;">
+                                        <button type="button" class="media-action-btn" style="padding:0.2rem; transform:scale(0.85);" @click="openCropper(index)" title="Crop Image">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div style="flex:1; min-width:0;">
+                                    <p style="font-size:0.75rem; font-weight:600; color:#333; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Gallery Image</p>
+                                    <p style="font-size:0.6rem; font-family:'Space Mono', monospace; color:#6829AA; margin:0; font-weight:600;">Saved Image</p>
+                                </div>
+
+                                <div class="slide-actions" style="display:flex; gap:0.25rem;">
+                                    <button type="button" @click="removeImage(index)" title="Delete Image" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.35rem; border-radius:0.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;" onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEE2E2'">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    </button>
+                                </div>
                             </div>
                         </template>
+                    </div>
+
+                    <!-- Cropper Modal for Coming Soon -->
+                    <div x-show="cropperOpen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; flex-direction:column; align-items:center; justify-content:center;" :style="cropperOpen ? 'display:flex;' : 'display:none;'" x-transition.opacity>
+                        <div style="background:#fff; padding:1rem; border-radius:0.5rem; width:90%; max-width:800px; max-height:90vh; display:flex; flex-direction:column; gap:1rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h3 style="font-family:'Space Mono',monospace; font-weight:bold; font-size:1.2rem;">Crop Image</h3>
+                                <button type="button" @click="closeCropper" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                            </div>
+                            <div style="flex:1; min-height:400px; max-height:60vh; background:#eee; position:relative;">
+                                <img id="comingsoon-cropper-image" style="display:block; max-width:100%;">
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                                <button type="button" @click="closeCropper" style="padding:0.5rem 1rem; border-radius:0.3rem; border:1px solid #ccc; background:#fff; cursor:pointer; font-family:'Space Mono',monospace;">Cancel</button>
+                                <button type="button" @click="applyCrop" style="padding:0.5rem 1rem; border-radius:0.3rem; border:none; background:#6829AA; color:#fff; font-weight:bold; cursor:pointer; font-family:'Space Mono',monospace;">
+                                    <span x-show="!isCropping">Apply Crop</span>
+                                    <span x-show="isCropping">Cropping...</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -980,6 +1090,22 @@
         </template>
     </div>
 
+    <!-- Cropper Modal -->
+    <div x-show="cropperOpen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; flex-direction:column; align-items:center; justify-content:center;" :style="cropperOpen ? 'display:flex;' : 'display:none;'" x-transition.opacity>
+        <div style="background:#fff; padding:1rem; border-radius:0.5rem; width:90%; max-width:800px; max-height:90vh; display:flex; flex-direction:column; gap:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-family:'Space Mono',monospace; font-weight:bold; font-size:1.2rem;">Crop Image</h3>
+                <button type="button" @click="closeCropper" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <div style="flex:1; min-height:400px; max-height:60vh; background:#eee; position:relative;">
+                <img id="cropper-image" style="display:block; max-width:100%;">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <button type="button" @click="closeCropper" style="padding:0.5rem 1rem; border-radius:0.3rem; border:1px solid #ccc; background:#fff; cursor:pointer; font-family:'Space Mono',monospace;">Cancel</button>
+                <button type="button" @click="applyCrop" style="padding:0.5rem 1rem; border-radius:0.3rem; border:none; background:#6829AA; color:#fff; cursor:pointer; font-family:'Space Mono',monospace;">Apply Crop</button>
+            </div>
+        </div>
+    </div>
 </form>
 
 {{-- Inline formatting toolbar --}}
@@ -993,6 +1119,16 @@
     <button type="button" class="pe-fmt-btn" data-fmt="strikethrough" title="Strikethrough">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4H9a3 3 0 000 6h6a3 3 0 010 6H8m8-12V4M8 18v2m-4-8h16"/></svg>
     </button>
+    <div class="pe-fmt-divider"></div>
+    <button type="button" class="pe-fmt-btn" data-fmt="clear" title="Clear Formatting">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v8l9-11h-7z"/></svg>
+    </button>
+    <div class="pe-fmt-divider"></div>
+    <div class="pe-fmt-color-picker" style="position:relative; width:28px; height:26px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:0.2rem; cursor:pointer;" title="Text Color">
+        <input type="color" id="pe-color-input" style="position:absolute; top:-10px; left:-10px; width:50px; height:50px; cursor:pointer; opacity:0;" value="#f53003">
+        <svg fill="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;pointer-events:none;color:white;"><path d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"/></svg>
+        <div id="pe-color-indicator" style="position:absolute; bottom:2px; left:4px; right:4px; height:3px; background:#f53003; border-radius:2px; pointer-events:none;"></div>
+    </div>
     <div class="pe-fmt-divider"></div>
     <button type="button" class="pe-fmt-btn" id="fmt-link-btn" data-fmt="link" title="Add / Edit Link (Ctrl+K)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
@@ -1021,11 +1157,86 @@
 <input type="file" id="block-video-upload" accept="video/mp4,video/webm,video/mov,video/quicktime" style="display:none;">
 {{-- Hidden file input for poster images --}}
 <input type="file" id="block-poster-upload" accept="image/*" style="display:none;">
+{{-- Hidden file input for slideshow blocks --}}
+<input type="file" id="block-slideshow-upload" accept="image/*" multiple style="display:none;">
 
 <script>
 function notionEditor() {
     return {
         blocks: [],
+        cropperOpen: false,
+        cropperInstance: null,
+        cropperTargetBlockId: null,
+        cropperTargetIdx: null,
+
+        openCropper(blockId, idx) {
+            let block = this.blocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            let imgUrl = (idx !== undefined && block.images) ? block.images[idx].src : block.src;
+            if (!imgUrl) return;
+
+            this.cropperTargetBlockId = blockId;
+            this.cropperTargetIdx = idx;
+            this.cropperOpen = true;
+
+            setTimeout(() => {
+                let imgEl = document.getElementById('cropper-image');
+                imgEl.src = imgUrl;
+                if (this.cropperInstance) {
+                    this.cropperInstance.destroy();
+                }
+                this.cropperInstance = new Cropper(imgEl, {
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    background: false,
+                });
+            }, 50);
+        },
+        
+        closeCropper() {
+            this.cropperOpen = false;
+            if (this.cropperInstance) {
+                this.cropperInstance.destroy();
+                this.cropperInstance = null;
+            }
+        },
+        
+        async applyCrop() {
+            if (!this.cropperInstance) return;
+            
+            let block = this.blocks.find(b => b.id === this.cropperTargetBlockId);
+            if (!block) return;
+
+            let canvas = this.cropperInstance.getCroppedCanvas({
+                maxWidth: 1920,
+                maxHeight: 1080
+            });
+            
+            let blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+            let formData = new FormData();
+            formData.append('file', blob, 'cropped.jpg');
+            formData.append('_token', '{{ csrf_token() }}');
+
+            try {
+                let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
+                    method: 'POST', body: formData
+                });
+                let data = await resp.json();
+                if (data.url) {
+                    if (this.cropperTargetIdx !== undefined && block.images) {
+                        block.images[this.cropperTargetIdx].src = data.url;
+                    } else {
+                        block.src = data.url;
+                    }
+                    this.debouncedUpdateField();
+                }
+            } catch(err) {
+                alert('Crop upload failed.');
+            } finally {
+                this.closeCropper();
+            }
+        },
         activeBlockId: null,
         isSubmitting: false,
         lastSaved: '{{ $project->updated_at ? $project->updated_at->toIso8601String() : '' }}',
@@ -1061,6 +1272,7 @@ function notionEditor() {
             { type:'code', label:'Code', desc:'Code snippet block', icon:'<>' },
             { type:'image', label:'Image', desc:'Upload or embed image', icon:'🖼' },
             { type:'video', label:'Video', desc:'Upload video or embed URL', icon:'▶' },
+            { type:'slideshow', label:'Slideshow', desc:'Upload multiple images', icon:'🖼️' },
             { type:'divider', label:'Divider', desc:'Horizontal separator', icon:'—' },
         ],
 
@@ -1071,6 +1283,7 @@ function notionEditor() {
             document.getElementById('block-image-upload').addEventListener('change', (e) => this.handleImageFile(e));
             document.getElementById('block-video-upload').addEventListener('change', (e) => this.handleVideoFile(e));
             document.getElementById('block-poster-upload').addEventListener('change', (e) => this.handlePosterFile(e));
+            document.getElementById('block-slideshow-upload').addEventListener('change', (e) => this.handleSlideshowFiles(e));
         },
 
         generateId() {
@@ -1662,6 +1875,94 @@ function notionEditor() {
             if (block) block.posterSrc = null;
         },
 
+        // ── Slideshow functions ──
+        _pendingSlideshowBlockId: null,
+        triggerSlideshowUpload(blockId) {
+            this._pendingSlideshowBlockId = blockId;
+            document.getElementById('block-slideshow-upload').click();
+        },
+        async handleSlideshowFiles(event) {
+            let files = event.target.files;
+            if (!files || files.length === 0 || !this._pendingSlideshowBlockId) return;
+            let block = this.blocks.find(b => b.id === this._pendingSlideshowBlockId);
+            if (!block) return;
+
+            block.isUploading = true;
+            if (!block.images) block.images = [];
+            
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    let img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    await new Promise(r => img.onload = r);
+                    
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+                    let MAX_WIDTH = 1920;
+                    let MAX_HEIGHT = 1080;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    let blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+                    let formData = new FormData();
+                    formData.append('file', blob, 'slideshow.jpg');
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
+                        method: 'POST', body: formData
+                    });
+                    let data = await resp.json();
+                    if (data.url) {
+                        block.images.push({ src: data.url });
+                    }
+                }
+            } catch(err) {
+                alert('Slideshow upload failed.');
+            } finally {
+                block.isUploading = false;
+                event.target.value = '';
+                this._pendingSlideshowBlockId = null;
+                this.debouncedUpdateField();
+            }
+        },
+        removeSlideshowImage(blockId, imgIdx) {
+            let block = this.blocks.find(b => b.id === blockId);
+            if (block && block.images) {
+                block.images.splice(imgIdx, 1);
+                this.debouncedUpdateField();
+            }
+        },
+
+        initSlideshowSortable(blockId) {
+            this.$nextTick(() => {
+                const el = document.getElementById('slideshow-sortable-' + blockId);
+                if (el && typeof Sortable !== 'undefined') {
+                    new Sortable(el, {
+                        animation: 150,
+                        handle: '.slideshow-drag-handle',
+                        onEnd: (evt) => {
+                            let block = this.blocks.find(b => b.id === blockId);
+                            if (block && block.images) {
+                                const item = block.images.splice(evt.oldIndex, 1)[0];
+                                block.images.splice(evt.newIndex, 0, item);
+                                this.debouncedUpdateField();
+                            }
+                        }
+                    });
+                }
+            });
+        },
+
         promptVideoUrl(blockId) {
             let url = prompt('Enter YouTube or Vimeo URL:');
             if (!url) return;
@@ -1832,6 +2133,12 @@ function notionEditor() {
                     else if (fmt === 'italic')   document.execCommand('italic');
                     else if (fmt === 'strikethrough') document.execCommand('strikeThrough');
                 });
+            });
+
+            document.getElementById('pe-color-input')?.addEventListener('input', (e) => {
+                let color = e.target.value;
+                document.getElementById('pe-color-indicator').style.backgroundColor = color;
+                document.execCommand('foreColor', false, color);
             });
 
             // ── Link button ──
@@ -2049,22 +2356,81 @@ function comingSoonGallery() {
             this.images.splice(index, 1);
         },
 
-        dragStart(index, event) {
-            this.dragIndex = index;
-            event.dataTransfer.effectAllowed = 'move';
+        initSortable() {
+            this.$nextTick(() => {
+                const el = document.getElementById('comingsoon-sortable');
+                if (el && typeof Sortable !== 'undefined') {
+                    new Sortable(el, {
+                        animation: 150,
+                        handle: '.comingsoon-drag-handle',
+                        onEnd: (evt) => {
+                            const item = this.images.splice(evt.oldIndex, 1)[0];
+                            this.images.splice(evt.newIndex, 0, item);
+                        }
+                    });
+                }
+            });
         },
 
-        dragOver(index) {
-            // Needed to allow drop
+        cropperOpen: false,
+        cropperInstance: null,
+        cropperTargetIdx: null,
+        isCropping: false,
+
+        openCropper(index) {
+            this.cropperTargetIdx = index;
+            this.cropperOpen = true;
+
+            setTimeout(() => {
+                let imgEl = document.getElementById('comingsoon-cropper-image');
+                imgEl.src = this.images[index];
+                if (this.cropperInstance) {
+                    this.cropperInstance.destroy();
+                }
+                this.cropperInstance = new Cropper(imgEl, {
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    responsive: true,
+                    restore: true,
+                });
+            }, 50);
         },
 
-        drop(index) {
-            if (this.dragIndex !== null && this.dragIndex !== index) {
-                // Move item in array
-                const item = this.images.splice(this.dragIndex, 1)[0];
-                this.images.splice(index, 0, item);
+        closeCropper() {
+            this.cropperOpen = false;
+            if (this.cropperInstance) {
+                this.cropperInstance.destroy();
+                this.cropperInstance = null;
             }
-            this.dragIndex = null;
+        },
+
+        async applyCrop() {
+            if (!this.cropperInstance) return;
+            this.isCropping = true;
+
+            try {
+                let canvas = this.cropperInstance.getCroppedCanvas();
+                let blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.8));
+
+                let formData = new FormData();
+                formData.append('file', blob, 'cropped_comingsoon.jpg');
+                formData.append('_token', '{{ csrf_token() }}');
+
+                let resp = await fetch('{{ route("admin.projects.upload_body_media") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                let data = await resp.json();
+
+                if (data.url) {
+                    this.images[this.cropperTargetIdx] = data.url;
+                }
+            } catch (err) {
+                alert('Crop failed.');
+            } finally {
+                this.isCropping = false;
+                this.closeCropper();
+            }
         }
     }
 }

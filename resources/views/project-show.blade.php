@@ -1,5 +1,19 @@
 @extends('layouts.app')
 
+@php
+    // Helper to auto-inject Cloudinary compression parameters
+    if (!function_exists('optimizeCloudinaryUrl')) {
+        function optimizeCloudinaryUrl($url) {
+            if (is_string($url) && str_contains($url, 'res.cloudinary.com') && str_contains($url, '/upload/')) {
+                if (!str_contains($url, 'f_auto,q_auto')) {
+                    return str_replace('/upload/', '/upload/f_auto,q_auto/', $url);
+                }
+            }
+            return $url;
+        }
+    }
+@endphp
+
 @section('title', $project->title . ' | ' . ($project->medium ?? 'Output'))
 
 @section('content')
@@ -346,7 +360,7 @@
                                             }
                                         @endphp
                                         <figure class="my-10">
-                                            <img src="{{ $block['src'] }}" alt="{{ $block['caption'] ?? 'Project image' }}" class="{{ $imgClass }}" style="{{ $imgStyle }}">
+                                            <img src="{{ optimizeCloudinaryUrl($block['src']) }}" alt="{{ $block['caption'] ?? 'Project image' }}" class="{{ $imgClass }}" style="{{ $imgStyle }}">
                                             @if(!empty($block['caption']))
                                                 <figcaption class="text-center mt-4 font-mono text-[10px] uppercase tracking-widest text-black/40">{{ $block['caption'] }}</figcaption>
                                             @endif
@@ -366,7 +380,7 @@
                                         <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}" x-data="{ playing: false }">
                                             @if(!empty($block['posterSrc']))
                                                 <div x-show="!playing" class="absolute inset-0 w-full h-full cursor-pointer group z-10" @click="playing = true">
-                                                    <img src="{{ $block['posterSrc'] }}" class="w-full h-full object-cover">
+                                                    <img src="{{ optimizeCloudinaryUrl($block['posterSrc']) }}" class="w-full h-full object-cover">
                                                     <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/10 transition-colors">
                                                         <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                                             <svg class="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -395,7 +409,7 @@
                                                     <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                                                 @endif
                                             @else
-                                                <video src="{{ $videoSrc }}" {{ !empty($block['posterSrc']) ? 'poster='.$block['posterSrc'] : '' }} class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
+                                                <video src="{{ $videoSrc }}" {{ !empty($block['posterSrc']) ? 'poster='.optimizeCloudinaryUrl($block['posterSrc']) : '' }} class="absolute inset-0 w-full h-full object-contain" controls playsinline preload="auto"></video>
                                             @endif
                                         </div>
                                         @if($isYouTube ?? false)
@@ -408,6 +422,40 @@
                                         @if(!empty($block['caption']))
                                             <p class="text-center mt-2 font-mono text-[10px] uppercase tracking-widest text-black/40">{{ $block['caption'] }}</p>
                                         @endif
+                                    @endif
+                                    @break
+                                @case('slideshow')
+                                    @if(!empty($block['images']))
+                                        @php
+                                            $ratio = $block['aspectRatio'] ?? 'auto';
+                                            $autoplay = !empty($block['autoplay']);
+                                            $sliderId = 'slideshow_' . Str::random(8);
+                                            $vidStyle = ($ratio === '3:4') ? "aspect-ratio: 3/4;" : (($ratio === '1:1') ? "aspect-ratio: 1/1;" : (($ratio === '16:9') ? "aspect-ratio: 16/9;" : ""));
+                                            $slideStyle = $vidStyle ? $vidStyle . " object-fit: cover;" : "object-fit: contain;";
+                                        @endphp
+                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle ?: 'min-height:300px;' }}" x-data="{ currentSlide: 0, autoplay: {{ $autoplay ? 'true' : 'false' }}, total: {{ count($block['images']) }} }" x-init="if(autoplay && total > 1) { setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000) }">
+                                            @foreach($block['images'] as $idx => $img)
+                                                <div class="absolute inset-0 transition-opacity duration-700 ease-in-out" x-show="currentSlide === {{ $idx }}" :class="currentSlide === {{ $idx }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+                                                    <img src="{{ optimizeCloudinaryUrl($img['src']) }}" class="w-full h-full cursor-zoom-in" style="{{ $slideStyle }}" @click="lightboxOpen = true; lightboxImg = '{{ optimizeCloudinaryUrl($img['src']) }}'">
+                                                </div>
+                                            @endforeach
+                                            @if(count($block['images']) > 1)
+                                                <!-- Previous Button -->
+                                                <button type="button" class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" @click="currentSlide = (currentSlide - 1 + total) % total; autoplay = false">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                                </button>
+                                                <!-- Next Button -->
+                                                <button type="button" class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" @click="currentSlide = (currentSlide + 1) % total; autoplay = false">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                                </button>
+                                                <!-- Indicators -->
+                                                <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-20 flex gap-1.5">
+                                                    @foreach($block['images'] as $idx => $img)
+                                                        <button type="button" class="w-2 h-2 rounded-full transition-colors" :class="currentSlide === {{ $idx }} ? 'bg-white' : 'bg-white/40 hover:bg-white/60'" @click="currentSlide = {{ $idx }}; autoplay = false"></button>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     @endif
                                     @break
                                 @case('divider')

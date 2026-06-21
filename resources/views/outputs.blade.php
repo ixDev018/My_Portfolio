@@ -87,14 +87,12 @@
                         $localVideo = $proj->main_video_path ? (Str::startsWith($proj->main_video_path, 'http') ? $proj->main_video_path : ((Str::startsWith($proj->main_video_path, 'images/') || Str::startsWith($proj->main_video_path, 'videos/')) ? asset($proj->main_video_path) : Storage::url($proj->main_video_path))) : ($proj->thumbnail_video_path ? (Str::startsWith($proj->thumbnail_video_path, 'http') ? $proj->thumbnail_video_path : ((Str::startsWith($proj->thumbnail_video_path, 'images/') || Str::startsWith($proj->thumbnail_video_path, 'videos/')) ? asset($proj->thumbnail_video_path) : Storage::url($proj->thumbnail_video_path))) : '');
                         
                         $localImage = '';
-                        if ($proj->main_image_path) {
-                            $localImage = Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path));
-                        } elseif ($proj->thumbnail_path) {
+                        if ($proj->thumbnail_path) {
                             $localImage = Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path));
+                        } elseif ($proj->main_image_path) {
+                            $localImage = Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path));
                         } elseif (!empty($proj->thumbnail_images)) {
                             $localImage = Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0]));
-                        } elseif (!empty($proj->main_images)) {
-                            $localImage = Str::startsWith($proj->main_images[0], 'http') ? $proj->main_images[0] : ((Str::startsWith($proj->main_images[0], 'images/') || Str::startsWith($proj->main_images[0], 'videos/')) ? asset($proj->main_images[0]) : Storage::url($proj->main_images[0]));
                         }
                         
                         $isFallback = !$hasBodyContent || !$proj->show_story;
@@ -184,15 +182,12 @@
                                              class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700 z-10"
                                              :class="((!isMobile && isHovered) || (isMobile && mobileFocusId === itemId)) ? 'opacity-0' : 'opacity-100'">
                                         @endif
-                            @elseif(!empty($proj->thumbnail_images) || !empty($proj->main_images))
-                                @php
-                                    $slideImages = !empty($proj->thumbnail_images) ? $proj->thumbnail_images : $proj->main_images;
-                                @endphp
-                                <div x-data="{ currentSlide: 0, total: {{ count($slideImages) }} }"
+                            @elseif(!empty($proj->thumbnail_images))
+                                <div x-data="{ currentSlide: 0, total: {{ count($proj->thumbnail_images) }} }"
                                      class="relative w-full overflow-hidden">
-                                     <img src="{{ Str::startsWith($slideImages[0], 'http') ? $slideImages[0] : ((Str::startsWith($slideImages[0], 'images/') || Str::startsWith($slideImages[0], 'videos/')) ? asset($slideImages[0]) : Storage::url($slideImages[0])) }}"
+                                     <img src="{{ Str::startsWith($proj->thumbnail_images[0], 'http') ? $proj->thumbnail_images[0] : ((Str::startsWith($proj->thumbnail_images[0], 'images/') || Str::startsWith($proj->thumbnail_images[0], 'videos/')) ? asset($proj->thumbnail_images[0]) : Storage::url($proj->thumbnail_images[0])) }}"
                                           class="w-full h-auto block object-cover invisible" loading="lazy">
-                                     @foreach($slideImages as $index => $img)
+                                     @foreach($proj->thumbnail_images as $index => $img)
                                          <img src="{{ Str::startsWith($img, 'http') ? $img : ((Str::startsWith($img, 'images/') || Str::startsWith($img, 'videos/')) ? asset($img) : Storage::url($img)) }}"
                                               x-show="currentSlide === {{ $index }}"
                                               x-transition.opacity.duration.700ms
@@ -206,11 +201,12 @@
                                          </template>
                                      </div>
                                  </div>
-                            @elseif($proj->thumbnail_path || $proj->main_image_path)
-                                @php
-                                    $singleImage = $proj->thumbnail_path ?: $proj->main_image_path;
-                                @endphp
-                                <img src="{{ Str::startsWith($singleImage, 'http') ? $singleImage : ((Str::startsWith($singleImage, 'images/') || Str::startsWith($singleImage, 'videos/')) ? asset($singleImage) : Storage::url($singleImage)) }}"
+                            @elseif($proj->thumbnail_path)
+                                <img src="{{ Str::startsWith($proj->thumbnail_path, 'http') ? $proj->thumbnail_path : ((Str::startsWith($proj->thumbnail_path, 'images/') || Str::startsWith($proj->thumbnail_path, 'videos/')) ? asset($proj->thumbnail_path) : Storage::url($proj->thumbnail_path)) }}"
+                                     alt="{{ $proj->title }}"
+                                     class="w-full h-auto block object-cover" loading="lazy">
+                            @elseif($proj->main_image_path)
+                                <img src="{{ Str::startsWith($proj->main_image_path, 'http') ? $proj->main_image_path : ((Str::startsWith($proj->main_image_path, 'images/') || Str::startsWith($proj->main_image_path, 'videos/')) ? asset($proj->main_image_path) : Storage::url($proj->main_image_path)) }}"
                                      alt="{{ $proj->title }}"
                                      class="w-full h-auto block object-cover" loading="lazy">
                             @else

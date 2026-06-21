@@ -331,24 +331,27 @@
                 }
             }
 
-            // 1. Hide when page finishes loading or is restored from BFCache (back/forward)
+            // 1. Hide when page finishes loading or is restored from BFCache (back/forward).
+            //    pageshow fires AFTER window.load (i.e., after all images/videos/fonts are
+            //    ready), making it the correct event for hiding the loader on heavy pages.
+            //    DOMContentLoaded is intentionally NOT used here because it fires before
+            //    resources are loaded, causing the loader to vanish while the page is still
+            //    visually incomplete (the "hiccup" seen when going back to the home page).
             window.addEventListener('pageshow', function(e) {
                 navigating = false;
                 if (e.persisted) {
-                    // BFCache restore: the page was frozen mid-navigation with loader possibly
-                    // visible and navigating=true. Force an instant hide to avoid any flash.
+                    // BFCache restore: page was frozen mid-navigation with loader possibly
+                    // visible and navigating=true. Force instant hide to clear that state.
                     hideLoader(true);
                 } else {
                     setTimeout(hideLoader, 150);
                 }
             });
 
-            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            // Safety net: script ran after the page was already fully loaded
+            // (readyState 'complete' means pageshow has already fired, this is just a guard).
+            if (document.readyState === 'complete') {
                 setTimeout(hideLoader, 150);
-            } else {
-                window.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(hideLoader, 150);
-                });
             }
 
             // Safety timeout: never keep loader up for more than 3 seconds

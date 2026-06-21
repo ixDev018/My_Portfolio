@@ -264,7 +264,7 @@
             </button>
             <h3 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1207;margin-bottom:1.25rem;" x-text="mode === 'add' ? 'New Slide' : 'Edit Slide'"></h3>
 
-            <form :action="mode === 'add' ? '{{ route('admin.intro_slides.store') }}' : '{{ url('admin/intro-slides/update') }}/' + form.id" method="POST" enctype="multipart/form-data" @submit="onSubmit">
+            <form :action="mode === 'add' ? '{{ route('admin.intro_slides.store') }}' : '{{ url('ix-secure-portal/intro-slides/update') }}/' + form.id" method="POST" enctype="multipart/form-data" @submit="onSubmit">
                 @csrf
                 <input type="hidden" name="image_data" x-model="croppedData">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;">

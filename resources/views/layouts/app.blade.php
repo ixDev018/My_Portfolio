@@ -135,160 +135,41 @@
             animation: progressShrink linear forwards;
         }
 
-        /* ── Global Wave Loader ── */
+        /* ── Global Top Line Loader ── */
         #global-loader {
             position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background-color: #cfd0d1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 999999;
+            pointer-events: none;
             opacity: 1;
-            pointer-events: all;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.3s ease;
+            overflow: hidden;
         }
-        .loader-boxes {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 18px;
+        .progress-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #ff6b00;
+            width: 0%;
+            animation: indeterminate 1.5s infinite ease-in-out;
+            box-shadow: 0 0 10px #ff6b00, 0 0 5px #ff6b00;
         }
-        .loader-boxes .box {
-            width: 20px;
-            height: 20px;
-            border: 1.5px solid #000;
-            box-shadow: 3px 3px 0 #000;
-            animation: wave-boxes 1.2s ease-in-out infinite;
-        }
-        .loader-boxes .box:nth-child(1) { background-color: #f40220; animation-delay: 0s; }
-        .loader-boxes .box:nth-child(2) { background-color: #ff7b30; animation-delay: 0.15s; }
-        .loader-boxes .box:nth-child(3) { background-color: #e0b617; animation-delay: 0.3s; }
-        .loader-boxes .box:nth-child(4) { background-color: #09a953; animation-delay: 0.45s; }
-
-        @keyframes wave-boxes {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        @keyframes loader-morph {
-            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
-            25% { border-radius: 50% 50% 30% 70% / 50% 70% 30% 50%; }
-            50% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
-            75% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
-        }
-
-        /* ── Floating Visuals for Loader ── */
-        @keyframes loader-float-1 {
-            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-            50% { transform: translate(25px, -30px) rotate(15deg) scale(1.05); }
-        }
-        @keyframes loader-float-2 {
-            0%, 100% { transform: translate(0, 0) rotate(45deg) scale(1); }
-            50% { transform: translate(-30px, 25px) rotate(25deg) scale(0.95); }
-        }
-        @keyframes loader-float-3 {
-            0%, 100% { transform: translate(0, 0) rotate(-15deg) scale(1); }
-            50% { transform: translate(20px, 35px) rotate(5deg) scale(1.1); }
-        }
-        @keyframes loader-float-4 {
-            0%, 100% { transform: translate(0, 0) rotate(90deg) scale(1); }
-            50% { transform: translate(-15px, -20px) rotate(75deg) scale(1.05); }
-        }
-        @keyframes loader-float-5 {
-            0%, 100% { transform: translate(0, 0) rotate(-10deg) scale(1); }
-            50% { transform: translate(-20px, -15px) rotate(-25deg) scale(1.05); }
-        }
-        @keyframes loader-float-6 {
-            0%, 100% { transform: translate(0, 0) rotate(5deg) scale(1); }
-            50% { transform: translate(15px, 20px) rotate(15deg) scale(0.95); }
-        }
-        @keyframes loader-float-7 {
-            0%, 100% { transform: translate(0, 0) rotate(90deg) scale(1); }
-            50% { transform: translate(-25px, 10px) rotate(70deg) scale(1.1); }
-        }
-        @keyframes loader-float-8 {
-            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-            50% { transform: translate(20px, -25px) rotate(20deg) scale(0.95); }
+        @keyframes indeterminate {
+            0% { left: -35%; width: 30%; }
+            50% { left: 30%; width: 70%; }
+            100% { left: 100%; width: 30%; }
         }
     </style>
 </head>
 <body x-data="{ showResumeModal: false }" class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- Global Loader -->
-    <div id="global-loader" class="overflow-hidden">
-        <!-- Floating Bauhaus Visual Elements (Using strict inline styles to bypass Tailwind cache) -->
-        <div class="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-100">
-            <!-- Half Circle (Modern Tangerine) - Top Left -->
-            <div class="absolute" style="color: #ff7b30; top: -5%; left: -5%; width: clamp(120px, 20vw, 220px); height: clamp(120px, 20vw, 220px); animation: loader-float-1 8s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M 0 50 A 50 50 0 0 1 100 50 Z" stroke="black" stroke-width="2" stroke-linejoin="miter" />
-                </svg>
-            </div>
-            
-            <!-- Right Triangle (Minimalist Herbs) - Top Right -->
-            <div class="absolute" style="color: #09a953; top: 5%; right: -5%; width: clamp(100px, 18vw, 200px); height: clamp(100px, 18vw, 200px); animation: loader-float-2 10s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="currentColor">
-                    <polygon points="0,0 100,100 0,100" stroke="black" stroke-width="2" stroke-linejoin="miter" />
-                </svg>
-            </div>
-            
-            <!-- Cross (Hexagonal Flamingo) - Bottom Left -->
-            <div class="absolute" style="color: #ff5aa9; bottom: 5%; left: -5%; width: clamp(90px, 15vw, 160px); height: clamp(90px, 15vw, 160px); animation: loader-float-3 12s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M 35 0 H 65 V 35 H 100 V 65 H 65 V 100 H 35 V 65 H 0 V 35 H 35 Z" stroke="black" stroke-width="2" stroke-linejoin="miter" />
-                </svg>
-            </div>
-
-            <!-- Pill (Abstract Blueprint) - Bottom Right -->
-            <div class="absolute" style="color: #0019ff; bottom: -5%; right: -5%; width: clamp(100px, 18vw, 180px); height: clamp(100px, 18vw, 180px); animation: loader-float-4 9s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="currentColor">
-                    <rect x="10" y="25" width="80" height="50" rx="25" ry="25" stroke="black" stroke-width="2" />
-                </svg>
-            </div>
-
-            <!-- Zigzag (Bauhaus Crimson) - Top Center -->
-            <div class="absolute" style="color: #f40220; top: -2%; left: 42%; width: clamp(80px, 15vw, 140px); height: clamp(80px, 15vw, 140px); animation: loader-float-5 9s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="none">
-                    <polyline points="0,20 25,80 50,20 75,80 100,20" stroke="black" stroke-width="8" stroke-linejoin="miter" />
-                    <polyline points="0,20 25,80 50,20 75,80 100,20" stroke="currentColor" stroke-width="4" stroke-linejoin="miter" />
-                </svg>
-            </div>
-            
-            <!-- Dots (Geometry Saffron) - Bottom Center -->
-            <div class="absolute" style="color: #e0b617; bottom: 2%; left: 45%; width: clamp(70px, 12vw, 120px); height: clamp(70px, 12vw, 120px); animation: loader-float-6 11s ease-in-out infinite;">
-                <svg class="w-full h-full drop-shadow-[5px_5px_0_rgba(0,0,0,1)] overflow-visible" viewBox="0 0 100 100" fill="currentColor">
-                    <circle cx="20" cy="20" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="50" cy="20" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="80" cy="20" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="20" cy="50" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="50" cy="50" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="80" cy="50" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="20" cy="80" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="50" cy="80" r="8" stroke="black" stroke-width="1.5" />
-                    <circle cx="80" cy="80" r="8" stroke="black" stroke-width="1.5" />
-                </svg>
-            </div>
-
-            <!-- Morphing Shape 1 (Modern Tangerine) - Left Center -->
-            <div class="absolute" style="color: #ff7b30; top: 40%; left: 2%; width: clamp(80px, 14vw, 130px); height: clamp(80px, 14vw, 130px); animation: loader-float-7 13s ease-in-out infinite;">
-                <div class="w-full h-full bg-current" style="border: 2px solid #000; box-shadow: 5px 5px 0 #000; animation: loader-morph 4s ease-in-out infinite alternate;"></div>
-            </div>
-
-            <!-- Morphing Shape 2 (Hexagonal Flamingo) - Right Center -->
-            <div class="absolute" style="color: #ff5aa9; top: 45%; right: 2%; width: clamp(60px, 10vw, 100px); height: clamp(60px, 10vw, 100px); animation: loader-float-8 10s ease-in-out infinite;">
-                <div class="w-full h-full bg-current" style="border: 2px solid #000; box-shadow: 5px 5px 0 #000; animation: loader-morph 5s ease-in-out infinite alternate-reverse;"></div>
-            </div>
-        </div>
-
-        <div class="loader-boxes relative z-10">
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-        </div>
-        <div class="text-black font-bold text-[13px] uppercase tracking-[0.15em] ml-1.5 font-display relative z-10">LOADING</div>
+    <div id="global-loader">
+        <div class="progress-line"></div>
     </div>
     <script>
         (function() {

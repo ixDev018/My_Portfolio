@@ -166,26 +166,10 @@
     <div id="global-loader">
         <div class="progress-line"></div>
     </div>
-
-    <!-- Global Skeleton Overlay -->
-    <div id="global-skeleton" class="fixed inset-x-0 bottom-0 top-[88px] z-[90] bg-slate-950 p-6 md:p-12 pointer-events-none opacity-0" style="transition: opacity 0.3s ease; display: none;">
-        <div class="w-full max-w-7xl mx-auto flex flex-col gap-8">
-            <div class="w-3/4 md:w-1/3 h-12 md:h-16 bg-white/5 rounded-2xl animate-pulse"></div>
-            <div class="w-full md:w-1/2 h-6 bg-white/5 rounded animate-pulse"></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                <div class="aspect-video bg-white/5 rounded-2xl animate-pulse"></div>
-                <div class="aspect-video bg-white/5 rounded-2xl animate-pulse hidden md:block"></div>
-                <div class="aspect-video bg-white/5 rounded-2xl animate-pulse hidden lg:block"></div>
-            </div>
-            <div class="w-full h-4 bg-white/5 rounded animate-pulse mt-8"></div>
-            <div class="w-2/3 h-4 bg-white/5 rounded animate-pulse"></div>
-        </div>
-    </div>
     <script>
         (function() {
             var loader = document.getElementById('global-loader');
             var progressLine = loader.querySelector('.progress-line');
-            var skeleton = document.getElementById('global-skeleton');
             var navigating = false;
             var trickleInterval;
             var currentProgress = 0;
@@ -194,10 +178,6 @@
                 if (!loader || !progressLine) return;
                 loader.style.display = 'block';
                 loader.style.opacity = '1';
-                if (skeleton) {
-                    skeleton.style.display = 'block';
-                    setTimeout(() => skeleton.style.opacity = '1', 10);
-                }
                 progressLine.style.transition = 'width 0.2s ease-out';
                 currentProgress = 15;
                 progressLine.style.width = currentProgress + '%';
@@ -222,20 +202,14 @@
                         loader.style.display = 'none';
                         progressLine.style.transition = 'none';
                         progressLine.style.width = '0%';
-                        if (skeleton) {
-                            skeleton.style.opacity = '0';
-                            skeleton.style.display = 'none';
-                        }
                     } else {
                         progressLine.style.width = '100%';
                         setTimeout(function() {
                             loader.style.opacity = '0';
                             loader.style.pointerEvents = 'none';
-                            if (skeleton) skeleton.style.opacity = '0';
                             setTimeout(function() {
                                 if (!navigating) {
                                     loader.style.display = 'none';
-                                    if (skeleton) skeleton.style.display = 'none';
                                     progressLine.style.transition = 'none';
                                     progressLine.style.width = '0%';
                                 }

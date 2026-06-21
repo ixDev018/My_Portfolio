@@ -155,13 +155,8 @@
             height: 100%;
             background-color: #ff6b00;
             width: 0%;
-            animation: indeterminate 1.5s infinite ease-in-out;
+            transition: width 0.2s ease-out;
             box-shadow: 0 0 10px #ff6b00, 0 0 5px #ff6b00;
-        }
-        @keyframes indeterminate {
-            0% { left: -35%; width: 30%; }
-            50% { left: 30%; width: 70%; }
-            100% { left: 100%; width: 30%; }
         }
     </style>
 </head>
@@ -174,65 +169,73 @@
     <script>
         (function() {
             var loader = document.getElementById('global-loader');
-            // Flag: once a navigation is committed, block auto-hide on this page so
-            // stale pageshow/readyState callbacks don't prematurely clear the loader
-            // on the incoming page.
+            var progressLine = loader.querySelector('.progress-line');
             var navigating = false;
+            var trickleInterval;
+            var currentProgress = 0;
 
+            function startLoader() {
+                if (!loader || !progressLine) return;
+                loader.style.display = 'block';
+                loader.style.opacity = '1';
+                progressLine.style.transition = 'width 0.2s ease-out';
+                currentProgress = 15;
+                progressLine.style.width = currentProgress + '%';
+                
+                clearInterval(trickleInterval);
+                trickleInterval = setInterval(function() {
+                    if (currentProgress >= 95) return;
+                    var remaining = 100 - currentProgress;
+                    var inc = Math.random() * (remaining * 0.1);
+                    currentProgress += inc;
+                    progressLine.style.width = currentProgress + '%';
+                }, 300);
+            }
 
             function hideLoader(instant) {
-                // If a navigation was committed, don't hide — let the next page hide it
                 if (navigating) return;
-                if (loader) {
+                clearInterval(trickleInterval);
+                if (loader && progressLine) {
                     if (instant) {
-                        // Hard-reset with no transition — used on BFCache restores to
-                        // immediately clear any loader state frozen when the page was cached
-                        loader.style.transition = 'none';
                         loader.style.opacity = '0';
                         loader.style.pointerEvents = 'none';
                         loader.style.display = 'none';
+                        progressLine.style.transition = 'none';
+                        progressLine.style.width = '0%';
                     } else {
-                        loader.style.transition = 'opacity 0.3s ease';
-                        loader.style.opacity = '0';
-                        loader.style.pointerEvents = 'none';
+                        progressLine.style.width = '100%';
                         setTimeout(function() {
-                            if (!navigating) loader.style.display = 'none';
-                        }, 300);
+                            loader.style.opacity = '0';
+                            loader.style.pointerEvents = 'none';
+                            setTimeout(function() {
+                                if (!navigating) {
+                                    loader.style.display = 'none';
+                                    progressLine.style.transition = 'none';
+                                    progressLine.style.width = '0%';
+                                }
+                            }, 300);
+                        }, 250);
                     }
                 }
             }
 
-            // 1. Hide when page finishes loading or is restored from BFCache (back/forward).
-            //    pageshow fires AFTER window.load (i.e., after all images/videos/fonts are
-            //    ready), making it the correct event for hiding the loader on heavy pages.
-            //    DOMContentLoaded is intentionally NOT used here because it fires before
-            //    resources are loaded, causing the loader to vanish while the page is still
-            //    visually incomplete (the "hiccup" seen when going back to the home page).
+            startLoader();
+
             window.addEventListener('pageshow', function(e) {
                 navigating = false;
                 if (e.persisted) {
-                    // BFCache restore: page was frozen mid-navigation with loader possibly
-                    // visible and navigating=true. Force instant hide to clear that state.
                     hideLoader(true);
                 } else {
-                    setTimeout(hideLoader, 150);
+                    hideLoader(false);
                 }
             });
 
-            // Safety net: script ran after the page was already fully loaded
-            // (readyState 'complete' means pageshow has already fired, this is just a guard).
             if (document.readyState === 'complete') {
-                setTimeout(hideLoader, 150);
+                hideLoader(false);
             }
 
-            // Safety timeout: never keep loader up for more than 3 seconds
-            setTimeout(function() { navigating = false; hideLoader(); }, 3000);
+            setTimeout(function() { navigating = false; hideLoader(false); }, 10000);
 
-            // 2. On link-click: mark navigating=true to block stale hideLoader calls.
-            //    We do NOT call showLoader() here — showing the loader on the SOURCE page
-            //    causes a redundant flash on the page you are leaving. Every DESTINATION
-            //    page already starts with the loader visible by default in its HTML, so
-            //    the destination's loader is the only one the user needs to see.
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 if (!link) return;
@@ -244,22 +247,19 @@
                 try {
                     var url = new URL(link.href, window.location.href);
                     var isSamePage = (url.pathname === window.location.pathname && url.search === window.location.search);
-                    // Anchor-only jump (same page, different hash) — no navigation, skip.
                     var isAnchorOnly = isSamePage && url.hash;
 
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
                         navigating = true;
-                        // Safety: reset if navigation never completes (e.g. cancelled).
-                        setTimeout(function() { navigating = false; hideLoader(); }, 6000);
+                        startLoader();
+                        setTimeout(function() { navigating = false; hideLoader(false); }, 10000);
                     }
                 } catch (err) {}
             });
 
-            // 3. Lock navigating=true on actual page unload.
-            //    Prevents BFCache-restored source pages from prematurely hiding the loader
-            //    via stale pageshow/readyState callbacks after restoration.
             window.addEventListener('beforeunload', function() {
                 navigating = true;
+                startLoader();
             });
         })();
     </script>

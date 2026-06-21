@@ -15,10 +15,10 @@
     <meta property="og:description" content="@yield('meta_description', 'Full-Stack Developer & UI/UX Specialist crafting ultra-premium digital solutions.')">
     <meta property="og:type" content="website">
     
-    <!-- Google Fonts: Space Grotesk (Titles), Jaro (Logo) & Bitcount Single (Body/Menu) -->
+    <!-- Google Fonts: Space Grotesk (Body & Headings), Jaro (Logo) & Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single&family=Jaro:opsz@6..72&family=Space+Grotesk:wght@700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS and Vite asset compilation -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -28,10 +28,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
-        /* Default body text → Bitcount Single (subtitles, nav, labels, buttons) */
+        /* Default body text → Space Grotesk (subtitles, nav, labels, buttons) */
         body, .font-sans, .font-mono, button, a, span, label, input, textarea, li, td, th {
-            font-family: 'Bitcount Single', monospace !important;
-            font-weight: 400 !important;
+            font-family: 'Space Grotesk', sans-serif !important;
         }
         /* Logo → Jaro */
         .font-logo {
@@ -461,7 +460,7 @@
                 </h2>
 
                 {{-- Message --}}
-                <p style="font-family:'Bitcount Single',monospace; font-size:0.85rem; color:#a1a1aa; line-height:1.6; margin-bottom:2rem; text-transform:uppercase; letter-spacing:0.05em;">
+                <p style="font-family:'Space Grotesk',sans-serif; font-size:0.85rem; color:#a1a1aa; line-height:1.6; margin-bottom:2rem; text-transform:uppercase; letter-spacing:0.05em;">
                     {{ $msg }}
                 </p>
 
@@ -469,7 +468,7 @@
                 <button
                     @click="dismiss()"
                     style="
-                        font-family:'Bitcount Single',monospace;
+                        font-family:'Space Grotesk',sans-serif;
                         font-weight:700;
                         font-size:0.8rem;
                         letter-spacing:0.1em;

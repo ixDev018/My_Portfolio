@@ -4,7 +4,11 @@
 
 <style>
     body, .cms-main { background: #EDEAE0 !important; }
-    .cms-main { min-height: 100vh; }
+    .cms-main { 
+        min-height: 100vh; 
+        display: flex;
+        flex-direction: column;
+    }
 
     /* table */
     .inbox-table { width:100%; border-collapse:collapse; }
@@ -61,7 +65,7 @@
     .btn-del-icon:hover { color:#dc2626; background:#FFF1F1; }
 </style>
 
-<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;flex-shrink:0;">
     <div>
         <h1 style="font-size:1.5rem;font-weight:800;color:#1a1207;letter-spacing:-0.02em;font-family:'Outfit',sans-serif;">Visitor Inbox</h1>
         <p style="font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:#9B9589;margin-top:0.15rem;">Read and manage inquiries from your contact form</p>
@@ -73,7 +77,7 @@
     @endif
 </div>
 
-<div style="background:#fff;border:1px solid #D8D4C8;border-radius:1rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+<div style="background:#fff;border:1px solid #D8D4C8;border-radius:1rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);flex: 1;">
     <table class="inbox-table">
         <thead>
             <tr>

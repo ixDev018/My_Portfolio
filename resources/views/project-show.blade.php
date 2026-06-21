@@ -377,7 +377,7 @@
                                             $isVimeo = !$isYouTube && preg_match('/vimeo\.com\/(\d+)/', $videoSrc, $vmMatch);
                                             $isEmbed = $isYouTube || $isVimeo;
                                         @endphp
-                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}" x-data="{ playing: false }">
+                                        <div class="relative w-full bg-black rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}" x-data="{ playing: false }">
                                             @if(!empty($block['posterSrc']))
                                                 <div x-show="!playing" class="absolute inset-0 w-full h-full cursor-pointer group z-10" @click="playing = true">
                                                     <img src="{{ optimizeCloudinaryUrl($block['posterSrc']) }}" class="w-full h-full object-cover">
@@ -433,7 +433,7 @@
                                             $vidStyle = ($ratio === '3:4') ? "aspect-ratio: 3/4;" : (($ratio === '1:1') ? "aspect-ratio: 1/1;" : (($ratio === '16:9') ? "aspect-ratio: 16/9;" : ""));
                                             $slideStyle = $vidStyle ? $vidStyle . " object-fit: cover;" : "object-fit: contain;";
                                         @endphp
-                                        <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle ?: 'min-height:300px;' }}" x-data="{ currentSlide: 0, autoplay: {{ $autoplay ? 'true' : 'false' }}, total: {{ count($block['images']) }} }" x-init="if(autoplay && total > 1) { setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000) }">
+                                        <div class="relative w-full bg-black rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle ?: 'min-height:300px;' }}" x-data="{ currentSlide: 0, autoplay: {{ $autoplay ? 'true' : 'false' }}, total: {{ count($block['images']) }} }" x-init="if(autoplay && total > 1) { setInterval(() => { currentSlide = (currentSlide + 1) % total }, 3000) }">
                                             @foreach($block['images'] as $idx => $img)
                                                 <div class="absolute inset-0 transition-opacity duration-700 ease-in-out" x-show="currentSlide === {{ $idx }}" :class="currentSlide === {{ $idx }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
                                                     <img src="{{ optimizeCloudinaryUrl($img['src']) }}" class="w-full h-full cursor-zoom-in" style="{{ $slideStyle }}" @click="lightboxOpen = true; lightboxImg = '{{ optimizeCloudinaryUrl($img['src']) }}'">

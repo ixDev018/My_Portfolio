@@ -293,60 +293,88 @@
     <script>
         (function() {
             var loader = document.getElementById('global-loader');
-            
+            // Flag: once the user has clicked a navigation link, block any auto-hide
+            // until the new page fully takes over. This prevents the double-flash where
+            // the loader shows, then hides (because readyState/pageshow fires on the
+            // current page), then shows again when the new page loads.
+            var navigating = false;
+
+            function showLoader() {
+                if (loader) {
+                    loader.style.display = 'flex';
+                    void loader.offsetWidth; // Force reflow
+                    loader.style.transition = 'opacity 0.15s ease';
+                    loader.style.opacity = '1';
+                    loader.style.pointerEvents = 'all';
+                }
+            }
+
             function hideLoader() {
+                // If a navigation was committed, don't hide — let the next page hide it
+                if (navigating) return;
                 if (loader) {
                     loader.style.transition = 'opacity 0.3s ease';
                     loader.style.opacity = '0';
                     loader.style.pointerEvents = 'none';
-                    setTimeout(function() { loader.style.display = 'none'; }, 300);
+                    setTimeout(function() {
+                        if (!navigating) loader.style.display = 'none';
+                    }, 300);
                 }
             }
 
             // 1. Hide smoothly when page finishes loading or is shown (handles initial load & back/forward navigation)
-            window.addEventListener('pageshow', function() {
-                setTimeout(hideLoader, 200);
+            //    On the *new* page navigating is false (fresh script), so this correctly hides the loader.
+            window.addEventListener('pageshow', function(e) {
+                // pageshow fires on BFCache restore too; always hide on the incoming page
+                navigating = false;
+                setTimeout(hideLoader, 150);
             });
 
             if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                setTimeout(hideLoader, 200);
+                // Current page is already loaded — hide loader (covers the very first page visit)
+                setTimeout(hideLoader, 150);
+            } else {
+                window.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(hideLoader, 150);
+                });
             }
 
-            // Safety timeout: never keep loader up for more than 2.5 seconds (prevents hangs on slow connections/assets)
-            setTimeout(hideLoader, 2500);
+            // Safety timeout: never keep loader up for more than 3 seconds
+            setTimeout(function() { navigating = false; hideLoader(); }, 3000);
 
-            // 2. Instant feedback when clicking links
+            // 2. Show loader on link-click navigation
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 if (!link) return;
-                
+
                 var href = link.getAttribute('href');
                 if (!href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
                 if (link.target === '_blank' || link.hasAttribute('download')) return;
-                
+
                 try {
                     var url = new URL(link.href, window.location.href);
                     var isSamePage = (url.pathname === window.location.pathname && url.search === window.location.search);
                     var isAnchorOnly = isSamePage && url.hash;
-                    
+
                     if (!isAnchorOnly && url.hostname === window.location.hostname) {
-                        // Delay showing the loader slightly (50ms) to let the browser process the touch/click event
-                        // and register the navigation first. Otherwise, showing a full-screen pointer-events overlay
-                        // instantly can cancel the navigation on mobile devices (e.g. iOS Safari).
-                        setTimeout(function() {
-                            if (loader) {
-                                loader.style.display = 'flex';
-                                void loader.offsetWidth; // Force reflow
-                                loader.style.transition = 'opacity 0.15s ease';
-                                loader.style.opacity = '1';
-                                loader.style.pointerEvents = 'all';
-                                
-                                // Safety timeout on navigation trigger (e.g. slow network or cancelled navigation)
-                                setTimeout(hideLoader, 6000);
-                            }
-                        }, 50);
+                        // Mark navigating immediately so any stray pageshow/readyState callbacks
+                        // on this page don't prematurely hide the loader.
+                        navigating = true;
+
+                        // Slight delay on mobile to let the browser register the tap before
+                        // a full-screen overlay is placed (prevents iOS Safari cancelling the nav).
+                        setTimeout(showLoader, 50);
+
+                        // Safety: if navigation never happens (e.g. cancelled), reset after 6s
+                        setTimeout(function() { navigating = false; hideLoader(); }, 6000);
                     }
                 } catch (err) {}
+            });
+
+            // 3. Also show loader immediately on actual page unload (most reliable signal)
+            window.addEventListener('beforeunload', function() {
+                navigating = true;
+                showLoader();
             });
         })();
     </script>

@@ -1157,6 +1157,10 @@ function notionEditorCreate() {
         fmtVisible: false,
         _isTransforming: false,
 
+        debouncedUpdateField() {
+            // Optional: trigger auto-save or update logic here if needed in the future
+        },
+
         blockTypes: [
             { type:'paragraph', label:'Text', desc:'Plain text block', icon:'Aa' },
             { type:'heading2', label:'Heading 2', desc:'Large section heading', icon:'H2' },
@@ -1936,6 +1940,9 @@ function notionEditorCreate() {
                 if (b.startTime != null) clean.startTime = b.startTime;
                 if (b.endTime   != null) clean.endTime   = b.endTime;
                 if (b.posterSrc) clean.posterSrc = b.posterSrc;
+                if (b.images !== undefined) clean.images = b.images;
+                if (b.autoplay !== undefined) clean.autoplay = b.autoplay;
+                if (b.aspectRatio !== undefined) clean.aspectRatio = b.aspectRatio;
                 return clean;
             });
 

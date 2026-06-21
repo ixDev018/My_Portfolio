@@ -584,7 +584,7 @@
                                         <div style="position:relative;width:100%;border-radius:0.5rem;overflow:hidden;border:1px solid #E2DDD3;" 
                                              :style="(block.ratio === '3:4') ? 'aspect-ratio: 3/4;' : 'aspect-ratio: 16/9;'">
                                             <template x-if="isEmbedUrl(block.src)">
-                                                <iframe :src="getEmbedUrl(block.src)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
+                                                <iframe :src="getEmbedUrl(block.src, block)" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
                                             </template>
                                             <template x-if="!isEmbedUrl(block.src)">
                                                 <video :src="block.src" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;" controls playsinline></video>
@@ -1500,7 +1500,29 @@ function notionEditor() {
             let url = prompt('Enter YouTube or Vimeo URL:');
             if (!url) return;
             let block = this.blocks.find(b => b.id === blockId);
-            if (block) block.src = url;
+            if (!block) return;
+            block.src = url.trim();
+
+            // Ask for optional clip range only for YouTube/Vimeo embeds
+            if (this.isEmbedUrl(block.src)) {
+                let startRaw = prompt('Clip start time? (MM:SS or seconds, leave blank for beginning)', '');
+                let endRaw   = prompt('Clip end time?   (MM:SS or seconds, leave blank for no end)', '');
+                block.startTime = startRaw ? this.parseTime(startRaw) : null;
+                block.endTime   = endRaw   ? this.parseTime(endRaw)   : null;
+            }
+        },
+
+        // Converts "1:30" or "90" to integer seconds. Returns null on bad input.
+        parseTime(val) {
+            val = val.trim();
+            if (!val) return null;
+            if (val.includes(':')) {
+                let parts = val.split(':').map(Number);
+                if (parts.length === 2) return parts[0] * 60 + parts[1];
+                if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            let n = parseInt(val, 10);
+            return isNaN(n) ? null : n;
         },
 
         isEmbedUrl(url) {
@@ -1508,14 +1530,25 @@ function notionEditor() {
             return /(?:youtube\.com\/watch\?v=|youtu\.be\/|vimeo\.com\/)/.test(url);
         },
 
-        getEmbedUrl(url) {
+        getEmbedUrl(url, block) {
             if (!url) return '';
             // YouTube
             let ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-            if (ytMatch) return 'https://www.youtube.com/embed/' + ytMatch[1];
+            if (ytMatch) {
+                let params = new URLSearchParams({ autoplay: 0, rel: 0 });
+                let start = block && block.startTime != null ? block.startTime : null;
+                let end   = block && block.endTime   != null ? block.endTime   : null;
+                if (start !== null) params.set('start', start);
+                if (end   !== null) params.set('end',   end);
+                return 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] + '?' + params.toString();
+            }
             // Vimeo
             let vmMatch = url.match(/vimeo\.com\/(\d+)/);
-            if (vmMatch) return 'https://player.vimeo.com/video/' + vmMatch[1];
+            if (vmMatch) {
+                let vmParams = new URLSearchParams();
+                if (block && block.startTime != null) vmParams.set('#t', block.startTime + 's');
+                return 'https://player.vimeo.com/video/' + vmMatch[1] + (vmParams.toString() ? '?' + vmParams.toString() : '');
+            }
             return url;
         },
 
@@ -1770,6 +1803,8 @@ function notionEditor() {
                 if (b.ratio) clean.ratio = b.ratio;
                 if (b.posX !== undefined) clean.posX = b.posX;
                 if (b.posY !== undefined) clean.posY = b.posY;
+                if (b.startTime != null) clean.startTime = b.startTime;
+                if (b.endTime   != null) clean.endTime   = b.endTime;
                 return clean;
             });
 

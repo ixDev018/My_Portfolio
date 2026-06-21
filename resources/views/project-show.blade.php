@@ -366,8 +366,14 @@
                                         <div class="relative w-full rounded-xl overflow-hidden my-10 shadow-md border border-black/5" style="{{ $vidStyle }}">
                                             @if($isEmbed)
                                                 @php
+                                                    $ytParams = http_build_query(array_filter([
+                                                        'autoplay' => 0,
+                                                        'rel'      => 0,
+                                                        'start'    => isset($block['startTime']) && $block['startTime'] !== null ? (int)$block['startTime'] : null,
+                                                        'end'      => isset($block['endTime'])   && $block['endTime']   !== null ? (int)$block['endTime']   : null,
+                                                    ], fn($v) => $v !== null));
                                                     $embedUrl = $isYouTube
-                                                        ? 'https://www.youtube-nocookie.com/embed/' . $ytMatch[1] . '?autoplay=0&rel=0'
+                                                        ? 'https://www.youtube-nocookie.com/embed/' . $ytMatch[1] . '?' . $ytParams
                                                         : 'https://player.vimeo.com/video/' . $vmMatch[1];
                                                 @endphp
                                                 <iframe src="{{ $embedUrl }}" class="absolute inset-0 w-full h-full border-none" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>

@@ -20,6 +20,8 @@ Route::get('/outputs', [PortfolioController::class, 'outputs'])->name('portfolio
 Route::get('/project/{slug}', [PortfolioController::class, 'showProject'])->name('portfolio.project.show');
 Route::post('/contact', [PortfolioController::class, 'contact'])->name('portfolio.contact');
 
+// Analytics Tracking
+Route::post('/api/track', [App\Http\Controllers\AnalyticsController::class, 'track'])->name('api.track');
 // Route to serve Google Drive media by redirecting to save RAM
 Route::get('/media/{path}', function ($path) {
     // Check if the URL is cached first

@@ -161,9 +161,51 @@ class AdminController extends Controller
         $recentMessages       = ContactMessage::orderBy('created_at', 'desc')->take(6)->get();
         $profile              = Profile::first();
 
-        // Most-viewed project — placeholder until view tracking is added
-        $mostViewedProject = Project::orderBy('created_at', 'desc')->first();
+        // Real Analytics Data
+        $pageViewsCount   = \App\Models\Interaction::where('type', 'page_view')->count();
+        $cvDownloadsCount = \App\Models\Interaction::where('type', 'cv_download')->count();
+        $socialClickCount = \App\Models\Interaction::where('type', 'social_click')->count();
+        $projectViewCount = \App\Models\Interaction::where('type', 'project_view')->count();
 
+        // Engagement Rate
+        $totalEngagement = $cvDownloadsCount + $socialClickCount + $totalMessagesCount;
+        $engagementRate = $pageViewsCount > 0 ? ($totalEngagement / $pageViewsCount) * 100 : 0;
+
+        // Social clicks breakdown
+        $socialBreakdown = \App\Models\Interaction::where('type', 'social_click')
+            ->get()
+            ->groupBy(fn($i) => $i->meta_data['platform'] ?? 'unknown')
+            ->map->count()
+            ->toArray();
+
+        // Most-viewed project (by title inside meta_data)
+        $topProjectInteraction = \App\Models\Interaction::where('type', 'project_view')
+            ->select('meta_data->title as title', \DB::raw('COUNT(*) as count'))
+            ->groupBy('meta_data->title')
+            ->orderBy('count', 'desc')
+            ->first();
+            
+        $mostViewedProjectTitle = $topProjectInteraction ? $topProjectInteraction->title : null;
+
+        // Chart Data (Last 30 Days)
+        $chartDataRaw = \App\Models\Interaction::where('type', 'page_view')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->pluck('count', 'date')
+            ->toArray();
+            
+        $labels = [];
+        $data = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $labels[] = now()->subDays($i)->format('M d');
+            $data[] = $chartDataRaw[$date] ?? 0;
+        }
+        $chartLabels = json_encode($labels);
+        $chartValues = json_encode($data);
         // Storage calculations
         $mediaPath = storage_path('app/public');
         $mediaBreakdown = $this->getStorageBreakdown($mediaPath);
@@ -180,8 +222,8 @@ class AdminController extends Controller
         
         $totalSizeBytes = $mediaSizeBytes + $dbSizeBytes;
         
-        // Define a 1GB limit (standard free tier target warning threshold)
-        $limitBytes = 1024 * 1024 * 1024; // 1 GB
+        // Define a 5GB limit (realistic for a media portfolio on a standard VPS)
+        $limitBytes = 5 * 1024 * 1024 * 1024; // 5 GB
         $usagePercent = min(100, max(0.1, round(($totalSizeBytes / $limitBytes) * 100, 2)));
 
         // Calculate segmented percentages based on limit for the progress bar
@@ -194,7 +236,9 @@ class AdminController extends Controller
         return view('admin.dashboard', compact(
             'projectsCount', 'skillsCount',
             'unreadMessagesCount', 'readMessagesCount', 'totalMessagesCount',
-            'recentMessages', 'profile', 'mostViewedProject',
+            'recentMessages', 'profile', 'mostViewedProjectTitle',
+            'pageViewsCount', 'cvDownloadsCount', 'socialClickCount', 'projectViewCount', 'socialBreakdown', 'engagementRate',
+            'chartLabels', 'chartValues',
             'mediaSizeBytes', 'dbSizeBytes', 'totalSizeBytes', 'usagePercent',
             'mediaBreakdown', 'dbPercent', 'imgPercent', 'vidPercent', 'docPercent', 'othPercent'
         ));

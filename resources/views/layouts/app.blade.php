@@ -541,5 +541,61 @@
             </div>
         </div>
     </div>
+    
+    <!-- Analytics Tracking Script -->
+    <script>
+        (function() {
+            function trackEvent(type, projectId = null, metaData = null) {
+                fetch('/api/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Although excluded, good practice
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        project_id: projectId,
+                        meta_data: metaData
+                    })
+                }).catch(err => console.error('Tracking error:', err));
+            }
+
+            // 1. Track Page View on load
+            trackEvent('page_view');
+
+            // 2. Track CV Downloads
+            document.addEventListener('click', function(e) {
+                var cvLink = e.target.closest('a[href*="Cura_BrixJorie_CV.pdf"]');
+                if (cvLink) {
+                    trackEvent('cv_download');
+                }
+            });
+
+            // 3. Track Social Links
+            document.addEventListener('click', function(e) {
+                var socialLink = e.target.closest('a[href*="github.com"], a[href*="linkedin.com"], a[href^="mailto:"]');
+                if (socialLink) {
+                    let platform = 'unknown';
+                    if (socialLink.href.includes('github.com')) platform = 'github';
+                    else if (socialLink.href.includes('linkedin.com')) platform = 'linkedin';
+                    else if (socialLink.href.includes('mailto:')) platform = 'email';
+                    
+                    trackEvent('social_click', null, { platform: platform, url: socialLink.href });
+                }
+            });
+
+            // 4. Track Project Views (When Global Preview Modal Opens)
+            window.addEventListener('open-global-preview', function(e) {
+                if (e.detail && e.detail.t) {
+                    trackEvent('project_view', null, { title: e.detail.t });
+                }
+            });
+            window.addEventListener('show-outputs-preview', function(e) {
+                if (e.detail && e.detail.t) {
+                    trackEvent('project_view', null, { title: e.detail.t });
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

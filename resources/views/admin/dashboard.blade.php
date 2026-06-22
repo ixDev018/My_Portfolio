@@ -3,447 +3,598 @@
 @section('admin_content')
 
 <style>
-    .cms-main { background: #EDEAE0; }
-
-    /* ── page header ── */
-    .db-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 1.5rem; font-weight: 800;
-        color: #1a1207; letter-spacing: -0.02em;
-        margin-bottom: 1rem;
+    /* ─── Dashboard-only overrides ──────────────────────────── */
+    .cms-main {
+        background: transparent !important;
+        color: #1a1207 !important;
+        padding: 1.5rem 2.5rem !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* ── hero banner ── */
-    .db-hero {
-        width: 100%;
+    /* ─── Typography helpers ─────────────────────────────────── */
+    .db-mono {
+        font-family: 'Space Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    .db-outfit { font-family: 'Outfit', sans-serif; }
+
+    /* ─── Layout wrappers ────────────────────────────────────── */
+    .db-header-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .db-bento {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: auto auto 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex: 1;
+        min-height: 0; /* allows flex children to shrink */
+    }
+
+    /* ─── Base glass card (Khaki Light Theme) ────────────────── */
+    .db-card {
+        background: rgba(255,255,255,0.4);
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 1rem;
-        overflow: hidden;
+        backdrop-filter: blur(16px);
         position: relative;
-        background: linear-gradient(135deg, #6829AA 0%, #3a1860 60%, #1d0e3a 100%);
-        margin-bottom: 1.25rem;
+        overflow: hidden;
+        transition: border-color 0.25s, box-shadow 0.25s;
+        display: flex;
+        flex-direction: column;
     }
-    .db-hero-cover {
-        width: 100%; height: 100px;
-        object-fit: cover; display: block;
-        opacity: 0.35;
+    .db-card:hover {
+        border-color: rgba(104,41,170,0.25);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
     }
-    .db-hero-cover-ph {
-        width: 100%; height: 100px;
-        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+    .db-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, transparent 100%);
+        pointer-events: none;
     }
-    .db-hero-info {
-        display: flex; align-items: center; gap: 1.25rem;
-        padding: 0 1.75rem 1.5rem;
-        margin-top: -38px;
-        position: relative; z-index: 1;
+
+    /* ─── Card header ────────────────────────────────────────── */
+    .db-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 1.25rem 0;
+        flex-shrink: 0;
+        z-index: 2;
     }
-    .db-avatar {
-        width: 76px; height: 76px;
-        border-radius: 50%; overflow: hidden;
-        border: 3px solid #EDEAE0;
-        background: #D8D4C8; flex-shrink: 0;
+    .db-card-label {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(26,18,7,0.5);
+    }
+    .db-live-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #6829AA;
+        box-shadow: 0 0 6px #6829AA;
+        animation: db-pulse 2s ease-in-out infinite;
+    }
+    @keyframes db-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    /* ─── Stat number ─────────────────────────────────────────── */
+    .db-stat-num {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 900;
+        line-height: 1;
+        color: #1a1207;
+        letter-spacing: -0.03em;
+        z-index: 2; position: relative;
+    }
+    .db-stat-num.xl  { font-size: clamp(2.5rem, 4vw, 4rem); }
+    .db-stat-num.lg  { font-size: clamp(2rem, 3vw, 2.8rem); }
+    .db-stat-num.md  { font-size: clamp(1.5rem, 2.5vw, 2.2rem); }
+    
+    .db-stat-sub {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(26,18,7,0.45);
+        margin-top: 0.2rem;
+        z-index: 2; position: relative;
+    }
+
+    /* ─── Hero banner ─────────────────────────────────────────── */
+    .db-hero-card {
+        grid-column: span 12;
+        background: linear-gradient(135deg, #512b81 0%, #6829AA 100%);
+        border: 1px solid rgba(104,41,170,0.4);
+        border-radius: 1.2rem;
+        padding: 2.5rem 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .db-hero-card::after {
+        content: '';
+        position: absolute;
+        top: -80px; right: -40px;
+        width: 250px; height: 250px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,133,27,0.2) 0%, transparent 65%);
+        pointer-events: none;
+    }
+    .db-hero-avatar {
+        width: 72px; height: 72px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.3);
+        object-fit: cover;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        flex-shrink: 0;
     }
-    .db-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .db-hero-name {
         font-family: 'Outfit', sans-serif;
-        font-size: 1.5rem; font-weight: 800;
-        color: #fff; letter-spacing: -0.01em;
-        line-height: 1.2;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
     }
     .db-hero-sub {
         font-family: 'Space Mono', monospace;
-        font-size: 0.58rem; text-transform: uppercase;
-        letter-spacing: 0.1em; color: rgba(255,255,255,0.5);
-        margin-top: 0.2rem;
-    }
-
-    /* ── grid shell ── */
-    .db-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        align-items: start;
-    }
-    @media (max-width: 960px) {
-        .db-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ── card base ── */
-    .db-card {
-        background: #fff;
-        border: 1px solid #D8D4C8;
-        border-radius: 1rem;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .db-card-header {
-        padding: 0.75rem 1.15rem;
-        border-bottom: 1px solid #E2DDD3;
-        background: #F7F5EE;
-        display: flex; align-items: center; justify-content: space-between;
-    }
-    .db-card-title {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.68rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.1em;
-        color: #1a1207;
-    }
-
-    /* ── profile views card ── */
-    .db-views-body {
-        padding: 1.5rem 1.25rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    .db-views-stat { text-align: center; }
-    .db-views-stat .num {
-        font-family: 'Outfit', sans-serif;
-        font-size: 3rem; font-weight: 800;
-        color: #1a1207; line-height: 1;
-    }
-    .db-views-stat .label {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.6rem; text-transform: uppercase;
-        letter-spacing: 0.1em; color: #9B9589;
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
         margin-top: 0.4rem;
     }
-    .db-views-divider {
-        position: absolute; top: 15%; bottom: 15%;
-        left: 50%; width: 1px;
-        background: #E2DDD3;
+    .db-hero-stat-box {
+        display: flex; align-items: center;
+        background: rgba(0,0,0,0.15);
+        border-radius: 1rem;
+        padding: 0.8rem 0.6rem;
+        border: 1px solid rgba(255,255,255,0.08);
     }
-
-    /* ── bottom stats row ── */
-    .db-stats-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
+    .db-hero-stat {
+        text-align: center;
+        padding: 0 1.5rem;
+        border-left: 1px solid rgba(255,255,255,0.1);
     }
-    .db-stat-mini {
-        background: #fff; border: 1px solid #D8D4C8;
-        border-radius: 1rem; padding: 1.1rem 1.15rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        display: flex; flex-direction: column;
-    }
-    .db-stat-mini-label {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.6rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.1em;
-        color: #1a1207; margin-bottom: 0.75rem;
-    }
-    .db-stat-mini .num {
+    .db-hero-stat:first-child { border-left: none; }
+    .db-hero-stat .n {
         font-family: 'Outfit', sans-serif;
-        font-size: 2.5rem; font-weight: 800;
-        color: #1a1207; line-height: 1;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #fff;
     }
-    .db-stat-mini .sub {
+    .db-hero-stat .l {
         font-family: 'Space Mono', monospace;
-        font-size: 0.58rem; color: #9B9589;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        margin-top: auto; padding-top: 0.5rem;
+        font-size: 0.55rem;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
     }
-    .db-see-details {
-        display: inline-flex; align-items: center; gap: 0.35rem;
-        padding: 0.35rem 0.85rem;
-        background: #F7F5EE; border: 1px solid #D8D4C8;
+
+    /* ─── Grid slot helpers ───────────────────────────────────── */
+    .col-3  { grid-column: span 3; }
+    .col-4  { grid-column: span 4; }
+    .col-5  { grid-column: span 5; }
+    .col-6  { grid-column: span 6; }
+    .col-7  { grid-column: span 7; }
+    .col-8  { grid-column: span 8; }
+    .col-9  { grid-column: span 9; }
+    .col-12 { grid-column: span 12; }
+
+    /* ─── Stat card inner padding ─────────────────────────────── */
+    .db-inner { padding: 0.8rem 1.25rem 1.25rem; flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 2; position: relative;}
+
+    /* ─── Segmented bar ───────────────────────────────────────── */
+    .db-seg-bar {
+        width: 100%;
+        height: 6px;
         border-radius: 100px;
-        font-family: 'Space Mono', monospace;
-        font-size: 0.58rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        color: #5A5248; text-decoration: none;
-        transition: all 0.15s; cursor: pointer;
-        margin-top: auto;
-    }
-    .db-see-details:hover {
-        background: #EEE6FF; border-color: #C4A8F0; color: #6829AA;
+        overflow: hidden;
+        display: flex;
+        margin: 0.5rem 0;
     }
 
-    /* ── inbox card ── */
-    .db-inbox-counts {
-        display: flex; align-items: center; gap: 0.75rem;
-    }
-    .db-inbox-pill {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.56rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.07em;
-    }
-    .db-inbox-pill .val { color: #1a1207; }
-    .db-inbox-pill .lbl { color: #9B9589; }
-
-    /* message rows */
-    .db-msg-row {
-        display: flex; align-items: center; gap: 0.75rem;
-        padding: 0.7rem 1.15rem;
-        border-bottom: 1px solid #F0EDE6;
-        transition: background 0.12s;
-    }
-    .db-msg-row:last-child { border-bottom: none; }
-    .db-msg-row:hover { background: #F7F5EE; }
-    .db-msg-row.unread {
-        background: #FDFBFF;
-    }
-    .db-msg-row.unread:hover { background: #F5EEFF; }
-    .db-msg-sender {
-        font-size: 0.78rem; font-weight: 600; color: #1a1207;
-        white-space: nowrap; flex-shrink: 0;
-        max-width: 120px; overflow: hidden; text-overflow: ellipsis;
-    }
-    .db-msg-sep {
-        color: #D8D4C8; font-size: 0.7rem; flex-shrink: 0;
-    }
-    .db-msg-preview {
-        font-size: 0.72rem; color: #9B9589;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        flex: 1; min-width: 0;
-    }
-    .db-msg-time {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.56rem; color: #B0A99F;
-        white-space: nowrap; flex-shrink: 0;
-    }
-
-    /* see more button */
-    .db-see-more {
-        display: flex; align-items: center; justify-content: center;
-        padding: 0.65rem;
-        background: linear-gradient(180deg, #F7F5EE 0%, #E8E4D8 100%);
-        border-top: 1px solid #E2DDD3;
+    /* ─── Inbox rows ──────────────────────────────────────────── */
+    .db-inbox-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 1.25rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
         text-decoration: none;
         transition: background 0.15s;
+        cursor: pointer;
     }
-    .db-see-more:hover { background: #EEE6FF; }
-    .db-see-more span {
+    .db-inbox-row:last-child { border-bottom: none; }
+    .db-inbox-row:hover { background: rgba(104,41,170,0.04); }
+    .db-inbox-row.unread { background: rgba(104,41,170,0.03); }
+    
+    .db-inbox-sender {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #1a1207;
+        white-space: nowrap;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 0;
+    }
+    .db-inbox-preview {
+        font-size: 0.7rem;
+        color: rgba(26,18,7,0.5);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+    }
+    .db-inbox-time {
         font-family: 'Space Mono', monospace;
-        font-size: 0.6rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.1em;
-        color: #6829AA;
-        padding: 0.3rem 1.25rem;
-        background: #fff; border: 1px solid #D8D4C8;
-        border-radius: 100px;
-        transition: all 0.15s;
+        font-size: 0.5rem;
+        color: rgba(26,18,7,0.4);
+        white-space: nowrap;
+        flex-shrink: 0;
     }
-    .db-see-more:hover span {
-        background: #6829AA; color: #fff; border-color: #6829AA;
+    .db-unread-dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: #ff851b;
+        flex-shrink: 0;
     }
 
-    /* unread dot */
-    .db-unread-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        background: #6829AA; flex-shrink: 0;
+    /* ─── Quick-action buttons ────────────────────────────────── */
+    .db-quick-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.6rem;
+        background: rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        color: rgba(26,18,7,0.8);
+        text-decoration: none;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .db-quick-btn:hover {
+        background: rgba(104,41,170,0.08);
+        border-color: rgba(104,41,170,0.2);
+        transform: translateX(3px);
+    }
+    .db-quick-btn-icon {
+        width: 24px; height: 24px;
+        border-radius: 0.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ─── Chart container ─────────────────────────────────────── */
+    .db-chart-wrap {
+        padding: 0 1.25rem 0.75rem;
+        flex: 1;
+        position: relative;
+        min-height: 0;
     }
 </style>
 
-{{-- ═══ Title ═══ --}}
-<h1 class="db-title">Dashboard</h1>
-
-{{-- ═══ Hero Banner ═══ --}}
-<div class="db-hero">
-    {{-- Cover area --}}
-    <div class="db-hero-cover-ph"></div>
-
-    {{-- Avatar + Name --}}
-    <div class="db-hero-info">
-        <div class="db-avatar">
-            @if($profile && $profile->avatar_path)
-                <img src="{{ Str::startsWith($profile->avatar_path, 'http') ? $profile->avatar_path : ((Str::startsWith($profile->avatar_path, 'images/') || Str::startsWith($profile->avatar_path, 'videos/')) ? asset($profile->avatar_path) : Storage::url($profile->avatar_path)) }}" alt="Avatar">
-            @else
-                <img src="{{ asset('images/intro/profile.png') }}" alt="Avatar">
-            @endif
-        </div>
-        <div>
-            <p class="db-hero-name">{{ $profile->hero_title ?? 'Your Name' }}</p>
-            <p class="db-hero-sub">{{ $profile->hero_subtitle ?? 'Set your subtitle in Hero settings' }}</p>
-        </div>
+{{-- ═══ Page Title ═══ --}}
+<div class="db-header-wrap">
+    <div>
+        <h1 style="font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:900; color:#1a1207; letter-spacing:-0.02em; margin:0;">Dashboard</h1>
+        <p class="db-mono" style="font-size:0.55rem; color:rgba(26,18,7,0.5); margin-top:0.15rem;">IX-Media Portfolio Manager</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span class="db-live-dot"></span>
+        <span class="db-mono" style="font-size:0.55rem; color:rgba(26,18,7,0.5);">Live Data</span>
     </div>
 </div>
 
-{{-- ═══ Main Grid ═══ --}}
-<div class="db-grid">
+<div class="db-bento">
 
-    {{-- ── LEFT Column ── --}}
-    <div>
-        {{-- Total Profile Views --}}
-        <div class="db-card">
-            <div class="db-card-header">
-                <span class="db-card-title">Total Profile Views</span>
-            </div>
-            <div class="db-views-body" style="position:relative;">
-                <div class="db-views-stat">
-                    <p class="num">0</p>
-                    <p class="label">This Week</p>
+    {{-- ══ ROW 1: HERO BANNER ══ --}}
+    <div class="db-hero-card">
+        <div style="display:flex; align-items:center; gap:1.1rem; flex-shrink:0;">
+            @if($profile && $profile->avatar_path)
+                <img src="{{ Str::startsWith($profile->avatar_path, 'http') ? $profile->avatar_path : asset($profile->avatar_path) }}" alt="Avatar" class="db-hero-avatar">
+            @else
+                <div class="db-hero-avatar" style="background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;">
+                    <svg width="24" height="24" fill="none" stroke="rgba(255,255,255,0.5)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
-                <div class="db-views-divider"></div>
-                <div class="db-views-stat">
-                    <p class="num">{{ $totalMessagesCount + $projectsCount }}</p>
-                    <p class="label">Overall</p>
-                </div>
+            @endif
+            <div>
+                <div class="db-hero-name">Brix Jorie F. Cura</div>
+                <div class="db-hero-sub">System Administrator</div>
             </div>
         </div>
 
-        {{-- Storage consumption indicator --}}
-        <div class="db-card" style="margin-top: 1.25rem;">
-            <div class="db-card-header">
-                <span class="db-card-title">Storage Consumption</span>
-                <span class="db-inbox-pill">
-                    <span class="lbl">Limit:</span>
-                    <span class="val">1.0 GB</span>
-                </span>
+        <div class="db-hero-stat-box">
+            <div class="db-hero-stat">
+                <div class="n">{{ $projectsCount }}</div>
+                <div class="l">Projects</div>
             </div>
-            <div style="padding: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="font-family:'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #1a1207; text-transform: uppercase;">
-                        Total Used: {{ number_format($totalSizeBytes / (1024 * 1024), 2) }} MB
-                    </span>
-                    <span style="font-family:'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #6829AA;">
-                        {{ $usagePercent }}%
-                    </span>
-                </div>
-                
-                {{-- Segmented Progress Bar --}}
-                <div style="width: 100%; height: 10px; background: #EEE6FF; border-radius: 100px; overflow: hidden; margin-bottom: 1.25rem; display: flex;">
-                    @if($totalSizeBytes > 0)
-                        @if($dbPercent > 0)<div style="width: {{ $dbPercent }}%; background: #6829AA;" title="Database"></div>@endif
-                        @if($imgPercent > 0)<div style="width: {{ $imgPercent }}%; background: #FF851B;" title="Images"></div>@endif
-                        @if($vidPercent > 0)<div style="width: {{ $vidPercent }}%; background: #4dd9f0;" title="Videos"></div>@endif
-                        @if($docPercent > 0)<div style="width: {{ $docPercent }}%; background: #F43F5E;" title="Documents"></div>@endif
-                        @if($othPercent > 0)<div style="width: {{ $othPercent }}%; background: #9B9589;" title="Other"></div>@endif
-                    @endif
-                </div>
-
-                {{-- Granulated Details List --}}
-                <div style="display: flex; flex-direction: column; gap: 0.75rem; border-t: 1px solid #F0EDE6; padding-top: 1rem;">
-                    
-                    {{-- Database --}}
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #6829AA;"></span>
-                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Database (SQLite)</span>
-                        </div>
-                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($dbSizeBytes / (1024 * 1024), 2) }} MB</span>
-                    </div>
-
-                    {{-- Images --}}
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #FF851B;"></span>
-                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Images</span>
-                        </div>
-                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['images'] / (1024 * 1024), 2) }} MB</span>
-                    </div>
-
-                    {{-- Videos --}}
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #4dd9f0;"></span>
-                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Videos</span>
-                        </div>
-                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['videos'] / (1024 * 1024), 2) }} MB</span>
-                    </div>
-
-                    {{-- Documents --}}
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #F43F5E;"></span>
-                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Documents & CVs</span>
-                        </div>
-                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['documents'] / (1024 * 1024), 2) }} MB</span>
-                    </div>
-
-                    {{-- Other --}}
-                    @if($mediaBreakdown['other'] > 0)
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #9B9589;"></span>
-                            <span style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1a1207;">Other Files</span>
-                        </div>
-                        <span style="font-family: 'Space Mono', monospace; font-size: 0.7rem; color: #5A5248;">{{ number_format($mediaBreakdown['other'] / (1024 * 1024), 2) }} MB</span>
-                    </div>
-                    @endif
-                </div>
+            <div class="db-hero-stat">
+                <div class="n">{{ $skillsCount }}</div>
+                <div class="l">Skills</div>
+            </div>
+            <div class="db-hero-stat">
+                <div class="n">{{ $socialClickCount }}</div>
+                <div class="l">Soc Clicks</div>
+            </div>
+            <div class="db-hero-stat">
+                <div class="n" style="color:{{ $unreadMessagesCount > 0 ? '#ff851b' : '#fff' }};">{{ $unreadMessagesCount }}</div>
+                <div class="l">Unread</div>
             </div>
         </div>
+    </div>
 
-        {{-- Bottom mini-stats row --}}
-        <div class="db-stats-row">
-            {{-- CV Downloads --}}
-            <div class="db-stat-mini">
-                <p class="db-stat-mini-label">CV Downloads</p>
-                <p class="num">0</p>
-                <p class="sub">
-                    @if($profile && $profile->cv_path)
-                        CV uploaded
-                    @else
-                        No CV uploaded
-                    @endif
-                </p>
+    {{-- ══ ROW 2: MINI STATS ══ --}}
+    {{-- Page Views --}}
+    <div class="db-card col-3">
+        <div class="db-card-header">
+            <span class="db-card-label">Total Visits</span>
+            <span class="db-live-dot" style="background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+        </div>
+        <div class="db-inner">
+            <p class="db-stat-num xl">{{ number_format($pageViewsCount) }}</p>
+            @php $todayViews = \App\Models\Interaction::where('type','page_view')->whereDate('created_at', today())->count(); @endphp
+            <div style="margin-top:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+                <span class="db-stat-sub" style="margin:0;">Today:</span>
+                <span style="font-family:'Outfit',sans-serif; font-size:0.8rem; font-weight:800; color:#10b981;">+{{ $todayViews }}</span>
             </div>
+        </div>
+    </div>
 
-            {{-- Most Viewed Project --}}
-            <div class="db-stat-mini">
-                <p class="db-stat-mini-label">Most Viewed Project</p>
-                @if($mostViewedProject)
-                    <p style="font-size:0.82rem;font-weight:600;color:#1a1207;margin-bottom:0.35rem;line-height:1.3;">
-                        {{ Str::limit($mostViewedProject->title, 28) }}
-                    </p>
-                @else
-                    <p style="font-size:0.82rem;color:#B0A99F;font-style:italic;margin-bottom:0.35rem;">No Data yet</p>
-                @endif
-                <a href="{{ route('admin.projects.index') }}" class="db-see-details">
-                    See Details
-                    <svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    {{-- CV Downloads --}}
+    <div class="db-card col-3">
+        <div class="db-card-header">
+            <span class="db-card-label">CV Downloads</span>
+            <svg width="12" height="12" fill="none" stroke="#ff851b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="db-inner">
+            <p class="db-stat-num xl" style="color:#ff851b;">{{ number_format($cvDownloadsCount) }}</p>
+            <div style="margin-top:0.5rem;">
+                <a href="{{ asset('Cura_BrixJorie_CV.pdf') }}" target="_blank"
+                   style="font-family:'Space Mono',monospace; font-size:0.55rem; color:#ff851b; text-decoration:none; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">
+                    View CV →
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- ── RIGHT Column: Inbox ── --}}
-    <div class="db-card" style="display:flex;flex-direction:column;">
-        {{-- Header --}}
+    {{-- Project Opens --}}
+    <div class="db-card col-3">
         <div class="db-card-header">
-            <span class="db-card-title">Inbox</span>
-            <div class="db-inbox-counts">
-                <span class="db-inbox-pill">
-                    <span class="lbl">Unread:</span>
-                    <span class="val">{{ $unreadMessagesCount }}</span>
-                </span>
-                <span class="db-inbox-pill">
-                    <span class="lbl">Read:</span>
-                    <span class="val">{{ $readMessagesCount }}</span>
-                </span>
+            <span class="db-card-label">Project Opens</span>
+            <svg width="12" height="12" fill="none" stroke="#0a7fce" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </div>
+        <div class="db-inner">
+            <p class="db-stat-num xl" style="color:#0a7fce;">{{ number_format($projectViewCount) }}</p>
+            <div style="margin-top:0.3rem;">
+                 @if($mostViewedProjectTitle)
+                    <p style="font-family:'Space Mono',monospace; font-size:0.5rem; color:rgba(26,18,7,0.4); text-transform:uppercase; letter-spacing:0.08em;">Top: <strong style="color:#0a7fce;font-family:'Outfit',sans-serif;font-size:0.7rem;">{{ Str::limit($mostViewedProjectTitle, 15) }}</strong></p>
+                 @else
+                    <p class="db-stat-sub" style="margin:0;">previews opened</p>
+                 @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Storage --}}
+    <div class="db-card col-3">
+        <div class="db-card-header">
+            <span class="db-card-label">Storage Use</span>
+            <span style="font-family:'Space Mono',monospace; font-size:0.55rem; font-weight:700; color:{{ $usagePercent > 80 ? '#ef4444' : '#6829AA' }};">{{ $usagePercent }}%</span>
+        </div>
+        <div class="db-inner">
+            <p style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:#1a1207; margin:0;">
+                {{ number_format($totalSizeBytes / (1024*1024), 1) }} <span style="font-size:0.8rem; font-weight:600; color:rgba(26,18,7,0.5);">MB</span>
+            </p>
+            <div class="db-seg-bar">
+                @if($totalSizeBytes > 0)
+                    @if($dbPercent > 0)<div style="width:{{ $dbPercent }}%; background:#6829AA;"></div>@endif
+                    @if($imgPercent > 0)<div style="width:{{ $imgPercent }}%; background:#FF851B;"></div>@endif
+                    @if($vidPercent > 0)<div style="width:{{ $vidPercent }}%; background:#0a7fce;"></div>@endif
+                    @if($docPercent > 0)<div style="width:{{ $docPercent }}%; background:#F43F5E;"></div>@endif
+                    @if($othPercent > 0)<div style="width:{{ $othPercent }}%; background:#9B9589;"></div>@endif
+                @else
+                    <div style="width:100%; background:rgba(0,0,0,0.06);"></div>
+                @endif
+            </div>
+            <p style="font-family:'Space Mono',monospace; font-size:0.5rem; color:rgba(26,18,7,0.4); text-transform:uppercase;">/ 5 GB Limit</p>
+        </div>
+    </div>
+
+    {{-- ══ ROW 3: CHART, QUICK ACTIONS, INBOX ══ --}}
+    
+    {{-- Chart --}}
+    <div class="db-card col-6">
+        <div class="db-card-header" style="padding-bottom:0.5rem;">
+            <span class="db-card-label">Traffic — Last 30 Days</span>
+        </div>
+        <div class="db-chart-wrap">
+            <canvas id="pageViewsChart"></canvas>
+        </div>
+    </div>
+
+    {{-- Middle Column: Quick Actions + Engagement --}}
+    <div class="col-3" style="display:flex; flex-direction:column; gap:1rem; min-height:0;">
+        {{-- Quick Actions --}}
+        <div class="db-card" style="flex:1; min-height:0;">
+            <div class="db-card-header">
+                <span class="db-card-label">Quick Actions</span>
+            </div>
+            <div class="db-inner" style="padding:0.75rem; display:flex; flex-direction:column; gap:0.4rem; justify-content: flex-start; overflow-y:auto;">
+                @php
+                    $actions = [
+                        [route('admin.projects.create'), '#6829AA', 'M12 4v16m8-8H4', 'New Project'],
+                        [route('admin.profile'),         '#ff851b', 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', 'Edit Hero'],
+                        [route('admin.skills.index'),    '#0a7fce', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'Skills & Tools'],
+                        [route('admin.messages.index'),  '#F43F5E', 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'Visitor Inbox'],
+                        [route('admin.achievements.index'), '#10b981', 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', 'Achievements'],
+                        [route('admin.experiences.index'), '#a78bfa', 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'Experience'],
+                    ];
+                @endphp
+                @foreach($actions as [$href, $color, $iconPath, $title])
+                <a href="{{ $href }}" class="db-quick-btn">
+                    <span class="db-quick-btn-icon" style="background:{{ $color }}22; border:1px solid {{ $color }}33;">
+                        <svg width="12" height="12" fill="none" stroke="{{ $color }}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="{{ $iconPath }}"/></svg>
+                    </span>
+                    <span style="font-size:0.75rem; color:#1a1207;">{{ $title }}</span>
+                    <svg style="margin-left:auto; flex-shrink:0; opacity:0.25; color:#1a1207;" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                @endforeach
             </div>
         </div>
 
-        {{-- Message rows --}}
-        <div style="flex:1;overflow-y:auto;">
-            @forelse($recentMessages as $msg)
-                <a href="{{ route('admin.messages.show', $msg->id) }}" class="db-msg-row {{ !$msg->is_read ? 'unread' : '' }}" style="text-decoration:none;">
-                    @if(!$msg->is_read)
-                        <span class="db-unread-dot"></span>
-                    @endif
-                    <span class="db-msg-sender">{{ $msg->name }}</span>
-                    <span class="db-msg-sep">—</span>
-                    <span class="db-msg-preview">{{ $msg->subject ?? Str::limit($msg->message, 40) }}</span>
-                    <span class="db-msg-time">{{ $msg->created_at->format('g:iA') }}</span>
-                </a>
-            @empty
-                <div style="padding:2.5rem 1rem;text-align:center;">
-                    <svg style="width:2rem;height:2rem;color:#D8D4C8;margin:0 auto 0.6rem;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    <p style="font-family:'Space Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:#B0A99F;">No messages yet</p>
+        {{-- Engagement Rate --}}
+        <div class="db-card" style="flex-shrink:0;">
+            <div class="db-card-header">
+                <span class="db-card-label">Engagement Rate</span>
+                <svg width="12" height="12" fill="none" stroke="#6829AA" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <div class="db-inner">
+                <div style="display:flex; align-items:baseline; gap:0.25rem;">
+                    <p class="db-stat-num lg" style="color:#6829AA;">{{ number_format($engagementRate, 1) }}</p>
+                    <span style="font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:800; color:#6829AA;">%</span>
                 </div>
+                <p class="db-stat-sub" style="margin-top:0.2rem;">of visitors interacted</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Inbox --}}
+    <div class="db-card col-3">
+        <div class="db-card-header">
+            <span class="db-card-label">Visitor Inbox</span>
+            <a href="{{ route('admin.messages.index') }}" style="font-family:'Space Mono',monospace; font-size:0.5rem; color:#6829AA; font-weight:700; text-decoration:none;">SEE ALL →</a>
+        </div>
+        <div style="flex:1; overflow-y:auto; margin-top:0.5rem; padding: 0 0.5rem 0.5rem;">
+            @forelse($recentMessages->take(4) as $msg)
+            <a href="{{ route('admin.messages.show', $msg->id) }}" class="db-inbox-row {{ !$msg->is_read ? 'unread' : '' }}">
+                @if(!$msg->is_read)<span class="db-unread-dot"></span>@endif
+                <div style="display:flex; flex-direction:column; overflow:hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="db-inbox-sender">{{ $msg->name }}</span>
+                        <span class="db-inbox-time">{{ $msg->created_at->format('M d') }}</span>
+                    </div>
+                    <span class="db-inbox-preview">{{ $msg->subject ?? Str::limit($msg->message, 30) }}</span>
+                </div>
+            </a>
+            @empty
+            <div style="padding:2rem; text-align:center;">
+                <p class="db-mono" style="font-size:0.55rem; color:rgba(26,18,7,0.3);">No messages yet</p>
+            </div>
             @endforelse
         </div>
-
-        {{-- See More footer --}}
-        <a href="{{ route('admin.messages.index') }}" class="db-see-more">
-            <span>See More</span>
-        </a>
     </div>
 
 </div>
+
+{{-- ═══ Chart.js ═══ --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('pageViewsChart').getContext('2d');
+        const labels = {!! $chartLabels !!};
+        const data   = {!! $chartValues !!};
+
+        // Subtle purple gradient for light theme
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0,   'rgba(104, 41, 170, 0.25)');
+        gradient.addColorStop(1,   'rgba(104, 41, 170, 0.01)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Page Views',
+                    data,
+                    borderColor: '#6829AA',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6829AA',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: '#6829AA',
+                    pointHoverBorderColor: '#fff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1207',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        titleFont: { family: "'Space Mono', monospace", size: 10 },
+                        bodyFont:  { family: "'Outfit', sans-serif", size: 14, weight: '700' },
+                        titleColor: 'rgba(255,255,255,0.6)',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: ctx => ctx.parsed.y + ' views'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { family: "'Space Mono', monospace", size: 9 },
+                            color: 'rgba(26,18,7,0.4)',
+                            maxTicksLimit: 12,
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { family: "'Space Mono', monospace", size: 9 },
+                            color: 'rgba(26,18,7,0.4)',
+                            precision: 0,
+                            maxTicksLimit: 6,
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 
 @endsection

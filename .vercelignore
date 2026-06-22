@@ -4,3 +4,5 @@ storage/app/
 storage/logs/
 .git/
 node_modules/
+
+public/hot

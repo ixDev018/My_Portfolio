@@ -400,7 +400,7 @@
     <!-- Resume PDF Modal -->
     @php
         $profile = \App\Models\Profile::first();
-        $cvUrl = asset('resume.pdf');
+        $cvUrl = asset('Cura_BrixJorie_CV.pdf');
         if ($profile && $profile->cv_path) {
             if (\Illuminate\Support\Str::startsWith($profile->cv_path, 'http')) {
                 $cvUrl = $profile->cv_path;

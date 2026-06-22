@@ -246,33 +246,76 @@ class AdminController extends Controller
 
     private function getStorageBreakdown($path)
     {
-        $breakdown = [
-            'images' => 0,
-            'videos' => 0,
-            'documents' => 0,
-            'other' => 0,
-        ];
-        
-        $path = realpath($path);
-        if ($path !== false && is_dir($path)) {
-            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)) as $file) {
-                if ($file->isFile()) {
-                    $size = $file->getSize();
-                    $ext = strtolower($file->getExtension());
+        return \Illuminate\Support\Facades\Cache::remember('cloud_storage_breakdown', 3600, function () use ($path) {
+            $breakdown = [
+                'images' => 0,
+                'videos' => 0,
+                'documents' => 0,
+                'other' => 0,
+            ];
+
+            // 1. Cloudinary Assets (Main Account)
+            try {
+                $admin = cloudinary()->adminApi();
+                $resources = $admin->assets(['max_results' => 500]);
+                foreach ($resources['resources'] as $res) {
+                    $type = $res['resource_type'] ?? '';
+                    $format = strtolower($res['format'] ?? '');
                     
-                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'])) {
-                        $breakdown['images'] += $size;
-                    } elseif (in_array($ext, ['mp4', 'mov', 'webm', 'ogg', 'avi'])) {
-                        $breakdown['videos'] += $size;
-                    } elseif (in_array($ext, ['pdf', 'doc', 'docx', 'txt', 'rtf'])) {
-                        $breakdown['documents'] += $size;
+                    if ($type === 'video' || in_array($format, ['mp4', 'mov', 'webm'])) {
+                        $breakdown['videos'] += $res['bytes'];
+                    } elseif ($type === 'image' && !in_array($format, ['pdf'])) {
+                        $breakdown['images'] += $res['bytes'];
+                    } elseif ($type === 'raw' || $format === 'pdf') {
+                        $breakdown['documents'] += $res['bytes'];
                     } else {
-                        $breakdown['other'] += $size;
+                        $breakdown['other'] += $res['bytes'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Cloudinary stats fetch failed: " . $e->getMessage());
+            }
+
+            // 2. Cloudinary Assets (Video Account)
+            try {
+                $videoUrl = env('CLOUDINARY_VIDEO_URL');
+                if ($videoUrl) {
+                    $cloudinaryVideo = new \Cloudinary\Cloudinary($videoUrl);
+                    $vidResources = $cloudinaryVideo->adminApi()->assets(['max_results' => 500, 'resource_type' => 'video']);
+                    foreach ($vidResources['resources'] as $res) {
+                        $breakdown['videos'] += $res['bytes'];
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Cloudinary video stats fetch failed: " . $e->getMessage());
+            }
+            
+            // 3. Local Public Paths (for deployed static files)
+            $pathsToScan = [$path, public_path('images'), public_path('videos'), public_path('documents')];
+            foreach ($pathsToScan as $scanPath) {
+                $realPath = realpath($scanPath);
+                if ($realPath !== false && is_dir($realPath)) {
+                    foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realPath, \FilesystemIterator::SKIP_DOTS)) as $file) {
+                        if ($file->isFile()) {
+                            $size = $file->getSize();
+                            $ext = strtolower($file->getExtension());
+                            
+                            if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'])) {
+                                $breakdown['images'] += $size;
+                            } elseif (in_array($ext, ['mp4', 'mov', 'webm', 'ogg', 'avi'])) {
+                                $breakdown['videos'] += $size;
+                            } elseif (in_array($ext, ['pdf', 'doc', 'docx', 'txt', 'rtf'])) {
+                                $breakdown['documents'] += $size;
+                            } else {
+                                $breakdown['other'] += $size;
+                            }
+                        }
                     }
                 }
             }
-        }
-        return $breakdown;
+
+            return $breakdown;
+        });
     }
 
     /*

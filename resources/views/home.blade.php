@@ -165,11 +165,11 @@
             </p>
 
             <!-- Get Started Button -->
-            <a href="#projects"
+            <a href="#self-intro"
                class="px-10 py-4 sm:px-8 sm:py-3 bg-transparent border border-white font-sans text-sm sm:text-xs font-bold uppercase tracking-wider rounded-none hover:bg-white hover:text-black relative z-10 opacity-0 translate-y-8"
                :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
                style="transition: transform 1654ms ease-out 4190ms, opacity 1654ms ease-out 4190ms, background-color 300ms, color 300ms;">
-                Get Started
+                Meet the Designer
             </a>
 
         </div>
@@ -1072,6 +1072,7 @@
 
             <div class="w-full relative" x-data="{
                 current: 0,
+                activeCategory: 'ALL',
                 allItems: {{ $carouselItems }},
                 dimming: false,
                 hoverTimer: null,
@@ -1115,11 +1116,11 @@
 
                     <!-- Tabs Row -->
                     <div class="flex w-full border-t border-black overflow-x-auto hide-scrollbar">
-                        <button class="bg-white text-black min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black shrink-0">
+                        <button @click="activeCategory = 'ALL'" :class="activeCategory === 'ALL' ? 'bg-white text-black' : 'text-black hover:bg-white/50'" class="min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black shrink-0 transition-colors duration-200">
                             ALL
                         </button>
                         @foreach($uiMediums as $med)
-                            <button class="text-black hover:bg-white/50 min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black last:border-r-0 shrink-0 truncate transition-colors duration-200">
+                            <button @click="activeCategory = '{{ addslashes($med) }}'" :class="activeCategory === '{{ addslashes($med) }}' ? 'bg-white text-black' : 'text-black hover:bg-white/50'" class="min-w-[120px] flex-1 py-3 px-4 text-[10px] md:text-sm font-display font-bold uppercase tracking-wider border-r border-black last:border-r-0 shrink-0 truncate transition-colors duration-200">
                                 {{ $med }}
                             </button>
                         @endforeach
@@ -1211,6 +1212,7 @@
                                 <a href="{{ $cardHrefUi }}"
                                    target="{{ $cardTargetUi }}"
                                    @if($isFallbackUi && $hasAdminLinkUi) rel="noopener noreferrer" @endif
+                                   x-show="activeCategory === 'ALL' || activeCategory === '{{ addslashes($proj->medium) }}'"
                                    x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'best-{{$index}}' }"
                                    @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
                                    @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
@@ -1457,7 +1459,7 @@
             <div class="w-full relative" style="background-color: #020617;">
                 
                 {{-- Cropped Height Wrapper (150vh allowance) --}}
-                <div class="relative overflow-hidden" style="max-height: 150vh;">
+                <div class="relative overflow-hidden" :style="activeFilter === 'all' ? 'max-height: 150vh;' : 'max-height: none;'">
                     
                     <div class="columns-2 md:columns-3 lg:columns-4 gap-0"
                          x-data="{ dimming: false, hoverTimer: null, mobileFocusId: null, isMobile: ('ontouchstart' in window || navigator.maxTouchPoints > 0) }"
@@ -1510,7 +1512,7 @@
                                @if($isFallbackVis && $hasAdminLinkVis) rel="noopener noreferrer" @endif
                                x-data="{ isDimmed: false, vidLoaded: false, isHovered: false, itemTimer: null, itemId: 'proj-{{$proj->id}}' }"
                                x-show="activeFilter === 'all' || activeFilter === '{{ $proj->medium }}'"
-                               @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 1500); }"
+                               @mouseenter="if(!isMobile) { itemTimer = setTimeout(() => { isHovered = true; dimming = true; }, 0); }"
                                @mouseleave="if(!isMobile) { clearTimeout(itemTimer); isHovered = false; dimming = false; }"
                                @click="if(isMobile && mobileFocusId !== itemId && $el.getAttribute('href') === '#') { $event.preventDefault(); mobileFocusId = itemId; dimming = true; window.dispatchEvent(new CustomEvent('mobile-focus-reset', { detail: { id: itemId } })); }"
                                x-transition:enter="transition-opacity duration-300"
@@ -1697,12 +1699,12 @@
                     </div>
 
                     {{-- Gradient Overlay to blend into the black section so the white wave mask reveals the black background --}}
-                    <div class="absolute inset-x-0 bottom-0 h-[400px] pointer-events-none z-10"
+                    <div x-show="activeFilter === 'all'" x-transition.opacity.duration.500ms class="absolute inset-x-0 bottom-0 h-[400px] pointer-events-none z-10"
                          style="background: linear-gradient(to top, #020617 0%, rgba(2,6,23,0.9) 30%, transparent 100%);"></div>
                 </div>
 
                 {{-- See More Button --}}
-                <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20">
+                <div class="w-full flex justify-center pb-12 pt-6 relative z-20 transition-all duration-500" :class="activeFilter === 'all' ? 'mt-[-100px]' : 'mt-8'">
                     <a href="{{ route('portfolio.outputs') }}" 
                        class="inline-block px-10 py-3 border-[1.5px] border-white font-sans font-bold text-sm tracking-wider uppercase transition-colors duration-300 shadow-lg backdrop-blur-sm rounded-full"
                        style="font-family: 'Poppins', sans-serif; background-color: white; color: #020617;"
@@ -2561,7 +2563,7 @@
 
 
         <div x-data="{ sectionVisible: false }" x-intersect.once.margin.-10%="sectionVisible = true" :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'" class="transition-all duration-1000 ease-out max-w-7xl mx-auto px-6 pt-20 relative z-10 opacity-0 translate-y-12">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start lg:items-stretch">
                 
                 <!-- Contact info cards -->
                 <div class="lg:col-span-5">
@@ -2596,8 +2598,8 @@
                 </div>
 
                 <!-- Contact Form Column -->
-                <div class="lg:col-span-7">
-                    <form action="{{ route('portfolio.contact') }}" method="POST" class="bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-sm space-y-6">
+                <div class="lg:col-span-7 flex flex-col">
+                    <form action="{{ route('portfolio.contact') }}" method="POST" class="bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-sm flex flex-col flex-1 space-y-6">
                         @csrf
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -2644,13 +2646,13 @@
                         </div>
 
                         <!-- Message -->
-                        <div>
+                        <div class="flex-1 flex flex-col">
                             <label for="message" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">Message</label>
                             <textarea name="message" 
                                       id="message" 
                                       rows="5"
                                       required
-                                      class="w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 resize-none placeholder-slate-600">{{ old('message') }}</textarea>
+                                      class="flex-1 w-full bg-white/5 border border-white/15 focus:border-[#ff6b00] rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 resize-none placeholder-slate-600">{{ old('message') }}</textarea>
                             @error('message')
                                 <p class="text-xs text-rose-400 mt-1 font-semibold">{{ $message }}</p>
                             @enderror
